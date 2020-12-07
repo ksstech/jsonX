@@ -19,7 +19,7 @@
  */
 
 /*
- * x_json_parser.c
+ * parserX.c
  *
  * References:
  * 	http://www.json.org/
@@ -32,7 +32,7 @@
 
 #include	"jsmn.h"
 
-#include	"x_json_parser.h"
+#include	"parserX.h"
 #include	"printfx.h"									// +x_definitions +stdarg +stdint +stdio
 #include	"syslog.h"
 #include	"x_errors_events.h"

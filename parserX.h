@@ -19,7 +19,7 @@
  */
 
 /*
- * x_json_parser.h
+ * parserX.h
  */
 
 #pragma once

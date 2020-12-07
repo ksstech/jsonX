@@ -19,7 +19,7 @@
  */
 
 /*
- * x_json_writer.h
+ * writerX.h
  */
 
 #pragma once
