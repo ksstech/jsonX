@@ -48,7 +48,7 @@
 
 // ############################### BUILD: debug configuration options ##############################
 
-#define	debugFLAG					0xF000
+#define	debugFLAG					0xC000
 
 #define	debugFINDKEY				(debugFLAG & 0x0001)
 #define	debugHDLR					(debugFLAG & 0x0002)
@@ -231,20 +231,16 @@ int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char 
 			jsmntok_t * psToken = &sPH.psTokenList[sPH.i2] ;
 			if (sPH.szKey == (psToken->end - psToken->start) &&
 				xstrncmp(sPH.pcKey, pcBuf+psToken->start, sPH.szKey, true)) {
-				IF_TRACK(debugTRACK, "szKey=%d  '%.*s'", sPH.szKey, psToken->end - psToken->start, pcBuf+psToken->start) ;
+//				TRACK("szKey=%d  '%.*s'", sPH.szKey, psToken->end - psToken->start, pcBuf+psToken->start) ;
 				iRV2 = psPlist[sPH.i1].pHdlr(&sPH) ;
-				if (iRV2 >= erSUCCESS) {
-					IF_TRACK(debugTRACK, "here !!! iRV2 = %d", iRV2) ;
+				if (iRV2 >= erSUCCESS)
 					++sPH.NumOK ;
-				} else {
-					SL_WARN("iRV=%d  Key='%s'  Tok#=%d  Val='%.*s'", iRV2, sPH.pcKey,
-						sPH.i2, psToken->end - psToken->start, pcBuf + psToken->start) ;
-				}
+				else
+					SL_WARN("iRV=%d  Key='%s'  Tok#=%d  Val='%.*s'", iRV2, sPH.pcKey, sPH.i2, psToken->end - psToken->start, pcBuf + psToken->start) ;
 			}
 		}
 	}
-	IF_EXEC_4(debugHDLR && iRV2 >= erSUCCESS, xJsonPrintTokens, pcBuf,
-			sPH.psTokenList, sPH.NumTok, 0) ;
+	IF_EXEC_4(debugHDLR && iRV2 >= erSUCCESS, xJsonPrintTokens, pcBuf, sPH.psTokenList, sPH.NumTok, 0) ;
 	free(sPH.psTokenList) ;
 no_free:
 	IF_TRACK(debugRESULT && iRV1 < 1, "ERROR=%d", iRV1) ;
