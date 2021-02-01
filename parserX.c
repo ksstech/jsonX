@@ -143,7 +143,7 @@ int32_t	xJsonReadValue(const char * pBuf, jsmntok_t * pToken, double * pDouble) 
 }
 
 int32_t	xJsonCompareKey(const char * pKey, int32_t TokLen, char * pTok) {
-	IF_myASSERT(debugPARAM, INRANGE_MEM(pKey) && INRANGE_MEM(pTok) && TokLen > 0) ;
+	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pKey) && halCONFIG_inMEM(pTok) && TokLen > 0) ;
 	while (*pKey && *pTok && TokLen) {
 		if (toupper((int)*pKey) != toupper((int)*pTok)) {
 		    return erFAILURE ;
@@ -214,8 +214,8 @@ int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int32_t NumTok
 }
 
 int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf) {
-	IF_myASSERT(debugPARAM, INRANGE_MEM(psPlist) && szPlist > 0) ;
-	IF_myASSERT(debugPARAM, INRANGE_SRAM(pcBuf) && szBuf > 0) ;
+	IF_myASSERT(debugPARAM, halCONFIG_inMEM(psPlist) && szPlist > 0) ;
+	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pcBuf) && szBuf > 0) ;
 	parse_hdlr_t sPH = { 0 } ;
 	int32_t iRV1 = 0, iRV2 = 0 ;
 	iRV1 = xJsonParse(pcBuf, szBuf, &sPH.sParser, &sPH.psTokenList) ;

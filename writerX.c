@@ -112,7 +112,7 @@ static int32_t	ecJsonAddChars(json_obj_t * pJson, const char * pString) {
  * @return
  */
 static int32_t  ecJsonAddString(json_obj_t * pJson, const char * pString) {
-	IF_myASSERT(debugPARAM, INRANGE_MEM(pString)) ;		// can be in FLASH or SRAM
+	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pString)) ;		// can be in FLASH or SRAM
 	ecJsonAddChar(pJson, CHR_DOUBLE_QUOTE) ;			// Step 1: write the opening ' " '
 	ecJsonAddChars(pJson, pString) ;					// Step 2: write the string
 	return ecJsonAddChar(pJson, CHR_DOUBLE_QUOTE) ;		// Step 3: write the closing ' " '
@@ -126,7 +126,7 @@ static int32_t  ecJsonAddString(json_obj_t * pJson, const char * pString) {
  * @return
  */
 static	int32_t  ecJsonAddStringArray(json_obj_t * pJson, p32_t pValue, size_t xSize) {
-	IF_myASSERT(debugPARAM, INRANGE_MEM(pValue.pvoid));	// can be in FLASH or SRAM
+	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pvoid));	// can be in FLASH or SRAM
 	ecJsonAddChar(pJson, CHR_L_SQUARE) ;				// Step 1: write the opening ' [ '
 	while (xSize--) {									// Step 2: handle each string from array, 1 by 1
 		ecJsonAddString(pJson, *pValue.ppc8++) ;		// Step 2a: add the string
@@ -146,7 +146,7 @@ static	int32_t  ecJsonAddStringArray(json_obj_t * pJson, p32_t pValue, size_t xS
  */
 static	int32_t  ecJsonAddNumber(json_obj_t * pJson, p32_t pValue, uint8_t Form) {
 	x64_t		xVal ;
-	IF_myASSERT(debugPARAM, INRANGE_MEM(pValue.pvoid) ) ;
+	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pvoid) ) ;
 	switch(Form) {									// Normalize the size to 64bit double
 	case jsonFORM_I08:	xVal.i64	= *pValue.pi8 ;		break ;
 
@@ -218,7 +218,7 @@ static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, p32_t pValue, uint8_t eFo
  * already in the object..
  */
 static	int32_t  ecJsonAddNumberArray(json_obj_t * pJson, p32_t pValue, uint8_t eForm, size_t xSize) {
-	IF_myASSERT(debugPARAM, INRANGE_MEM(pValue.pvoid)) ;// can be in FLASH or SRAM
+	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pvoid)) ;// can be in FLASH or SRAM
 	ecJsonAddChar(pJson, CHR_L_SQUARE) ;				// Step 1: write the opening ' [ '
 
 	while (xSize--) {									// Step 2: handle each array value, 1 by 1
@@ -270,7 +270,7 @@ int32_t	ecJsonSetDecimals(int32_t xNumber) {
 int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, p32_t pValue, uint8_t eType, uint8_t eForm, size_t xArrSize) {
 	json_obj_t * pJson1	;
 	IF_SL_DBG(debugTRACK, "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, eType, eForm, xArrSize) ;
-	IF_myASSERT(debugPARAM, INRANGE_SRAM(pJson) && INRANGE_SRAM(pJson->psBuf) && INRANGE_MEM(pValue.pvoid)) ;
+	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halCONFIG_inMEM(pValue.pvoid)) ;
 
 	if (pJson->val_count > 0)							// Step 1: if already something in the object
 		ecJsonAddChar(pJson, CHR_COMMA) ;				//			write separating ','
@@ -308,7 +308,7 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, p32_t pValue, 
 		break ;
 
 	case jsonOBJECT:
-		IF_myASSERT(debugPARAM, INRANGE_MEM(pValue.pvoid) ) ;	// can be in FLASH or SRAM
+		IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pvoid) ) ;	// can be in FLASH or SRAM
 		pJson1	= (json_obj_t *) pValue.pvoid ;
 		ecJsonCreateObject(pJson1, pJson->psBuf) ; 		// create new object with same buffer
 		pJson->child	= pJson1 ;						// setup link from parent to child
@@ -353,7 +353,7 @@ int32_t  ecJsonCloseObject(json_obj_t * pJson) {
  * @return
  */
 int32_t  ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psBuf) {
-	IF_myASSERT(debugPARAM, INRANGE_SRAM(pJson) && INRANGE_SRAM(psBuf)) ;
+	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(psBuf)) ;
 	pJson->parent		= pJson->child	= 0 ;
 	pJson->psBuf		= psBuf ;
 	pJson->val_count	= 0 ;
@@ -371,7 +371,7 @@ int32_t  ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psBuf) {
  * @return
  */
 int32_t  ecJsonStartArray(json_obj_t * pJson, const char * pKey) {
-	IF_myASSERT(debugPARAM, INRANGE_SRAM(pJson)) ;
+	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson)) ;
 	if (pJson->val_count > 0) {							// Step 1: if already something in the object
 		ecJsonAddChar(pJson, CHR_COMMA) ;				// yes, write separating ','
 		pJson->val_count = 0 ;
@@ -391,7 +391,7 @@ int32_t  ecJsonStartArray(json_obj_t * pJson, const char * pKey) {
  * @return
  */
 int32_t  ecJsonCloseArray(json_obj_t * pJson) {
-	IF_myASSERT(debugPARAM, INRANGE_SRAM(pJson)) ;
+	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson)) ;
 	ecJsonAddChar(pJson, CHR_R_SQUARE) ;
 	pJson->arr_nest-- ;
 	pJson->val_count = 1 ;								// flags something in object/array, separator required..
