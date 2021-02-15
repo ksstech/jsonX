@@ -122,7 +122,7 @@ int32_t	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmnto
 	iRV2 = jsmn_parse(pParser, (const char *) pBuf, xLen, *ppTokenList, iRV1) ;
 	IF_EXEC_4(debugTRACK, xJsonPrintTokens, pBuf, *ppTokenList, iRV1, 0) ;
 exit:
-	IF_SL_DBG(debugRESULT, "Result=%d/%d '%s'", iRV1, iRV2, iRV1<0 || iRV1!=iRV2 ? "ERROR" : "Parsed") ;
+	IF_SL_INFO(debugRESULT, "Result=%d/%d '%s'", iRV1, iRV2, iRV1<0 || iRV1!=iRV2 ? "ERROR" : "Parsed") ;
 	return iRV1 < 1 ? iRV1 : iRV2 ;
 }
 
@@ -156,13 +156,13 @@ int32_t	xJsonCompareKey(const char * pKey, int32_t TokLen, char * pTok) {
 }
 
 int32_t	xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int32_t NumTok, const char * pKey) {
-	IF_SL_DBG(debugFINDKEY, "\r\n%s: Key='%s'", __FUNCTION__, pKey) ;
+	IF_SL_INFO(debugFINDKEY, "\r\n%s: Key='%s'", __FUNCTION__, pKey) ;
 	int32_t	KeyLen = xstrlen(pKey) ;
 	for (int32_t CurTok = 0; CurTok < NumTok; CurTok++, pToken++) {
 		if (KeyLen != (pToken->end - pToken->start)) {
 			continue ;							// not same length, skip
 		}
-		IF_SL_DBG(debugFINDKEY, "[Tok='%.*s'] ", pToken->end - pToken->start, pBuf + pToken->start) ;
+		IF_SL_INFO(debugFINDKEY, "[Tok='%.*s'] ", pToken->end - pToken->start, pBuf + pToken->start) ;
 		if (xJsonCompareKey(pKey, KeyLen, (char *) pBuf + pToken->start) == erFAILURE) {
 			continue ;							// not matching, skip
 		}

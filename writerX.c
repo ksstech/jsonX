@@ -269,7 +269,7 @@ int32_t	ecJsonSetDecimals(int32_t xNumber) {
  */
 int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, p32_t pValue, uint8_t eType, uint8_t eForm, size_t xArrSize) {
 	json_obj_t * pJson1	;
-	IF_SL_DBG(debugTRACK, "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, eType, eForm, xArrSize) ;
+	IF_SL_INFO(debugTRACK, "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, eType, eForm, xArrSize) ;
 	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halCONFIG_inMEM(pValue.pvoid)) ;
 
 	if (pJson->val_count > 0)							// Step 1: if already something in the object
@@ -323,7 +323,7 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, p32_t pValue, 
 	if (eType != jsonOBJECT) {							// for all key:value pairs other than OBJECT
 		pJson->val_count++ ;							// increase the object count
 	}
-	IF_SL_DBG(debugBUILD, "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf) ;
+	IF_SL_INFO(debugBUILD, "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf) ;
 	return erSUCCESS ;
 }
 
