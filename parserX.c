@@ -41,7 +41,6 @@
 #include	"x_complex_vars.h"
 
 #include	"hal_config.h"
-#include	"hal_debug.h"
 
 #include	<string.h>
 #include	<ctype.h>
