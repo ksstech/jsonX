@@ -1,21 +1,5 @@
 /*
- * Copyright 2014-18 AM Maree/KSS Technologies (Pty) Ltd.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
- * and associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
- * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
+ * Copyright 2014-21 Andre M. Maree/KSS Technologies (Pty) Ltd.
  */
 
 /*
@@ -67,6 +51,9 @@ int32_t	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmnto
 int32_t	xJsonReadValue(const char * pBuf, jsmntok_t * pTokenList, double * pDouble) ;
 int32_t	xJsonCompareKey(const char * pKey, int32_t TokLen, char * pTok) ;
 int32_t	xJsonFindKey(const char * pBuf, jsmntok_t * pTokenList, int32_t NumTok, const char * pKey) ;
-int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int32_t NumTok, const char * pKey, void * pValue, varform_t VarForm) ;
+
+int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * psT, int32_t NumTok, const char * pKey, void * pValue, varform_t VarForm) ;
+
+int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *), int32_t Count, varform_t cvF, varsize_t cvS) ;
 
 int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf) ;

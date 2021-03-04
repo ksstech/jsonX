@@ -212,6 +212,50 @@ int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int32_t NumTok
 	return iRV ;
 }
 
+/**
+ * Parse JSON array for strings or primitives
+ * @param	psPH	Pointer to pre-initialised parser handler structure
+ * @param	pDst	Pointer to storage array for primitive element (CHECK SIZE !!!)
+ * @param	Hdlr	Handler function to process string elements
+ * @param	Count	Maximum number of elements to parse
+ * @param	cvF		Format of primitive elements
+ * @param	cvS		Size of primitive element values
+ * @return
+ */
+int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *), int32_t Count, varform_t cvF, varsize_t cvS) {
+	int32_t szArr = psPH->psTokenList[++psPH->i2].size ;	// Also skip over ARRAY token
+	IF_myASSERT(debugPARAM, szArr >= Count) ;
+	if (Count == 0)
+		Count = szArr ;
+	int32_t iRV = erFAILURE ;
+	jsmntok_t * psT = &psPH->psTokenList[psPH->i2] ;
+	for (int32_t i = 0; i < Count; ++psT, ++psPH->i2, ++i) {
+		char * pcBuf = (char *) psPH->pcBuf + psT->start ;
+		char * pSaved = (char *) psPH->pcBuf + psT->end ;
+		char cSaved = *pSaved ;							// Save char before overwrite
+		*pSaved = CHR_NUL ;								// terminate
+		if ((psT->type == JSMN_PRIMITIVE) && (cvF != vfSXX) && pDst.pu8) {
+			if (*pcBuf == CHR_n || *pcBuf == CHR_f)
+				*pcBuf = CHR_0 ;						// default 'null' & 'false' to 0
+			else if (*pcBuf == CHR_t)
+				*pcBuf = CHR_1 ;						// default 'true' to 1
+			pcBuf = pcStringParseValue(pcBuf, pDst, cvF, cvS, NULL) ;
+			pDst.pu8 += cvS == vs64B ? sizeof(uint64_t) : cvS == vs32B ? sizeof(uint32_t) :
+						cvS == vs16B ? sizeof(uint16_t) : sizeof(uint8_t) ;
+			if (pcBuf == pcFAILURE)
+				iRV = erFAILURE ;
+		} else if ((psT->type == JSMN_STRING) && (cvF == vfSXX) && Hdlr) {
+			iRV = Hdlr(pcBuf) ;
+		} else {
+			myASSERT(0) ;
+		}
+		*pSaved = cSaved ;
+		if (iRV == erFAILURE)
+			return erFAILURE ;
+	}
+	return szArr ;
+}
+
 int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf) {
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(psPlist) && szPlist > 0) ;
 	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pcBuf) && szBuf > 0) ;
