@@ -235,10 +235,13 @@ int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *)
 		char cSaved = *pSaved ;							// Save char before overwrite
 		*pSaved = CHR_NUL ;								// terminate
 		if ((psT->type == JSMN_PRIMITIVE) && (cvF != vfSXX) && pDst.pu8) {
-			if (*pcBuf == CHR_n || *pcBuf == CHR_f)
-				*pcBuf = CHR_0 ;						// default 'null' & 'false' to 0
-			else if (*pcBuf == CHR_t)
-				*pcBuf = CHR_1 ;						// default 'true' to 1
+			if (*pcBuf == CHR_n || *pcBuf == CHR_f) {
+				pcBuf[0] = CHR_0 ;						// default 'null' & 'false' to 0
+				pcBuf[1] = CHR_NUL ;
+			} else if (*pcBuf == CHR_t) {
+				pcBuf[0] = CHR_1 ;						// default 'true' to 1
+				pcBuf[1] = CHR_NUL ;
+			}
 			pcBuf = pcStringParseValue(pcBuf, pDst, cvF, cvS, NULL) ;
 			pDst.pu8 += cvS == vs64B ? sizeof(uint64_t) : cvS == vs32B ? sizeof(uint32_t) :
 						cvS == vs16B ? sizeof(uint16_t) : sizeof(uint8_t) ;
