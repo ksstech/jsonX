@@ -171,13 +171,11 @@ static	int32_t  ecJsonAddNumber(json_obj_t * pJson, p32_t pValue, uint8_t Form) 
  */
 static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, p32_t pValue, uint8_t eForm) {
 	switch(eForm) {
-	case jsonFORM_DT_UTC:	uprintfx(pJson->psBuf, "\"%R\"", *pValue.pu64) ;	break ;
-	case jsonFORM_DT_TZ:	uprintfx(pJson->psBuf, "\"%+Z\"", pValue.pvoid) ;	break ;
-	case jsonFORM_DT_ELAP:	uprintfx(pJson->psBuf, "\"%!R\"", *pValue.pu64) ;	break ;
-	case jsonFORM_DT_ALT:	uprintfx(pJson->psBuf, "\"%#Z\"", pValue.pvoid) ;	break ;
-	default:
-		IF_myASSERT(debugPARAM, 0) ;
-		return erJSON_FORMAT ;
+	case cvDT_ELAP:	uprintfx(pJson->psBuf, "\"%!R\"", *pValue.pu64) ;	break ;
+	case cvDT_UTC:	uprintfx(pJson->psBuf, "\"%R\"", *pValue.pu64) ;	break ;
+	case cvDT_ALT:	uprintfx(pJson->psBuf, "\"%#Z\"", pValue.pvoid) ;	break ;
+	case cvDT_TZ:	uprintfx(pJson->psBuf, "\"%+Z\"", pValue.pvoid) ;	break ;
+	default:		IF_myASSERT(debugPARAM, 0) ; 						return erJSON_FORMAT ;
 	}
 	if (xUBufSpace(pJson->psBuf) == 0)
 		return erJSON_BUF_FULL ;
