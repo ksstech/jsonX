@@ -50,9 +50,9 @@ void	 xJsonPrintToken(const char * pcBuf, jsmntok_t * pT) {
 }
 
 int32_t	 xJsonPrintTokens(const char * pcBuf, jsmntok_t * pToken, size_t Count, int Depth) {
-	if (Count == 0)
+	if (Count == 0) {
 		return erSUCCESS ;
-
+	}
 	if (pToken->type == JSMN_PRIMITIVE || pToken->type == JSMN_STRING) {
 		printfx("%d='%.*s'", pToken->type, pToken->end - pToken->start, pcBuf+pToken->start) ;
 		return 1 ;
@@ -92,7 +92,9 @@ int32_t	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmnto
 	jsmn_init(pParser) ;
 	*ppTokenList = NULL ;				// default allocation pointer to NULL
 	iRV1 = jsmn_parse(pParser, (const char *) pBuf, xLen, NULL, 0) ;	// count tokens
-	if (iRV1 < 1)					goto exit ;
+	if (iRV1 < 1) {
+		goto exit ;
+	}
 
 	*ppTokenList = (jsmntok_t *) malloc(iRV1 * sizeof(jsmntok_t)) ;	// alloc buffer
 	jsmn_init(pParser) ;								// Init & do actual parse...
@@ -203,8 +205,9 @@ int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int32_t NumTok
 int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *), int32_t Count, varform_t cvF, varsize_t cvS) {
 	int32_t szArr = psPH->psTokenList[++psPH->i2].size ;	// Also skip over ARRAY token
 	IF_myASSERT(debugPARAM, szArr >= Count) ;
-	if (Count == 0)
+	if (Count == 0) {
 		Count = szArr ;
+	}
 	int32_t iRV = erFAILURE ;
 	jsmntok_t * psT = &psPH->psTokenList[psPH->i2] ;
 	for (int32_t i = 0; i < Count; ++psT, ++psPH->i2, ++i) {
@@ -231,8 +234,9 @@ int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *)
 			myASSERT(0) ;
 		}
 		*pSaved = cSaved ;
-		if (iRV == erFAILURE)
+		if (iRV == erFAILURE) {
 			return erFAILURE ;
+		}
 	}
 	return szArr ;
 }
@@ -244,10 +248,10 @@ int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char 
 	sPH.pvArg	= pvArg ;
 	int32_t iRV1 = 0, iRV2 = 0 ;
 	iRV1 = xJsonParse(pcBuf, szBuf, &sPH.sParser, &sPH.psTokenList) ;
-	if (iRV1 < 1 || sPH.psTokenList == NULL)
+	if (iRV1 < 1 || sPH.psTokenList == NULL) {
 		goto no_free ;
-
 	for (sPH.i1 = 0, sPH.NumTok = iRV1; sPH.i1 < szPlist; ++sPH.i1) {
+	}
 		sPH.pcBuf = pcBuf ;
 		sPH.szBuf = szBuf ;
 		sPH.pcKey = psPlist[sPH.i1].pToken ;
@@ -258,10 +262,11 @@ int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char 
 				xstrncmp(sPH.pcKey, pcBuf+psToken->start, sPH.szKey, 1)) {
 //				TRACK("szKey=%d  '%.*s'", sPH.szKey, psToken->end - psToken->start, pcBuf+psToken->start) ;
 				iRV2 = psPlist[sPH.i1].pHdlr(&sPH) ;
-				if (iRV2 >= erSUCCESS)
+				if (iRV2 >= erSUCCESS) {
 					++sPH.NumOK ;
-				else
 					SL_WARN("iRV=%d  Key='%s'  Tok#=%d  Val='%.*s'", iRV2, sPH.pcKey, sPH.i2, psToken->end - psToken->start, pcBuf + psToken->start) ;
+				} else {
+				}
 			}
 		}
 	}
