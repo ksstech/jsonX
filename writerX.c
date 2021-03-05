@@ -84,21 +84,9 @@ static int32_t	ecJsonAddChars(json_obj_t * pJson, const char * pString) {
 	int32_t	xLen = xstrlen(pString) ;					// Step 1: determine the string length
 	IF_myASSERT(debugSTATE, xLen > 0) ;
 	while (xLen--) {									// Step 2: handle characters (with optional escapes)
-#if 1
-		if (strchr(ESChars, *pString) != NULL)			// Step 3: handle ESCape if required
+		if (strchr(ESChars, *pString) != NULL) {			// Step 3: handle ESCape if required
 		   ecJsonAddChar(pJson, CHR_BACKSLASH) ;
-#else
-		if ((*pString == CHR_BACKSLASH)		||
-			(*pString == CHR_DOUBLE_QUOTE)	||
-			(*pString == CHR_FWDSLASH)		||
-			(*pString == CHR_BS) 			||
-			(*pString == CHR_FF) 			||
-			(*pString == CHR_TAB)			||
-			(*pString == CHR_LF)			||
-			(*pString == CHR_CR)) {
-			   ecJsonAddChar(pJson, CHR_BACKSLASH) ;
 		}
-#endif
 		ecJsonAddChar(pJson, *pString++) ;				// Step 4: process the actual character
 	}
 	return erSUCCESS ;
