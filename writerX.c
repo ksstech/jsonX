@@ -135,31 +135,17 @@ static	int32_t  ecJsonAddNumber(json_obj_t * pJson, p32_t pValue, uint8_t Form) 
 	x64_t		xVal ;
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pvoid) ) ;
 	switch(Form) {									// Normalize the size to 64bit double
-	case jsonFORM_I08:	xVal.i64	= *pValue.pi8 ;		break ;
-
-	case jsonFORM_U08:
-	case jsonFORM_X08:	xVal.u64	= *pValue.pu8 ;		break ;
-
-	case jsonFORM_I16:	xVal.i64	= *pValue.pi16 ;	break ;
-
-	case jsonFORM_U16:
-	case jsonFORM_X16:	xVal.u64	= *pValue.pu16 ;	break ;
-
-	case jsonFORM_I32:	xVal.i64	= *pValue.pi32 ;	break ;
-
-	case jsonFORM_U32:
-	case jsonFORM_X32:	xVal.u64	= *pValue.pu32 ;	break ;
-
-	case jsonFORM_F32:	xVal.f64	= *pValue.pf32 ;	break ;
-
-	case jsonFORM_I64:	xVal.i64	= *pValue.pi64 ;	break ;
-
-	case jsonFORM_U64:
-	case jsonFORM_X64:	xVal.u64	= *pValue.pu64 ;	break ;
-
-	case jsonFORM_F64:	xVal.f64	= *pValue.pf64 ;	break ;
-
-	default:			IF_myASSERT(debugSTATE, 0) ;	return erJSON_FORMAT ;
+	case cvU08:	xVal.u64	= *pValue.pu8 ;		break ;
+	case cvU16:	xVal.u64	= *pValue.pu16 ;	break ;
+	case cvU32:	xVal.u64	= *pValue.pu32 ;	break ;
+	case cvU64:	xVal.u64	= *pValue.pu64 ;	break ;
+	case cvI08:	xVal.i64	= *pValue.pi8 ;		break ;
+	case cvI16:	xVal.i64	= *pValue.pi16 ;	break ;
+	case cvI32:	xVal.i64	= *pValue.pi32 ;	break ;
+	case cvI64:	xVal.i64	= *pValue.pi64 ;	break ;
+	case cvF32:	xVal.f64	= *pValue.pf32 ;	break ;
+	case cvF64:	xVal.f64	= *pValue.pf64 ;	break ;
+	default:	IF_myASSERT(debugSTATE, 0) ;	return erJSON_FORMAT ;
 	}
 // Step 2: write the value, format depending on fractional part
 	if (Form==jsonFORM_I08 || Form==jsonFORM_I16 || Form==jsonFORM_I32 || Form==jsonFORM_I64)
