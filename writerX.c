@@ -1,6 +1,5 @@
 /*
- * writerX.c
- * Copyright 2014-20 AM Maree/KSS Technologies (Pty) Ltd.
+ * writerX.c Copyright 2014-21 Andre M. Maree/KSS Technologies (Pty) Ltd.
  *
  * References:
  * 	http://www.json.org/
@@ -33,6 +32,7 @@
 #include	"x_string_general.h"
 #include	"printfx.h"									// +x_definitions +stdarg +stdint +stdio
 #include	"syslog.h"
+#include	"x_complex_vars.h"
 #include	"hal_config.h"
 
 #include	<string.h>
@@ -143,9 +143,11 @@ static	int32_t  ecJsonAddNumber(json_obj_t * pJson, p32_t pValue, uint8_t Form) 
 		uprintfx(pJson->psBuf, "%lld", xVal.i64) ;
 	} else {
 		uprintfx(pJson->psBuf, "%.*f", ecJsonDecimals, xVal.f64) ;
+	}
 
-	if (xUBufSpace(pJson->psBuf) == 0)
+	if (xUBufSpace(pJson->psBuf) == 0) {
 		return erJSON_BUF_FULL ;
+	}
 	return  erSUCCESS ;
 }
 
@@ -164,8 +166,9 @@ static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, p32_t pValue, uint8_t eFo
 	case cvDT_TZ:	uprintfx(pJson->psBuf, "\"%+Z\"", pValue.pvoid) ;	break ;
 	default:		IF_myASSERT(debugPARAM, 0) ; 						return erJSON_FORMAT ;
 	}
-	if (xUBufSpace(pJson->psBuf) == 0)
+	if (xUBufSpace(pJson->psBuf) == 0) {
 		return erJSON_BUF_FULL ;
+	}
 	return  erSUCCESS ;
 }
 
