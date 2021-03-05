@@ -219,7 +219,7 @@ int32_t	ecJsonSetDecimals(int32_t xNumber) {
  * \param[in]	string to use as key value
  * \param[in]	variable type based on Complex Var definitions
  * \param[in]	type of value being jsonXXXX (NULL / FALSE / TRUE / NUMBER / STRING / ARRAY / OBJECT)
- * \param[in]	number type being jsonFORM_xxx (Ixx / Uxx / Fxx | x08 / x16 / x32 / x64 || NAN)
+ * \param[in]	number type being cvxxx (Ixx / Uxx / Fxx | x08 / x16 / x32 / x64 || NAN)
  * \param[in]	number of items in array (or 1 if not an array)
  * \return
  * \note:	In the case of adding a new object, pValue must be a pointer to the location
@@ -241,23 +241,23 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, p32_t pValue, 
 	case jsonNULL: ecJsonAddChars(pJson, "null") ;		break ;
 	case jsonFALSE:	ecJsonAddChars(pJson, "false") ;	break ;
 	case jsonTRUE: ecJsonAddChars(pJson, "true") ;		break ;
-	case jsonNUMBER:
+	case jsonXXX:
 		IF_myASSERT(debugSTATE, xArrSize == 1) ;
 		ecJsonAddNumber(pJson, pValue, eForm) ;
 		break ;
 
-	case jsonSTRING:
+	case jsonSXX:
 		IF_myASSERT(debugSTATE, xArrSize == 1) ;
 		ecJsonAddString(pJson, pValue.pc8) ;
 		break ;
 
-	case jsonDATETIME: ecJsonAddTimeStamp(pJson, pValue, eForm) ;	break ;
+	case jsonEDTZ: ecJsonAddTimeStamp(pJson, pValue, eForm) ;	break ;
 
 	case jsonARRAY:
 		IF_myASSERT(debugSTATE, xArrSize > 0) ;
-		if (eForm <= jsonFORM_X64) {
+		if (eForm <= cvSXX) {
 			ecJsonAddNumberArray(pJson, pValue, eForm, xArrSize) ;
-		} else if (eForm == jsonFORM_STRING) {
+		} else if (eForm == cvSXX) {
 			ecJsonAddStringArray(pJson, pValue, xArrSize) ;
 		} else {
 			IF_myASSERT(debugRESULT, 0) ;
@@ -265,7 +265,7 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, p32_t pValue, 
 		}
 		break ;
 
-	case jsonOBJECT:
+	case jsonOBJ:
 		IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pvoid) ) ;	// can be in FLASH or SRAM
 		pJson1	= (json_obj_t *) pValue.pvoid ;
 		ecJsonCreateObject(pJson1, pJson->psBuf) ; 		// create new object with same buffer
@@ -278,7 +278,7 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, p32_t pValue, 
 		IF_myASSERT(debugRESULT, 0) ;
 		return erJSON_TYPE ;
 	}
-	if (eType != jsonOBJECT) {							// for all key:value pairs other than OBJECT
+	if (eType != jsonOBJ) {							// for all key:value pairs other than OBJECT
 		pJson->val_count++ ;							// increase the object count
 	}
 	IF_SL_INFO(debugBUILD, "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf) ;
