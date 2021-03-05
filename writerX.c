@@ -50,17 +50,6 @@
 static	int32_t	ecJsonDecimals = xpfDEFAULT_DECIMALS ;
 static const char ESChars[] = { CHR_BACKSLASH,CHR_DOUBLE_QUOTE,CHR_FWDSLASH,CHR_BS,CHR_FF,CHR_TAB,CHR_LF,CHR_CR,CHR_NUL } ;
 
-int32_t	xJsonMapNumType(varsize_t vs, varform_t vf) {
-	if (vs > vs64B || vf > vfFXX) {
-		IF_myASSERT(debugPARAM, 0) ;
-		return jsonFORM_NAN ;
-	}
-	int32_t idx = (vs << 2) + vf ;
-	IF_TRACK(debugTRACK, "vs=%d vf=%d idx=%d", vs, vf, idx) ;
-	IF_myASSERT(debugRESULT, idx != jsonFORM_NAN) ;
-	return idx ;
-}
-
 /**
  * ecJsonAddChar() - write a single char to the stream
  * @param pJson
