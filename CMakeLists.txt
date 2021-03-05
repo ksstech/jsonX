@@ -5,3 +5,5 @@ idf_component_register(
 	REQUIRES common jsmn statistics
 	PRIV_REQUIRES printfx stringsX
 )
+#add_compile_definitions( JSMN_PARENT_LINKS )
+#add_compile_definitions( JSMN_STRICT )
