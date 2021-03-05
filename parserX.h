@@ -23,17 +23,18 @@
 // ############################################ structures #########################################
 
 typedef struct {
-	const 	char * 	pcBuf ;
-	size_t			szBuf ;
-	const 	char *	pcKey ;								// current key being evaluated
-	size_t			szKey ;
-	jsmn_parser		sParser ;
-	jsmntok_t *		psTokenList ;
-	int32_t			NumTok ;							// total number of tokens
-	int32_t			NumOK ;								// number tokens parsed OK
-	uint32_t		flag ;
-	int32_t			i1 ;								// parse_list_t table index
-	int32_t			i2 ;								// jsmntok_t table index
+	const char *pcBuf ;
+	size_t		szBuf ;
+	const char *pcKey ;									// current key being evaluated
+	size_t		szKey ;
+	jsmn_parser	sParser ;
+	jsmntok_t *	psTokenList ;
+	int32_t		NumTok ;								// total number of tokens
+	int32_t		NumOK ;									// number tokens parsed OK
+	uint32_t	flag ;
+	int32_t		i1 ;									// parse_list_t table index
+	int32_t		i2 ;									// jsmntok_t table index
+	void *		pvArg ;
 } parse_hdlr_t ;
 
 typedef struct {
@@ -56,4 +57,4 @@ int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * psT, int32_t NumTok, c
 
 int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *), int32_t Count, varform_t cvF, varsize_t cvS) ;
 
-int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf) ;
+int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf, void * pvArg) ;

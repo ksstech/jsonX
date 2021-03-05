@@ -256,10 +256,11 @@ int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *)
 	return szArr ;
 }
 
-int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf) {
+int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf, void * pvArg) {
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(psPlist) && szPlist > 0) ;
 	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pcBuf) && szBuf > 0) ;
 	parse_hdlr_t sPH = { 0 } ;
+	sPH.pvArg	= pvArg ;
 	int32_t iRV1 = 0, iRV2 = 0 ;
 	iRV1 = xJsonParse(pcBuf, szBuf, &sPH.sParser, &sPH.psTokenList) ;
 	if (iRV1 < 1 || sPH.psTokenList == NULL)
@@ -273,7 +274,7 @@ int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char 
 		for (sPH.i2 = 0; sPH.i2 < sPH.NumTok; ++sPH.i2) {
 			jsmntok_t * psToken = &sPH.psTokenList[sPH.i2] ;
 			if (sPH.szKey == (psToken->end - psToken->start) &&
-				xstrncmp(sPH.pcKey, pcBuf+psToken->start, sPH.szKey, true)) {
+				xstrncmp(sPH.pcKey, pcBuf+psToken->start, sPH.szKey, 1)) {
 //				TRACK("szKey=%d  '%.*s'", sPH.szKey, psToken->end - psToken->start, pcBuf+psToken->start) ;
 				iRV2 = psPlist[sPH.i1].pHdlr(&sPH) ;
 				if (iRV2 >= erSUCCESS)
