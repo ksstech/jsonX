@@ -31,7 +31,6 @@
 
 // ########################################## macros ##############################################
 
-#define	buildJSON_FLOAT_FORMAT			"%." mySTRINGIFY(buildJSON_FLOAT_DECIMALS) "f"
 
 // ######################################## enumerations ###########################################
 
@@ -51,11 +50,9 @@ enum {
 
 // ############################################ structures #########################################
 
-typedef struct json_obj_s json_obj_t ;
-
-struct json_obj_s {
-	json_obj_t *	parent ;
-	json_obj_t *	child ;
+typedef struct json_obj_t {
+	struct json_obj_t *	parent ;
+	struct json_obj_t *	child ;
     ubuf_t *		psBuf ;
     struct {
     	uint8_t		obj_nest : 4 ;                      // count OBJECT nesting level in this object
@@ -64,7 +61,7 @@ struct json_obj_s {
     	uint8_t		f_NoSep : 1 ;						// once off separator skip..
     	uint8_t		type ;
     } ;
-} ;
+} json_obj_t ;
 
 // ####################################### global functions ########################################
 
