@@ -35,21 +35,7 @@
 
 // ######################################## enumerations ###########################################
 
-enum { jsonNULL= 0, jsonFALSE, jsonTRUE, jsonNUMBER, jsonSTRING, jsonDATETIME, jsonARRAY, jsonOBJECT, jsonNUM, jsonMAX } ;
-
-enum {
-    jsonFORM_U08, jsonFORM_I08, jsonFORM_F08, jsonFORM_X08,
-    jsonFORM_U16, jsonFORM_I16, jsonFORM_F16, jsonFORM_X16,
-    jsonFORM_U32, jsonFORM_I32, jsonFORM_F32, jsonFORM_X32,
-    jsonFORM_U64, jsonFORM_I64, jsonFORM_F64, jsonFORM_X64,
-	jsonFORM_DT_UTC,
-	jsonFORM_DT_TZ,
-	jsonFORM_DT_ELAP,
-	jsonFORM_DT_ALT,
-	jsonFORM_STRING,
-	jsonFORM_BOOLEAN,
-    jsonFORM_NAN,
-} ;
+enum { jsonNULL= 0, jsonFALSE, jsonTRUE, jsonXXX, jsonSXX, jsonEDTZ, jsonARRAY, jsonOBJ } ;
 
 enum {
 	erJSON_CREATE			= -3110,							// start 10 down from Appl error codes
@@ -82,7 +68,6 @@ struct json_obj_s {
 
 // ####################################### global functions ########################################
 
-int32_t	xJsonMapNumType(varsize_t vs, varform_t vf) ;
 int32_t	ecJsonSetDecimals(int32_t xNumber) ;
 int32_t	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, p32_t pValue, uint8_t eType, uint8_t eFormType, size_t xArrSize) ;
 int32_t	ecJsonCloseObject(json_obj_t * pJson) ;
