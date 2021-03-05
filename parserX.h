@@ -32,8 +32,8 @@ typedef struct {
 	int32_t		NumTok ;								// total number of tokens
 	int32_t		NumOK ;									// number tokens parsed OK
 	uint32_t	flag ;
-	int32_t		i1 ;									// parse_list_t table index
-	int32_t		i2 ;									// jsmntok_t table index
+	int32_t		plI ;									// parse_list_t index
+	int32_t		jtI ;									// jsmntok_t index
 	void *		pvArg ;
 } parse_hdlr_t ;
 
