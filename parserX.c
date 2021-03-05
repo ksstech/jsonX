@@ -38,11 +38,11 @@
 // ####################################### Global Functions ########################################
 
 void	xJsonPrintIndent(int Depth, int Sep, int CR0, int CR1) {
-	if (CR0)							PRINT("\n") ;
-	for (int x = 0; x < Depth; ++x)		PRINT("  ") ;
-	if (Sep)							PRINT(" %c", Sep) ;
-	if (CR0)							PRINT("(s=%d)", CR0) ;
-	if (CR1)							PRINT("\n") ;
+	if (CR0)							printfx("\n") ;
+	for (int x = 0; x < Depth; ++x)		printfx("  ") ;
+	if (Sep)							printfx(" %c", Sep) ;
+	if (CR0)							printfx("(s=%d)", CR0) ;
+	if (CR1)							printfx("\n") ;
 }
 
 void	 xJsonPrintToken(const char * pcBuf, jsmntok_t * pT) {
@@ -54,7 +54,7 @@ int32_t	 xJsonPrintTokens(const char * pcBuf, jsmntok_t * pToken, size_t Count, 
 		return erSUCCESS ;
 
 	if (pToken->type == JSMN_PRIMITIVE || pToken->type == JSMN_STRING) {
-		PRINT("%d='%.*s'", pToken->type, pToken->end - pToken->start, pcBuf+pToken->start) ;
+		printfx("%d='%.*s'", pToken->type, pToken->end - pToken->start, pcBuf+pToken->start) ;
 		return 1 ;
 
 	} else if (pToken->type == JSMN_OBJECT) {
@@ -63,9 +63,9 @@ int32_t	 xJsonPrintTokens(const char * pcBuf, jsmntok_t * pToken, size_t Count, 
 		for (int i = 0; i < pToken->size; ++i) {
 			xJsonPrintIndent(Depth+2, 0, 0, 0) ;
 			j += xJsonPrintTokens(pcBuf, pToken+j+1, Count-j, Depth+1) ;
-			PRINT(" : ") ;
+			printfx(" : ") ;
 			j += xJsonPrintTokens(pcBuf, pToken+j+1, Count-j, Depth+1) ;
-			PRINT("\n") ;
+			printfx("\n") ;
 		}
 		xJsonPrintIndent(Depth, CHR_R_CURLY, 0, 0) ;
 		return j + 1 ;
@@ -76,7 +76,7 @@ int32_t	 xJsonPrintTokens(const char * pcBuf, jsmntok_t * pToken, size_t Count, 
 		for (int i = 0; i < pToken->size; ++i) {
 			xJsonPrintIndent(Depth+2, 0, 0, 0) ;
 			j += xJsonPrintTokens(pcBuf, pToken+j+1, Count-j, Depth+1) ;
-			PRINT("\n") ;
+			printfx("\n") ;
 		}
 		xJsonPrintIndent(Depth, CHR_R_SQUARE, 0, 0) ;
 		return j + 1 ;
