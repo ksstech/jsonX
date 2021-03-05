@@ -203,14 +203,14 @@ int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int32_t NumTok
  * @return
  */
 int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *), int32_t Count, varform_t cvF, varsize_t cvS) {
-	int32_t szArr = psPH->psTokenList[++psPH->i2].size ;	// Also skip over ARRAY token
+	int32_t szArr = psPH->psTokenList[++psPH->jtI].size ;	// Also skip over ARRAY token
 	IF_myASSERT(debugPARAM, szArr >= Count) ;
 	if (Count == 0) {
 		Count = szArr ;
 	}
 	int32_t iRV = erFAILURE ;
-	jsmntok_t * psT = &psPH->psTokenList[psPH->i2] ;
-	for (int32_t i = 0; i < Count; ++psT, ++psPH->i2, ++i) {
+	jsmntok_t * psT = &psPH->psTokenList[psPH->jtI] ;
+	for (int32_t i = 0; i < Count; ++psT, ++psPH->jtI, ++i) {
 		char * pcBuf = (char *) psPH->pcBuf + psT->start ;
 		char * pSaved = (char *) psPH->pcBuf + psT->end ;
 		char cSaved = *pSaved ;							// Save char before overwrite
@@ -250,22 +250,22 @@ int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char 
 	iRV1 = xJsonParse(pcBuf, szBuf, &sPH.sParser, &sPH.psTokenList) ;
 	if (iRV1 < 1 || sPH.psTokenList == NULL) {
 		goto no_free ;
-	for (sPH.i1 = 0, sPH.NumTok = iRV1; sPH.i1 < szPlist; ++sPH.i1) {
 	}
+	for (sPH.plI = 0, sPH.NumTok = iRV1; sPH.plI < szPlist; ++sPH.plI) {
 		sPH.pcBuf = pcBuf ;
 		sPH.szBuf = szBuf ;
-		sPH.pcKey = psPlist[sPH.i1].pToken ;
+		sPH.pcKey = psPlist[sPH.plI].pToken ;
 		sPH.szKey = xstrlen(sPH.pcKey) ;
-		for (sPH.i2 = 0; sPH.i2 < sPH.NumTok; ++sPH.i2) {
-			jsmntok_t * psToken = &sPH.psTokenList[sPH.i2] ;
+		for (sPH.jtI = 0; sPH.jtI < sPH.NumTok; ++sPH.jtI) {
+			jsmntok_t * psToken = &sPH.psTokenList[sPH.jtI] ;
 			if (sPH.szKey == (psToken->end - psToken->start) &&
 				xstrncmp(sPH.pcKey, pcBuf+psToken->start, sPH.szKey, 1)) {
 //				TRACK("szKey=%d  '%.*s'", sPH.szKey, psToken->end - psToken->start, pcBuf+psToken->start) ;
-				iRV2 = psPlist[sPH.i1].pHdlr(&sPH) ;
+				iRV2 = psPlist[sPH.plI].pHdlr(&sPH) ;
 				if (iRV2 >= erSUCCESS) {
 					++sPH.NumOK ;
-					SL_WARN("iRV=%d  Key='%s'  Tok#=%d  Val='%.*s'", iRV2, sPH.pcKey, sPH.i2, psToken->end - psToken->start, pcBuf + psToken->start) ;
 				} else {
+					SL_WARN("iRV=%d  Key='%s'  Tok#=%d  Val='%.*s'", iRV2, sPH.pcKey, sPH.jtI, psToken->end - psToken->start, pcBuf + psToken->start) ;
 				}
 			}
 		}
