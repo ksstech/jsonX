@@ -147,14 +147,12 @@ static	int32_t  ecJsonAddNumber(json_obj_t * pJson, p32_t pValue, uint8_t Form) 
 	case cvF64:	xVal.f64	= *pValue.pf64 ;	break ;
 	default:	IF_myASSERT(debugSTATE, 0) ;	return erJSON_FORMAT ;
 	}
-// Step 2: write the value, format depending on fractional part
-	if (Form==jsonFORM_I08 || Form==jsonFORM_I16 || Form==jsonFORM_I32 || Form==jsonFORM_I64)
+	// Step 2: write the value, format depending on fractional part
+	if (Form < cvU64) {
+			uprintfx(pJson->psBuf, "%llu", xVal.u64) ;
+	} else if (Form < cvI64) {
 		uprintfx(pJson->psBuf, "%lld", xVal.i64) ;
-	else if (Form==jsonFORM_U08 || Form==jsonFORM_U16 || Form==jsonFORM_U32 || Form==jsonFORM_U64)
-		uprintfx(pJson->psBuf, "%llu", xVal.u64) ;
-	else if (Form==jsonFORM_X08 || Form==jsonFORM_X16 || Form==jsonFORM_X32 || Form==jsonFORM_X64)
-		uprintfx(pJson->psBuf, "0x%llx", xVal.u64) ;
-	else
+	} else {
 		uprintfx(pJson->psBuf, "%.*f", ecJsonDecimals, xVal.f64) ;
 
 	if (xUBufSpace(pJson->psBuf) == 0)
@@ -196,13 +194,13 @@ static	int32_t  ecJsonAddNumberArray(json_obj_t * pJson, p32_t pValue, uint8_t e
 		ecJsonAddNumber(pJson, pValue, eForm) ;			// Step 2a: add the number
 		if (xSize != 0)									// Step 2b: if not the last number
 			ecJsonAddChar(pJson, CHR_COMMA) ;  			//			write separating ','
-		if (eForm <= jsonFORM_X08)						// Step 3: adjust the value pointer
+		if (eForm == cvU08 || eForm == cvI08)			// Step 3: adjust the value pointer
 			pValue.pu8++ ;
-		else if (eForm <= jsonFORM_X16)
+		else if (eForm == cvU16 || eForm == cvI16)
 			pValue.pu16++ ;
-		else if (eForm <= jsonFORM_X32)
+		else if (eForm == cvU32 || eForm == cvI32 || eForm == cvF32)
 			pValue.pu32++ ;
-		else if (eForm <= jsonFORM_X64)
+		else if (eForm == cvU32 || eForm == cvI32 || eForm == cvF32)
 			pValue.pu64++ ;
 		else
 			return erJSON_NUM_TYPE ;
