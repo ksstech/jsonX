@@ -25,10 +25,14 @@
 
 // ############################### BUILD: debug configuration options ##############################
 
-#define	debugFLAG					0xC000
+#define	debugFLAG					0xF000
 
 #define	debugFINDKEY				(debugFLAG & 0x0001)
 #define	debugHDLR					(debugFLAG & 0x0002)
+#define	debugPARSE					(debugFLAG & 0x0004)
+#define	debugARRAY					(debugFLAG & 0x0008)
+
+#define	debugLIST					(debugFLAG & 0x0010)
 
 #define	debugTIMING					(debugFLAG_GLOBAL & debugFLAG & 0x1000)
 #define	debugTRACK					(debugFLAG_GLOBAL & debugFLAG & 0x2000)
@@ -36,6 +40,12 @@
 #define	debugRESULT					(debugFLAG_GLOBAL & debugFLAG & 0x8000)
 
 // ####################################### Global Functions ########################################
+
+void	xJsonPrintPH(parse_hdlr_t * psPH) {
+	jsmntok_t * psT = &psPH->psTList[psPH->jtI] ;
+	printfx("#%d/%d  t=%d  s=%d  b=%d  e=%d  '%.*s'\n", psPH->jtI, psPH->NumTok, psT->type,
+		psT->size, psT->start, psT->end, psT->end - psT->start, psPH->pcBuf + psT->start) ;
+}
 
 void	xJsonPrintIndent(int Depth, int Sep, int CR0, int CR1) {
 	if (CR0)							printfx("\n") ;
@@ -99,7 +109,7 @@ int32_t	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmnto
 	*ppTokenList = (jsmntok_t *) malloc(iRV1 * sizeof(jsmntok_t)) ;	// alloc buffer
 	jsmn_init(pParser) ;								// Init & do actual parse...
 	iRV2 = jsmn_parse(pParser, (const char *) pBuf, xLen, *ppTokenList, iRV1) ;
-	IF_EXEC_4(debugTRACK, xJsonPrintTokens, pBuf, *ppTokenList, iRV1, 0) ;
+	IF_EXEC_4(debugPARSE, xJsonPrintTokens, pBuf, *ppTokenList, iRV1, 0) ;
 exit:
 	IF_SL_INFO(debugRESULT, "Result=%d/%d '%s'", iRV1, iRV2, iRV1<0 || iRV1!=iRV2 ? "ERROR" : "Parsed") ;
 	return iRV1 < 1 ? iRV1 : iRV2 ;
@@ -193,24 +203,75 @@ int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int32_t NumTok
 }
 
 /**
- * Parse JSON array for strings or primitives
+ * Parse JSON array for strings or primitives, store directly into empty db_t structure record
+ * @brief	EXPECT jtI to be the token# of the array to be parsed.
  * @param	psPH	Pointer to pre-initialised parser handler structure
- * @param	pDst	Pointer to storage array for primitive element (CHECK SIZE !!!)
+ * @param	Count	Maximum number of elements to parse
+ * @param	paDst	Pointer to array of pointers for each element
+ * @param	cvF		pointer to array of dbf_t structures defining each db_t record
+ * @return	Number of elements parsed or erFAILURE
+ * 			if successful, leaves jtI set to next token to parse
+ * 			if failed, jti left at the failing element
+ */
+int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, p32_t paDst[], dbf_t paDBF[]) {
+	IF_EXEC_1(debugARRAY, xJsonPrintPH, psPH) ;
+	IF_myASSERT(debugPARAM, psPH->psTList[psPH->jtI].type == JSMN_ARRAY &&
+							szArr == psPH->psTList[psPH->jtI].size) ;
+	int32_t NumOK = 0 ;
+	jsmntok_t * psT = &psPH->psTList[++psPH->jtI] ;		// step into ARRAY to 1st ELEMENT
+	for (int32_t i = 0; i < szArr; ++psT, ++i) {
+		varform_t cvF = xCV_Index2Form(paDBF[i].cvI) ;
+		char * pcBuf = (char *) psPH->pcBuf + psT->start ;
+		char * pSaved = (char *) psPH->pcBuf + psT->end ;
+		char cSaved = *pSaved ;							// Save char before overwrite
+		*pSaved = CHR_NUL ;								// terminate
+		if (psT->type == JSMN_PRIMITIVE && cvF != vfSXX) {
+			if (*pcBuf == CHR_n || *pcBuf == CHR_f) {
+				pcBuf[0] = CHR_0 ;						// default 'null' & 'false' to 0
+				pcBuf[1] = CHR_NUL ;
+			} else if (*pcBuf == CHR_t) {
+				pcBuf[0] = CHR_1 ;						// default 'true' to 1
+				pcBuf[1] = CHR_NUL ;
+			}
+			if (pcStringParseValue(pcBuf, paDst[i], cvF, xCV_Index2Size(paDBF[i].cvI), NULL) == pcFAILURE) {
+				*pSaved = cSaved ;
+				return erFAILURE ;
+			}
+			++psPH->jtI ;
+			++NumOK ;
+		} else if (psT->type == JSMN_STRING && cvF == vfSXX) {
+			uint8_t szTok = psT->end - psT->start ;
+			memcpy(paDst[i].pvoid, pcBuf, szTok < paDBF[i].fS ? szTok : paDBF[i].fS) ;
+			++psPH->jtI ;
+			++NumOK ;
+		} else {
+			return erFAILURE ;
+		}
+		*pSaved = cSaved ;
+	}
+	return NumOK ;
+}
+
+/**
+ * Parse JSON array for strings or primitives
+ * @brief	EXPECT jtI to be the token# of the array to be parsed.
+ * @param	psPH	Pointer to pre-initialised parser handler structure
+ * @param	pDst	Pointer to storage array for "primitive" elements (CHECK SIZE !!!)
  * @param	Hdlr	Handler function to process string elements
  * @param	Count	Maximum number of elements to parse
  * @param	cvF		Format of primitive elements
  * @param	cvS		Size of primitive element values
- * @return
+ * @return	Number of elements parsed or erFAILURE
+ * 			if successful, leaves jtI set to next token to parse
+ * 			if failed, jti left at the failing element
  */
-int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *), int32_t Count, varform_t cvF, varsize_t cvS) {
-	int32_t szArr = psPH->psTokenList[++psPH->jtI].size ;	// Also skip over ARRAY token
-	IF_myASSERT(debugPARAM, szArr >= Count) ;
-	if (Count == 0) {
-		Count = szArr ;
-	}
-	int32_t iRV = erFAILURE ;
-	jsmntok_t * psT = &psPH->psTokenList[psPH->jtI] ;
-	for (int32_t i = 0; i < Count; ++psT, ++psPH->jtI, ++i) {
+int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *),
+						int32_t szArr, varform_t cvF, varsize_t cvS) {
+	IF_EXEC_1(debugARRAY, xJsonPrintPH, psPH) ;
+	IF_myASSERT(debugPARAM, szArr > 0 && psPH->psTList[psPH->jtI].size == szArr) ;
+	int32_t NumOK = 0 ;
+	jsmntok_t * psT = &psPH->psTList[++psPH->jtI] ;		// step to first ARRAY ELEMENT
+	for (int32_t i = 0; i < szArr; ++psT, ++i) {
 		char * pcBuf = (char *) psPH->pcBuf + psT->start ;
 		char * pSaved = (char *) psPH->pcBuf + psT->end ;
 		char cSaved = *pSaved ;							// Save char before overwrite
@@ -223,56 +284,63 @@ int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *)
 				pcBuf[0] = CHR_1 ;						// default 'true' to 1
 				pcBuf[1] = CHR_NUL ;
 			}
-			pcBuf = pcStringParseValue(pcBuf, pDst, cvF, cvS, NULL) ;
-			pDst.pu8 += cvS == vs64B ? sizeof(uint64_t) : cvS == vs32B ? sizeof(uint32_t) :
-						cvS == vs16B ? sizeof(uint16_t) : sizeof(uint8_t) ;
-			if (pcBuf == pcFAILURE)
-				iRV = erFAILURE ;
-		} else if ((psT->type == JSMN_STRING) && (cvF == vfSXX) && Hdlr) {
-			iRV = Hdlr(pcBuf) ;
+			if (pcStringParseValue(pcBuf, pDst, cvF, cvS, NULL) == pvFAILURE) {
+				*pSaved = cSaved ;
+				return erFAILURE ;
+			}
+			++NumOK ;
+			++psPH->jtI ;
+			pDst.pu8 += xCV_Size2Field(cvS) ;
+		} else if (psT->type == JSMN_STRING && cvF == vfSXX && Hdlr) {
+			int32_t iRV = Hdlr(pcBuf) ;
+			if (iRV < erSUCCESS) {
+				*pSaved = cSaved ;
+				return erFAILURE ;
+			}
+			++NumOK ;
+			++psPH->jtI ;
 		} else {
-			myASSERT(0) ;
-		}
-		*pSaved = cSaved ;
-		if (iRV == erFAILURE) {
 			return erFAILURE ;
 		}
+		*pSaved = cSaved ;
 	}
-	return szArr ;
+	return NumOK ;
 }
 
-int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf, void * pvArg) {
-	IF_myASSERT(debugPARAM, halCONFIG_inMEM(psPlist) && szPlist > 0) ;
+int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPList, const char * pcBuf, size_t szBuf, void * pvArg) {
+	IF_myASSERT(debugPARAM, halCONFIG_inMEM(psPlist) && szPList > 0) ;
 	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pcBuf) && szBuf > 0) ;
 	parse_hdlr_t sPH = { 0 } ;
-	sPH.pvArg	= pvArg ;
-	int32_t iRV1 = 0, iRV2 = 0 ;
-	iRV1 = xJsonParse(pcBuf, szBuf, &sPH.sParser, &sPH.psTokenList) ;
-	if (iRV1 < 1 || sPH.psTokenList == NULL) {
-		goto no_free ;
+	int32_t iRV = 0 ;
+	iRV = xJsonParse(pcBuf, szBuf, &sPH.sParser, &sPH.psTList) ;
+	if (iRV < 1 || sPH.psTList == NULL) {
+		IF_SL_ERR(debugRESULT, "jsmnX parse error (%d)", iRV) ;
+		return erFAILURE ;
 	}
-	for (sPH.plI = 0, sPH.NumTok = iRV1; sPH.plI < szPlist; ++sPH.plI) {
-		sPH.pcBuf = pcBuf ;
-		sPH.szBuf = szBuf ;
+	sPH.pcBuf	= pcBuf ;
+	sPH.szBuf	= szBuf ;
+	sPH.pvArg	= pvArg ;
+	sPH.NumTok	= iRV ;
+	for (sPH.plI = 0; sPH.plI < szPList; ++sPH.plI) {			// Outside parse_list_t loop
 		sPH.pcKey = psPlist[sPH.plI].pToken ;
 		sPH.szKey = xstrlen(sPH.pcKey) ;
-		for (sPH.jtI = 0; sPH.jtI < sPH.NumTok; ++sPH.jtI) {
-			jsmntok_t * psToken = &sPH.psTokenList[sPH.jtI] ;
-			if (sPH.szKey == (psToken->end - psToken->start) &&
-				xstrncmp(sPH.pcKey, pcBuf+psToken->start, sPH.szKey, 1)) {
-//				TRACK("szKey=%d  '%.*s'", sPH.szKey, psToken->end - psToken->start, pcBuf+psToken->start) ;
-				iRV2 = psPlist[sPH.plI].pHdlr(&sPH) ;
-				if (iRV2 >= erSUCCESS) {
-					++sPH.NumOK ;
-				} else {
-					SL_WARN("iRV=%d  Key='%s'  Tok#=%d  Val='%.*s'", iRV2, sPH.pcKey, sPH.jtI, psToken->end - psToken->start, pcBuf + psToken->start) ;
+		sPH.jtI	= 0 ;
+		while(sPH.jtI < sPH.NumTok) {							// Inside jsmntok loop
+			jsmntok_t * psT = &sPH.psTList[sPH.jtI] ;
+			if ((sPH.szKey == (psT->end-psT->start)) &&
+				(xstrncmp(sPH.pcKey, pcBuf+psT->start,sPH.szKey,1) == 1)) {
+				IF_EXEC_1(debugLIST, xJsonPrintPH, &sPH) ;
+				++sPH.jtI ;										// ensure start at next
+				iRV = psPlist[sPH.plI].pHdlr(&sPH) ;
+				if (iRV >= erSUCCESS) {
+					sPH.NumOK += iRV ;
 				}
+			} else {
+				++sPH.jtI ;										// skip this token
 			}
 		}
 	}
-	IF_EXEC_4(debugHDLR && iRV2 >= erSUCCESS, xJsonPrintTokens, pcBuf, sPH.psTokenList, sPH.NumTok, 0) ;
-	free(sPH.psTokenList) ;
-no_free:
-	IF_TRACK(debugRESULT && iRV1 < 1, "ERROR=%d", iRV1) ;
-    return sPH.NumOK ? sPH.NumOK : iRV2 ;
+	IF_EXEC_4(debugHDLR && iRV >= erSUCCESS, xJsonPrintTokens, pcBuf, sPH.psTList, sPH.NumTok, 0) ;
+	free(sPH.psTList) ;
+    return sPH.NumOK ? sPH.NumOK : iRV ;
 }

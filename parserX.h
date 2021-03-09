@@ -11,6 +11,7 @@
 #include	"jsmn.h"
 
 #include	"x_definitions.h"
+#include	"database.h"
 #include	"x_buffers.h"
 #include	"x_complex_vars.h"
 
@@ -23,15 +24,14 @@
 // ############################################ structures #########################################
 
 typedef struct {
-	const char *pcBuf ;
-	size_t		szBuf ;
-	const char *pcKey ;									// current key being evaluated
-	size_t		szKey ;
-	jsmn_parser	sParser ;
-	jsmntok_t *	psTokenList ;
-	int32_t		NumTok ;								// total number of tokens
-	int32_t		NumOK ;									// number tokens parsed OK
-	uint32_t	flag ;
+	const char *pcBuf ;									// JSON source buffer
+	size_t		szBuf ;									// source buffer size
+	const char *pcKey ;									// current key in parse_list_t
+	size_t		szKey ;									// current key size
+	jsmn_parser sParser ;								// jsmn control structure
+	jsmntok_t *	psTList ;								// jsmntok_t array allocated memory
+	int32_t		NumTok ;								// number of tokens parsed by jsmn
+	int32_t		NumOK ;									// sum of values returned by handlers.
 	int32_t		plI ;									// parse_list_t index
 	int32_t		jtI ;									// jsmntok_t index
 	void *		pvArg ;
@@ -44,6 +44,7 @@ typedef struct {
 
 // ####################################### global functions ########################################
 
+void	xJsonPrintPH(parse_hdlr_t * psPH) ;
 void	xJsonPrintToken(const char * pcBuf, jsmntok_t * pT) ;
 
 int32_t	xJsonPrintTokens(const char * pcBuf, jsmntok_t * pToken, size_t Count, int32_t Depth) ;
@@ -55,6 +56,7 @@ int32_t	xJsonFindKey(const char * pBuf, jsmntok_t * pTokenList, int32_t NumTok, 
 
 int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * psT, int32_t NumTok, const char * pKey, void * pValue, varform_t VarForm) ;
 
-int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *), int32_t Count, varform_t cvF, varsize_t cvS) ;
+int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, p32_t paDst[], dbf_t paDBF[]) ;
+int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *), int32_t szArr, varform_t cvF, varsize_t cvS) ;
 
 int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf, void * pvArg) ;
