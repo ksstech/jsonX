@@ -136,14 +136,7 @@ static	int32_t  ecJsonAddNumber(json_obj_t * pJson, p32_t pValue, cv_idx_t cvI) 
 	default:	IF_myASSERT(debugSTATE, 0) ;	return erJSON_FORMAT ;
 	}
 	// Step 2: write the value, format depending on fractional part
-	if (Form < cvU64) {
-			uprintfx(pJson->psBuf, "%llu", xVal.u64) ;
-	} else if (Form < cvI64) {
-		uprintfx(pJson->psBuf, "%lld", xVal.i64) ;
-	} else {
-		uprintfx(pJson->psBuf, "%.*f", ecJsonDecimals, xVal.f64) ;
-	}
-
+	uprintfx(pJson->psBuf, cvI < cvI08 ? "%llu" : cvI < cvF32 ? "%lld" : "%.g" , xVal.f64) ;
 	if (xUBufSpace(pJson->psBuf) == 0) {
 		return erJSON_BUF_FULL ;
 	}
