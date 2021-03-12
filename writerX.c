@@ -32,7 +32,6 @@
 #include	"x_string_general.h"
 #include	"printfx.h"									// +x_definitions +stdarg +stdint +stdio
 #include	"syslog.h"
-#include	"x_complex_vars.h"
 #include	"hal_config.h"
 
 #include	<string.h>
@@ -120,10 +119,10 @@ static	int32_t  ecJsonAddStringArray(json_obj_t * pJson, p32_t pValue, size_t xS
  * @param NumType
  * @return
  */
-static	int32_t  ecJsonAddNumber(json_obj_t * pJson, p32_t pValue, uint8_t Form) {
+static	int32_t  ecJsonAddNumber(json_obj_t * pJson, p32_t pValue, cv_idx_t cvI) {
 	x64_t		xVal ;
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pvoid) ) ;
-	switch(Form) {									// Normalize the size to 64bit double
+	switch(cvI) {									// Normalize the size to 64bit double
 	case cvU08:	xVal.u64	= *pValue.pu8 ;		break ;
 	case cvU16:	xVal.u64	= *pValue.pu16 ;	break ;
 	case cvU32:	xVal.u64	= *pValue.pu32 ;	break ;
@@ -158,8 +157,8 @@ static	int32_t  ecJsonAddNumber(json_obj_t * pJson, p32_t pValue, uint8_t Form) 
  * @param eFormType	- format in which to write the timestamp
  * @return
  */
-static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, p32_t pValue, uint8_t eForm) {
-	switch(eForm) {
+static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, p32_t pValue, cv_idx_t cvI) {
+	switch(cvI) {
 	case cvDT_ELAP:	uprintfx(pJson->psBuf, "\"%!R\"", *pValue.pu64) ;	break ;
 	case cvDT_UTC:	uprintfx(pJson->psBuf, "\"%R\"", *pValue.pu64) ;	break ;
 	case cvDT_ALT:	uprintfx(pJson->psBuf, "\"%#Z\"", pValue.pvoid) ;	break ;
@@ -178,21 +177,21 @@ static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, p32_t pValue, uint8_t eFo
  * Will open, fill and close the array, with a leading COMMA is other values
  * already in the object..
  */
-static	int32_t  ecJsonAddNumberArray(json_obj_t * pJson, p32_t pValue, uint8_t eForm, size_t xSize) {
+static	int32_t  ecJsonAddNumberArray(json_obj_t * pJson, p32_t pValue, cv_idx_t cvI, size_t xSize) {
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pvoid)) ;// can be in FLASH or SRAM
 	ecJsonAddChar(pJson, CHR_L_SQUARE) ;				// Step 1: write the opening ' [ '
 
 	while (xSize--) {									// Step 2: handle each array value, 1 by 1
-		ecJsonAddNumber(pJson, pValue, eForm) ;			// Step 2a: add the number
+		ecJsonAddNumber(pJson, pValue, cvI) ;			// Step 2a: add the number
 		if (xSize != 0)									// Step 2b: if not the last number
 			ecJsonAddChar(pJson, CHR_COMMA) ;  			//			write separating ','
-		if (eForm == cvU08 || eForm == cvI08)			// Step 3: adjust the value pointer
+		if (cvI == cvU08 || cvI == cvI08)			// Step 3: adjust the value pointer
 			pValue.pu8++ ;
-		else if (eForm == cvU16 || eForm == cvI16)
+		else if (cvI == cvU16 || cvI == cvI16)
 			pValue.pu16++ ;
-		else if (eForm == cvU32 || eForm == cvI32 || eForm == cvF32)
+		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32)
 			pValue.pu32++ ;
-		else if (eForm == cvU32 || eForm == cvI32 || eForm == cvF32)
+		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32)
 			pValue.pu64++ ;
 		else
 			return erJSON_NUM_TYPE ;
@@ -228,9 +227,9 @@ int32_t	ecJsonSetDecimals(int32_t xNumber) {
  * \note:	In the case of adding a new object, pValue must be a pointer to the location
  * 			of the the new Json object struct to be filled in....
  */
-int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, p32_t pValue, uint8_t eType, uint8_t eForm, size_t xArrSize) {
+int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, p32_t pValue, uint8_t jForm, cv_idx_t cvI, size_t xArrSize) {
 	json_obj_t * pJson1	;
-	IF_SL_INFO(debugTRACK, "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, eType, eForm, xArrSize) ;
+	IF_SL_INFO(debugTRACK, "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, jForm, cvI, xArrSize) ;
 	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halCONFIG_inMEM(pValue.pvoid)) ;
 
 	if (pJson->val_count > 0)							// Step 1: if already something in the object
@@ -240,13 +239,13 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, p32_t pValue, 
 		ecJsonAddString(pJson, pKey) ;					//			add it...
 		ecJsonAddChar(pJson, CHR_COLON) ;
 	}
-	switch(eType) {										// Step 3: Add the value
+	switch(jForm) {										// Step 3: Add the value
 	case jsonNULL: ecJsonAddChars(pJson, "null") ;		break ;
 	case jsonFALSE:	ecJsonAddChars(pJson, "false") ;	break ;
 	case jsonTRUE: ecJsonAddChars(pJson, "true") ;		break ;
 	case jsonXXX:
 		IF_myASSERT(debugSTATE, xArrSize == 1) ;
-		ecJsonAddNumber(pJson, pValue, eForm) ;
+		ecJsonAddNumber(pJson, pValue, cvI) ;
 		break ;
 
 	case jsonSXX:
@@ -254,13 +253,13 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, p32_t pValue, 
 		ecJsonAddString(pJson, pValue.pc8) ;
 		break ;
 
-	case jsonEDTZ: ecJsonAddTimeStamp(pJson, pValue, eForm) ;	break ;
+	case jsonEDTZ: ecJsonAddTimeStamp(pJson, pValue, cvI) ;	break ;
 
 	case jsonARRAY:
 		IF_myASSERT(debugSTATE, xArrSize > 0) ;
-		if (eForm <= cvSXX) {
-			ecJsonAddNumberArray(pJson, pValue, eForm, xArrSize) ;
-		} else if (eForm == cvSXX) {
+		if (cvI <= cvSXX) {
+			ecJsonAddNumberArray(pJson, pValue, cvI, xArrSize) ;
+		} else if (cvI == cvSXX) {
 			ecJsonAddStringArray(pJson, pValue, xArrSize) ;
 		} else {
 			IF_myASSERT(debugRESULT, 0) ;
@@ -281,7 +280,7 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, p32_t pValue, 
 		IF_myASSERT(debugRESULT, 0) ;
 		return erJSON_TYPE ;
 	}
-	if (eType != jsonOBJ) {							// for all key:value pairs other than OBJECT
+	if (jForm != jsonOBJ) {							// for all key:value pairs other than OBJECT
 		pJson->val_count++ ;							// increase the object count
 	}
 	IF_SL_INFO(debugBUILD, "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf) ;
