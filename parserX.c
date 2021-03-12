@@ -215,8 +215,10 @@ int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int32_t NumTok
  */
 int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, p32_t paDst[], dbf_t paDBF[]) {
 	IF_EXEC_1(debugARRAY, xJsonPrintPH, psPH) ;
-	IF_myASSERT(debugPARAM, psPH->psTList[psPH->jtI].type == JSMN_ARRAY &&
-							szArr == psPH->psTList[psPH->jtI].size) ;
+	if (psPH->psTList[psPH->jtI].size != szArr) {
+		SL_ERR("Invalid Array size (%u) or count(%u)", psPH->psTList[psPH->jtI].size, szArr) ;
+		return erFAILURE ;
+	}
 	int32_t NumOK = 0 ;
 	jsmntok_t * psT = &psPH->psTList[++psPH->jtI] ;		// step into ARRAY to 1st ELEMENT
 	for (int32_t i = 0; i < szArr; ++psT, ++i) {
@@ -268,7 +270,10 @@ int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, p32_t paDst[], dbf
 int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *),
 						int32_t szArr, varform_t cvF, varsize_t cvS) {
 	IF_EXEC_1(debugARRAY, xJsonPrintPH, psPH) ;
-	IF_myASSERT(debugPARAM, szArr > 0 && psPH->psTList[psPH->jtI].size == szArr) ;
+	if (szArr < 1 || psPH->psTList[psPH->jtI].size != szArr) {
+		SL_ERR("Invalid Array size (%u) or count(%u)", psPH->psTList[psPH->jtI].size, szArr) ;
+		return erFAILURE ;
+	}
 	int32_t NumOK = 0 ;
 	jsmntok_t * psT = &psPH->psTList[++psPH->jtI] ;		// step to first ARRAY ELEMENT
 	for (int32_t i = 0; i < szArr; ++psT, ++i) {
