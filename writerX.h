@@ -9,10 +9,8 @@
 #pragma once
 
 #include	"x_complex_vars.h"
-#include	"x_definitions.h"							// brings mySTRINGIFY
 #include	"x_ubuf.h"
 #include	"x_errors_events.h"
-#include	"x_struct_union.h"
 
 // ########################################## macros ##############################################
 
@@ -51,6 +49,6 @@ typedef struct json_obj_t {
 // ####################################### global functions ########################################
 
 int32_t	ecJsonSetDecimals(int32_t xNumber) ;
-int32_t	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, p32_t pValue, uint8_t jForm, cv_idx_t cvI, size_t xArrSize) ;
+int32_t	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_t jForm, cv_idx_t cvI, size_t xArrSize) ;
 int32_t	ecJsonCloseObject(json_obj_t * pJson) ;
 int32_t	ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psBuf) ;

@@ -9,11 +9,7 @@
 #pragma once
 
 #include	"jsmn.h"
-
-#include	"x_definitions.h"
 #include	"database.h"
-#include	"x_buffers.h"
-#include	"x_complex_vars.h"
 
 // ########################################## macros ###############################################
 
@@ -44,8 +40,7 @@ typedef struct {
 
 // ####################################### global functions ########################################
 
-void	xJsonPrintPH(parse_hdlr_t * psPH) ;
-void	xJsonPrintToken(const char * pcBuf, jsmntok_t * pT) ;
+void	xJsonPrintCurTok(parse_hdlr_t * psPH) ;
 
 int32_t	xJsonPrintTokens(const char * pcBuf, jsmntok_t * pToken, size_t Count, int32_t Depth) ;
 int32_t	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmntok_t * * ppTokenList) ;
@@ -56,7 +51,7 @@ int32_t	xJsonFindKey(const char * pBuf, jsmntok_t * pTokenList, int32_t NumTok, 
 
 int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * psT, int32_t NumTok, const char * pKey, void * pValue, varform_t VarForm) ;
 
-int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, p32_t paDst[], dbf_t paDBF[]) ;
-int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *), int32_t szArr, varform_t cvF, varsize_t cvS) ;
+int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, px_t paDst[], dbf_t paDBF[]) ;
+int32_t xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int32_t(* Hdlr)(char *), int32_t szArr, varform_t cvF, varsize_t cvS) ;
 
 int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf, void * pvArg) ;

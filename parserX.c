@@ -213,8 +213,8 @@ int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int32_t NumTok
  * 			if successful, leaves jtI set to next token to parse
  * 			if failed, jti left at the failing element
  */
-int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, p32_t paDst[], dbf_t paDBF[]) {
 	IF_EXEC_1(debugARRAY, xJsonPrintPH, psPH) ;
+int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, px_t paDst[], dbf_t paDBF[]) {
 	if (psPH->psTList[psPH->jtI].size != szArr) {
 		SL_ERR("Invalid Array size (%u) or count(%u)", psPH->psTList[psPH->jtI].size, szArr) ;
 		return erFAILURE ;
@@ -243,7 +243,7 @@ int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, p32_t paDst[], dbf
 			++NumOK ;
 		} else if (psT->type == JSMN_STRING && cvF == vfSXX) {
 			uint8_t szTok = psT->end - psT->start ;
-			memcpy(paDst[i].pvoid, pcBuf, szTok < paDBF[i].fS ? szTok : paDBF[i].fS) ;
+			memcpy(paDst[i].pv, pcBuf, szTok < paDBF[i].fS ? szTok : paDBF[i].fS) ;
 			++psPH->jtI ;
 			++NumOK ;
 		} else {
@@ -267,7 +267,7 @@ int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, p32_t paDst[], dbf
  * 			if successful, leaves jtI set to next token to parse
  * 			if failed, jti left at the failing element
  */
-int32_t xJsonParseArray(parse_hdlr_t * psPH, p32_t pDst, int32_t(* Hdlr)(char *),
+int32_t xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int32_t(* Hdlr)(char *),
 						int32_t szArr, varform_t cvF, varsize_t cvS) {
 	IF_EXEC_1(debugARRAY, xJsonPrintPH, psPH) ;
 	if (szArr < 1 || psPH->psTList[psPH->jtI].size != szArr) {
