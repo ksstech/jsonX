@@ -28,13 +28,14 @@
  *
  */
 
+#include	<string.h>
+
 #include	"writerX.h"
 #include	"x_string_general.h"
 #include	"printfx.h"									// +x_definitions +stdarg +stdint +stdio
 #include	"syslog.h"
 #include	"hal_config.h"
 
-#include	<string.h>
 
 #define	debugFLAG					0xC000
 
@@ -119,7 +120,6 @@ static	int32_t  ecJsonAddStringArray(json_obj_t * pJson, px_t pValue, size_t xSi
  * @param NumType
  * @return
  */
-	default:	IF_myASSERT(debugSTATE, 0) ;	return erJSON_FORMAT ;
 static	int32_t  ecJsonAddNumber(json_obj_t * pJson, px_t pX, cv_idx_t cvI) {
 	x64_t		X64 ;
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pX.pv) ) ;
@@ -134,6 +134,7 @@ static	int32_t  ecJsonAddNumber(json_obj_t * pJson, px_t pX, cv_idx_t cvI) {
 	case cvI64:	X64.i64	= *pX.pi64 ;	break ;
 	case cvF32:	X64.f64	= *pX.pf32 ;	break ;
 	case cvF64:	X64.f64	= *pX.pf64 ;	break ;
+	default: IF_myASSERT(debugSTATE, 0) ;	return erJSON_FORMAT ;
 	}
 	// Step 2: write the value, format depending on fractional part
 	uprintfx(pJson->psBuf, cvI < cvI08 ? "%llu" : cvI < cvF32 ? "%lld" : "%.g" , xVal.f64) ;
@@ -176,18 +177,20 @@ static	int32_t  ecJsonAddNumberArray(json_obj_t * pJson, px_t pValue, cv_idx_t c
 
 	while (xSize--) {									// Step 2: handle each array value, 1 by 1
 		ecJsonAddNumber(pJson, pValue, cvI) ;			// Step 2a: add the number
-		if (xSize != 0)									// Step 2b: if not the last number
+		if (xSize != 0) {								// Step 2b: if not the last number
 			ecJsonAddChar(pJson, CHR_COMMA) ;  			//			write separating ','
-		if (cvI == cvU08 || cvI == cvI08)			// Step 3: adjust the value pointer
+		}
+		if (cvI == cvU08 || cvI == cvI08) {				// Step 3: adjust the value pointer
 			pValue.pu8++ ;
-		else if (cvI == cvU16 || cvI == cvI16)
+		} else if (cvI == cvU16 || cvI == cvI16) {
 			pValue.pu16++ ;
-		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32)
+		} else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32) {
 			pValue.pu32++ ;
-		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32)
+		} else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32) {
 			pValue.pu64++ ;
-		else
+		} else {
 			return erJSON_NUM_TYPE ;
+		}
 	}
 	return ecJsonAddChar(pJson, CHR_R_SQUARE) ;			// Step 4: write the closing ' ] '
 }
@@ -225,29 +228,34 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u
 	IF_SL_INFO(debugTRACK, "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, jForm, cvI, xArrSize) ;
 	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halCONFIG_inMEM(pValue.pv)) ;
 
-	if (pJson->val_count > 0)							// Step 1: if already something in the object
+	if (pJson->val_count > 0) {							// Step 1: if already something in the object
 		ecJsonAddChar(pJson, CHR_COMMA) ;				//			write separating ','
-
+	}
 	if (pKey != 0) {									// Step 2: If key supplied
 		ecJsonAddString(pJson, pKey) ;					//			add it...
 		ecJsonAddChar(pJson, CHR_COLON) ;
 	}
 	switch(jForm) {										// Step 3: Add the value
-	case jsonNULL: ecJsonAddChars(pJson, "null") ;		break ;
-	case jsonFALSE:	ecJsonAddChars(pJson, "false") ;	break ;
-	case jsonTRUE: ecJsonAddChars(pJson, "true") ;		break ;
+	case jsonNULL:
+		ecJsonAddChars(pJson, "null") ;
+		break ;
+	case jsonFALSE:
+		ecJsonAddChars(pJson, "false") ;
+		break ;
+	case jsonTRUE:
+		ecJsonAddChars(pJson, "true") ;
+		break ;
 	case jsonXXX:
 		IF_myASSERT(debugSTATE, xArrSize == 1) ;
 		ecJsonAddNumber(pJson, pValue, cvI) ;
 		break ;
-
 	case jsonSXX:
 		IF_myASSERT(debugSTATE, xArrSize == 1) ;
 		ecJsonAddString(pJson, pValue.pc8) ;
 		break ;
-
-	case jsonEDTZ: ecJsonAddTimeStamp(pJson, pValue, cvI) ;	break ;
-
+	case jsonEDTZ:
+		ecJsonAddTimeStamp(pJson, pValue, cvI) ;
+		break ;
 	case jsonARRAY:
 		IF_myASSERT(debugSTATE, xArrSize > 0) ;
 		if (cvI <= cvSXX) {
@@ -259,7 +267,6 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u
 			return erJSON_ARRAY ;
 		}
 		break ;
-
 	case jsonOBJ:
 		IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv) ) ;	// can be in FLASH or SRAM
 		pJson1	= (json_obj_t *) pValue.pv ;
@@ -268,7 +275,6 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u
 		pJson1->parent	= pJson ;						// setup link from child to parent
 		pJson->obj_nest++ ;								// increase parent nest level
 		break ;
-
 	default:
 		IF_myASSERT(debugRESULT, 0) ;
 		return erJSON_TYPE ;
