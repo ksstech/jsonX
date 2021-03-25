@@ -119,21 +119,21 @@ static	int32_t  ecJsonAddStringArray(json_obj_t * pJson, px_t pValue, size_t xSi
  * @param NumType
  * @return
  */
-static	int32_t  ecJsonAddNumber(json_obj_t * pJson, px_t pValue, cv_idx_t cvI) {
-	x64_t		xVal ;
-	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv) ) ;
-	switch(cvI) {									// Normalize the size to 64bit double
-	case cvU08:	xVal.u64	= *pValue.pu8 ;		break ;
-	case cvU16:	xVal.u64	= *pValue.pu16 ;	break ;
-	case cvU32:	xVal.u64	= *pValue.pu32 ;	break ;
-	case cvU64:	xVal.u64	= *pValue.pu64 ;	break ;
-	case cvI08:	xVal.i64	= *pValue.pi8 ;		break ;
-	case cvI16:	xVal.i64	= *pValue.pi16 ;	break ;
-	case cvI32:	xVal.i64	= *pValue.pi32 ;	break ;
-	case cvI64:	xVal.i64	= *pValue.pi64 ;	break ;
-	case cvF32:	xVal.f64	= *pValue.pf32 ;	break ;
-	case cvF64:	xVal.f64	= *pValue.pf64 ;	break ;
 	default:	IF_myASSERT(debugSTATE, 0) ;	return erJSON_FORMAT ;
+static	int32_t  ecJsonAddNumber(json_obj_t * pJson, px_t pX, cv_idx_t cvI) {
+	x64_t		X64 ;
+	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pX.pv) ) ;
+	switch(cvI) {									// Normalize size to X64
+	case cvU08:	X64.u64	= *pX.pu8 ;		break ;
+	case cvU16:	X64.u64	= *pX.pu16 ;	break ;
+	case cvU32:	X64.u64	= *pX.pu32 ;	break ;
+	case cvU64:	X64.u64	= *pX.pu64 ;	break ;
+	case cvI08:	X64.i64	= *pX.pi8 ;		break ;
+	case cvI16:	X64.i64	= *pX.pi16 ;	break ;
+	case cvI32:	X64.i64	= *pX.pi32 ;	break ;
+	case cvI64:	X64.i64	= *pX.pi64 ;	break ;
+	case cvF32:	X64.f64	= *pX.pf32 ;	break ;
+	case cvF64:	X64.f64	= *pX.pf64 ;	break ;
 	}
 	// Step 2: write the value, format depending on fractional part
 	uprintfx(pJson->psBuf, cvI < cvI08 ? "%llu" : cvI < cvF32 ? "%lld" : "%.g" , xVal.f64) ;
