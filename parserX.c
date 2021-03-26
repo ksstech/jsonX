@@ -314,7 +314,7 @@ int32_t xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int32_t(* Hdlr)(char *),
 			int32_t iRV = Hdlr(pcBuf) ;
 			if (iRV < erSUCCESS) {
 				*pSaved = cSaved ;
-				return erFAILURE ;
+				return iRV ;
 			}
 			++NumOK ;
 			++psPH->jtI ;
