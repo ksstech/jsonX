@@ -8,13 +8,12 @@
  *
  */
 
+#include	"hal_config.h"
 #include	"parserX.h"
 #include	"x_string_general.h"
 #include	"x_string_to_values.h"
 #include	"x_errors_events.h"
 #include	"printfx.h"									// x_definitions stdarg stdint stdio
-
-#include	"hal_config.h"
 
 #include	<stdlib.h>
 #include	<string.h>
