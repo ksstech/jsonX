@@ -184,7 +184,7 @@ int32_t	xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int32_t NumTok, cons
  * @param VarForm
  * @return			erSUCCESS or erFAILURE
  */
-int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int32_t NumTok, const char * pKey, void * pValue, varform_t VarForm) {
+int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int32_t NumTok, const char * pKey, void * pValue, vf_e VarForm) {
 	int32_t	xLen ;
 	char * pDst, * pSrc ;
 	double	f64Value ;
@@ -236,7 +236,7 @@ int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, px_t paDst[], dbf_
 	int32_t NumOK = 0 ;
 	jsmntok_t * psT = &psPH->psTList[++psPH->jtI] ;		// step into ARRAY to 1st ELEMENT
 	for (int32_t i = 0; i < szArr; ++psT, ++i) {
-		varform_t cvF = xCV_Index2Form(paDBF[i].cvI) ;
+		vf_e cvF = xCV_Index2Form(paDBF[i].cvI) ;
 		char * pcBuf = (char *) psPH->pcBuf + psT->start ;
 		char * pSaved = (char *) psPH->pcBuf + psT->end ;
 		char cSaved = *pSaved ;							// Save char before overwrite
@@ -282,7 +282,7 @@ int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, px_t paDst[], dbf_
  * 			if failed, jti left at the failing element
  */
 int32_t xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int32_t(* Hdlr)(char *),
-						int32_t szArr, varform_t cvF, varsize_t cvS) {
+						int32_t szArr, vf_e cvF, vs_e cvS) {
 	IF_EXEC_1(debugARRAY, xJsonPrintCurTok, psPH) ;
 	if (szArr < 1 || psPH->psTList[psPH->jtI].size != szArr) {
 		IF_PRINT(debugARRAY, "Invalid Array size (%u) or count(%u)\n", psPH->psTList[psPH->jtI].size, szArr) ;

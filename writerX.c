@@ -120,7 +120,7 @@ static	int32_t  ecJsonAddStringArray(json_obj_t * pJson, px_t pValue, size_t xSi
  * @param NumType
  * @return
  */
-static	int32_t  ecJsonAddNumber(json_obj_t * pJson, px_t pX, cv_idx_t cvI) {
+static	int32_t  ecJsonAddNumber(json_obj_t * pJson, px_t pX, cvi_e cvI) {
 	x64_t		X64 ;
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pX.pv) ) ;
 	switch(cvI) {									// Normalize size to X64
@@ -151,7 +151,7 @@ static	int32_t  ecJsonAddNumber(json_obj_t * pJson, px_t pX, cv_idx_t cvI) {
  * @param eFormType	- format in which to write the timestamp
  * @return
  */
-static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cv_idx_t cvI) {
+static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cvi_e cvI) {
 	switch(cvI) {
 	case cvDT_ELAP:	uprintfx(pJson->psBuf, "\"%!R\"", *pValue.pu64) ;	break ;
 	case cvDT_UTC:	uprintfx(pJson->psBuf, "\"%R\"", *pValue.pu64) ;	break ;
@@ -171,7 +171,7 @@ static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cv_idx_t cvI
  * Will open, fill and close the array, with a leading COMMA is other values
  * already in the object..
  */
-static	int32_t  ecJsonAddNumberArray(json_obj_t * pJson, px_t pValue, cv_idx_t cvI, size_t xSize) {
+static	int32_t  ecJsonAddNumberArray(json_obj_t * pJson, px_t pValue, cvi_e cvI, size_t xSize) {
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv)) ;// can be in FLASH or SRAM
 	ecJsonAddChar(pJson, CHR_L_SQUARE) ;				// Step 1: write the opening ' [ '
 
@@ -223,7 +223,7 @@ int32_t	ecJsonSetDecimals(int32_t xNumber) {
  * \note:	In the case of adding a new object, pValue must be a pointer to the location
  * 			of the the new Json object struct to be filled in....
  */
-int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_t jForm, cv_idx_t cvI, size_t xArrSize) {
+int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_t jForm, cvi_e cvI, size_t xArrSize) {
 	json_obj_t * pJson1	;
 	IF_SL_INFO(debugTRACK, "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, jForm, cvI, xArrSize) ;
 	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halCONFIG_inMEM(pValue.pv)) ;

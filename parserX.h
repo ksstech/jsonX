@@ -49,9 +49,9 @@ int32_t	xJsonReadValue(const char * pBuf, jsmntok_t * pTokenList, double * pDoub
 int32_t	xJsonCompareKey(const char * pKey, int32_t TokLen, char * pTok) ;
 int32_t	xJsonFindKey(const char * pBuf, jsmntok_t * pTokenList, int32_t NumTok, const char * pKey) ;
 
-int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * psT, int32_t NumTok, const char * pKey, void * pValue, varform_t VarForm) ;
+int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * psT, int32_t NumTok, const char * pKey, void * pValue, vf_e VarForm) ;
 
-int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, px_t paDst[], dbf_t paDBF[]) ;
-int32_t xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int32_t(* Hdlr)(char *), int32_t szArr, varform_t cvF, varsize_t cvS) ;
+int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int32_t szArr, dbf_t paDBF[]) ;
+int32_t xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int32_t(* Hdlr)(char *), int32_t szArr, vf_e cvF, vs_e cvS) ;
 
 int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf, void * pvArg) ;
