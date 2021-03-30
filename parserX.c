@@ -21,7 +21,7 @@
 
 // ############################### BUILD: debug configuration options ##############################
 
-#define	debugFLAG					0xF000
+#define	debugFLAG					0xF008
 
 #define	debugFINDKEY				(debugFLAG & 0x0001)
 #define	debugHDLR					(debugFLAG & 0x0002)
@@ -220,15 +220,14 @@ int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int32_t NumTok
  * Parse JSON array for strings or primitives, store directly into empty db_t structure record
  * @brief	EXPECT jtI to be the token# of the array to be parsed.
  * @param	psPH	Pointer to pre-initialised parser handler structure
- * @param	Count	Maximum number of elements to parse
  * @param	paDst	Pointer to array of pointers for each element
- * @param	cvF		pointer to array of dbf_t structures defining each db_t record
+ * @param	Count	Maximum number of elements to parse
+ * @param	paDBF[]	pointer to array of dbf_t structures defining each db_t record
  * @return	Number of elements parsed or erFAILURE
  * 			if successful, leaves jtI set to next token to parse
  * 			if failed, jti left at the failing element
  */
-int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, px_t paDst[], dbf_t paDBF[]) {
-	IF_EXEC_1(debugARRAY, xJsonPrintCurTok, psPH) ;
+int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int32_t szArr, dbf_t paDBF[]) {
 	if (psPH->psTList[psPH->jtI].size != szArr) {
 		IF_PRINT(debugARRAY, "Invalid Array size (%u) or count(%u)\n", psPH->psTList[psPH->jtI].size, szArr) ;
 		return erFAILURE ;
@@ -251,6 +250,7 @@ int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, px_t paDst[], dbf_
 			}
 			if (pcStringParseValue(pcBuf, paDst[i], cvF, xCV_Index2Size(paDBF[i].cvI), NULL) == pcFAILURE) {
 				*pSaved = cSaved ;
+				IF_EXEC_1(debugARRAY, xJsonPrintCurTok, psPH) ;
 				return erFAILURE ;
 			}
 			++psPH->jtI ;
@@ -261,6 +261,7 @@ int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, int32_t szArr, px_t paDst[], dbf_
 			++psPH->jtI ;
 			++NumOK ;
 		} else {
+			IF_EXEC_1(debugARRAY, xJsonPrintCurTok, psPH) ;
 			return erFAILURE ;
 		}
 		*pSaved = cSaved ;
