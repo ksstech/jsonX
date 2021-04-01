@@ -21,7 +21,7 @@
 
 // ############################### BUILD: debug configuration options ##############################
 
-#define	debugFLAG					0xF008
+#define	debugFLAG					0xF000
 
 #define	debugFINDKEY				(debugFLAG & 0x0001)
 #define	debugHDLR					(debugFLAG & 0x0002)
