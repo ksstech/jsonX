@@ -69,11 +69,13 @@ static int32_t	ecJsonAddChar(json_obj_t * pJson, char cChar) {
  * @param pString
  * @return
  */
-static int32_t	ecJsonAddChars(json_obj_t * pJson, const char * pString) {
-	int32_t	xLen = xstrlen(pString) ;					// Step 1: determine the string length
-	IF_myASSERT(debugSTATE, xLen > 0) ;
-	while (xLen--) {									// Step 2: handle characters (with optional escapes)
-		if (strchr(ESChars, *pString) != NULL) {			// Step 3: handle ESCape if required
+static int32_t	ecJsonAddChars(json_obj_t * pJson, const char * pString, size_t xArrSize) {
+	if (xArrSize == 0) {
+		xArrSize = xstrlen(pString) ;					// Step 1: determine the string length
+	}
+	IF_myASSERT(debugSTATE, xArrSize > 0) ;
+	while (xArrSize--) {								// Step 2: handle characters (with optional escapes)
+		if (strchr(ESChars, *pString) != NULL) {		// Step 3: handle ESCape if required
 		   ecJsonAddChar(pJson, CHR_BACKSLASH) ;
 		}
 		ecJsonAddChar(pJson, *pString++) ;				// Step 4: process the actual character
@@ -87,10 +89,10 @@ static int32_t	ecJsonAddChars(json_obj_t * pJson, const char * pString) {
  * @param pString
  * @return
  */
-static int32_t  ecJsonAddString(json_obj_t * pJson, const char * pString) {
+static int32_t  ecJsonAddString(json_obj_t * pJson, const char * pString, size_t xArrSize) {
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pString)) ;		// can be in FLASH or SRAM
 	ecJsonAddChar(pJson, CHR_DOUBLE_QUOTE) ;			// Step 1: write the opening ' " '
-	ecJsonAddChars(pJson, pString) ;					// Step 2: write the string
+	ecJsonAddChars(pJson, pString, xArrSize) ;			// Step 2: write the string
 	return ecJsonAddChar(pJson, CHR_DOUBLE_QUOTE) ;		// Step 3: write the closing ' " '
 }
 
@@ -105,7 +107,7 @@ static	int32_t  ecJsonAddStringArray(json_obj_t * pJson, px_t pValue, size_t xSi
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv));	// can be in FLASH or SRAM
 	ecJsonAddChar(pJson, CHR_L_SQUARE) ;				// Step 1: write the opening ' [ '
 	while (xSize--) {									// Step 2: handle each string from array, 1 by 1
-		ecJsonAddString(pJson, *pValue.ppc8++) ;		// Step 2a: add the string
+		ecJsonAddString(pJson, *pValue.ppc8++, 0) ;		// Step 2a: add the string
 		if (xSize != 0) {								// Step 2b: if not last value ?
 			ecJsonAddChar(pJson, CHR_COMMA) ; 			// 			add a separator
 		}
@@ -232,26 +234,25 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u
 		ecJsonAddChar(pJson, CHR_COMMA) ;				//			write separating ','
 	}
 	if (pKey != 0) {									// Step 2: If key supplied
-		ecJsonAddString(pJson, pKey) ;					//			add it...
+		ecJsonAddString(pJson, pKey, 0) ;				//			add it...
 		ecJsonAddChar(pJson, CHR_COLON) ;
 	}
 	switch(jForm) {										// Step 3: Add the value
 	case jsonNULL:
-		ecJsonAddChars(pJson, "null") ;
+		ecJsonAddChars(pJson, "null", sizeof("null") - 1) ;
 		break ;
 	case jsonFALSE:
-		ecJsonAddChars(pJson, "false") ;
+		ecJsonAddChars(pJson, "false", sizeof("false") - 1) ;
 		break ;
 	case jsonTRUE:
-		ecJsonAddChars(pJson, "true") ;
+		ecJsonAddChars(pJson, "true", sizeof("true") - 1) ;
 		break ;
 	case jsonXXX:
 		IF_myASSERT(debugSTATE, xArrSize == 1) ;
 		ecJsonAddNumber(pJson, pValue, cvI) ;
 		break ;
 	case jsonSXX:
-		IF_myASSERT(debugSTATE, xArrSize == 1) ;
-		ecJsonAddString(pJson, pValue.pc8) ;
+		ecJsonAddString(pJson, pValue.pc8, xArrSize) ;
 		break ;
 	case jsonEDTZ:
 		ecJsonAddTimeStamp(pJson, pValue, cvI) ;
