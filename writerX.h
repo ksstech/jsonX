@@ -14,10 +14,22 @@
 
 // ########################################## macros ##############################################
 
+#define	jsonHAS_TIMESTAMP			0
 
 // ######################################## enumerations ###########################################
 
-enum { jsonNULL= 0, jsonFALSE, jsonTRUE, jsonXXX, jsonSXX, jsonEDTZ, jsonARRAY, jsonOBJ } ;
+enum {
+	jsonNULL= 0,
+	jsonFALSE,
+	jsonTRUE,
+	jsonXXX,
+	jsonSXX,
+#if		(jsonHAS_TIMESTAMP == 1)
+	jsonEDTZ,
+#endif
+	jsonARRAY,
+	jsonOBJ
+} ;
 
 enum {
 	erJSON_CREATE			= -3110,							// start 10 down from Appl error codes

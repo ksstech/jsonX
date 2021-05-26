@@ -146,6 +146,7 @@ static	int32_t  ecJsonAddNumber(json_obj_t * pJson, px_t pX, cvi_e cvI) {
 	return  erSUCCESS ;
 }
 
+#if		(jsonHAS_TIMESTAMP == 1)
 /**
  * ecJsonAddTimeStamp()
  * @param pJson		- JSON structure on which to operate
@@ -166,6 +167,7 @@ static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cvi_e cvI) {
 	}
 	return  erSUCCESS ;
 }
+#endif
 
 /**
  * ecJsonAddNumberArray() - add and array of number, any format and size, to the stream
@@ -254,9 +256,11 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u
 	case jsonSXX:
 		ecJsonAddString(pJson, pValue.pc8, xArrSize) ;
 		break ;
+#if		(jsonHAS_TIMESTAMP == 1)
 	case jsonEDTZ:
 		ecJsonAddTimeStamp(pJson, pValue, cvI) ;
 		break ;
+#endif
 	case jsonARRAY:
 		IF_myASSERT(debugSTATE, xArrSize > 0) ;
 		if (cvI <= cvSXX) {
