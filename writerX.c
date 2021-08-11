@@ -28,14 +28,14 @@
  *
  */
 
-#include	<string.h>
-
-#include	"writerX.h"
-#include	"x_string_general.h"
-#include	"printfx.h"									// +x_definitions +stdarg +stdint +stdio
-#include	"syslog.h"
 #include	"hal_config.h"
+#include	"writerX.h"
 
+#include	"x_string_general.h"
+#include	"printfx.h"				// +x_definitions +stdarg +stdint +stdio
+#include	"syslog.h"
+
+#include	<string.h>
 
 #define	debugFLAG					0xC000
 
@@ -47,7 +47,7 @@
 #define	debugPARAM					(debugFLAG_GLOBAL & debugFLAG & 0x4000)
 #define	debugRESULT					(debugFLAG_GLOBAL & debugFLAG & 0x8000)
 
-static	int32_t	ecJsonDecimals = xpfDEFAULT_DECIMALS ;
+static int	ecJsonDecimals = xpfDEFAULT_DECIMALS ;
 static const char ESChars[] = { CHR_BACKSLASH,CHR_DOUBLE_QUOTE,CHR_FWDSLASH,CHR_BS,CHR_FF,CHR_TAB,CHR_LF,CHR_CR,CHR_NUL } ;
 
 /**
@@ -56,9 +56,8 @@ static const char ESChars[] = { CHR_BACKSLASH,CHR_DOUBLE_QUOTE,CHR_FWDSLASH,CHR_
  * @param cChar
  * @return
  */
-static int32_t	ecJsonAddChar(json_obj_t * pJson, char cChar) {
-	if (xUBufSpace(pJson->psBuf) == 0)
-		return erFAILURE ;
+static int ecJsonAddChar(json_obj_t * pJson, char cChar) {
+	if (xUBufSpace(pJson->psBuf) == 0) return erFAILURE ;
 	uprintfx(pJson->psBuf, "%c", cChar) ;
 	return erSUCCESS ;
 }
@@ -69,15 +68,11 @@ static int32_t	ecJsonAddChar(json_obj_t * pJson, char cChar) {
  * @param pString
  * @return
  */
-static int32_t	ecJsonAddChars(json_obj_t * pJson, const char * pString, size_t xArrSize) {
-	if (xArrSize == 0) {
-		xArrSize = xstrlen(pString) ;					// Step 1: determine the string length
-	}
+static int ecJsonAddChars(json_obj_t * pJson, const char * pString, size_t xArrSize) {
+	if (xArrSize == 0) xArrSize = xstrlen(pString);	// Step 1: determine the string length
 	IF_myASSERT(debugSTATE, xArrSize > 0) ;
 	while (xArrSize--) {								// Step 2: handle characters (with optional escapes)
-		if (strchr(ESChars, *pString) != NULL) {		// Step 3: handle ESCape if required
-		   ecJsonAddChar(pJson, CHR_BACKSLASH) ;
-		}
+		if (strchr(ESChars, *pString) != NULL) ecJsonAddChar(pJson, CHR_BACKSLASH);
 		ecJsonAddChar(pJson, *pString++) ;				// Step 4: process the actual character
 	}
 	return erSUCCESS ;
@@ -89,7 +84,7 @@ static int32_t	ecJsonAddChars(json_obj_t * pJson, const char * pString, size_t x
  * @param pString
  * @return
  */
-static int32_t  ecJsonAddString(json_obj_t * pJson, const char * pString, size_t xArrSize) {
+static int ecJsonAddString(json_obj_t * pJson, const char * pString, size_t xArrSize) {
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pString)) ;		// can be in FLASH or SRAM
 	ecJsonAddChar(pJson, CHR_DOUBLE_QUOTE) ;			// Step 1: write the opening ' " '
 	ecJsonAddChars(pJson, pString, xArrSize) ;			// Step 2: write the string
@@ -103,14 +98,12 @@ static int32_t  ecJsonAddString(json_obj_t * pJson, const char * pString, size_t
  * @param xSize
  * @return
  */
-static	int32_t  ecJsonAddStringArray(json_obj_t * pJson, px_t pValue, size_t xSize) {
+static int ecJsonAddStringArray(json_obj_t * pJson, px_t pValue, size_t xSize) {
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv));	// can be in FLASH or SRAM
 	ecJsonAddChar(pJson, CHR_L_SQUARE) ;				// Step 1: write the opening ' [ '
 	while (xSize--) {									// Step 2: handle each string from array, 1 by 1
 		ecJsonAddString(pJson, *pValue.ppc8++, 0) ;		// Step 2a: add the string
-		if (xSize != 0) {								// Step 2b: if not last value ?
-			ecJsonAddChar(pJson, CHR_COMMA) ; 			// 			add a separator
-		}
+		if (xSize != 0) ecJsonAddChar(pJson, CHR_COMMA);
 	}
 	return ecJsonAddChar(pJson, CHR_R_SQUARE) ;			// Step 3: write the closing ' ] '
 }
@@ -122,8 +115,8 @@ static	int32_t  ecJsonAddStringArray(json_obj_t * pJson, px_t pValue, size_t xSi
  * @param NumType
  * @return
  */
-static	int32_t  ecJsonAddNumber(json_obj_t * pJson, px_t pX, cvi_e cvI) {
-	x64_t		X64 ;
+static int ecJsonAddNumber(json_obj_t * pJson, px_t pX, cvi_e cvI) {
+	x64_t X64 ;
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pX.pv) ) ;
 	switch(cvI) {									// Normalize size to X64
 	case cvU08:	X64.u64	= *pX.pu8 ;		break ;
@@ -140,9 +133,7 @@ static	int32_t  ecJsonAddNumber(json_obj_t * pJson, px_t pX, cvi_e cvI) {
 	}
 	// Step 2: write the value, format depending on fractional part
 	uprintfx(pJson->psBuf, cvI < cvI08 ? "%llu" : cvI < cvF32 ? "%lld" : "%g" , X64.f64) ;
-	if (xUBufSpace(pJson->psBuf) == 0) {
-		return erJSON_BUF_FULL ;
-	}
+	if (xUBufSpace(pJson->psBuf) == 0) return erJSON_BUF_FULL ;
 	return  erSUCCESS ;
 }
 
@@ -175,26 +166,18 @@ static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cvi_e cvI) {
  * Will open, fill and close the array, with a leading COMMA is other values
  * already in the object..
  */
-static	int32_t  ecJsonAddNumberArray(json_obj_t * pJson, px_t pValue, cvi_e cvI, size_t xSize) {
+static int ecJsonAddNumberArray(json_obj_t * pJson, px_t pValue, cvi_e cvI, size_t xSize) {
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv)) ;// can be in FLASH or SRAM
 	ecJsonAddChar(pJson, CHR_L_SQUARE) ;				// Step 1: write the opening ' [ '
 
 	while (xSize--) {									// Step 2: handle each array value, 1 by 1
 		ecJsonAddNumber(pJson, pValue, cvI) ;			// Step 2a: add the number
-		if (xSize != 0) {								// Step 2b: if not the last number
-			ecJsonAddChar(pJson, CHR_COMMA) ;  			//			write separating ','
-		}
-		if (cvI == cvU08 || cvI == cvI08) {				// Step 3: adjust the value pointer
-			pValue.pu8++ ;
-		} else if (cvI == cvU16 || cvI == cvI16) {
-			pValue.pu16++ ;
-		} else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32) {
-			pValue.pu32++ ;
-		} else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32) {
-			pValue.pu64++ ;
-		} else {
-			return erJSON_NUM_TYPE ;
-		}
+		if (xSize != 0) ecJsonAddChar(pJson, CHR_COMMA);
+		if (cvI == cvU08 || cvI == cvI08) pValue.pu8++ ;
+		else if (cvI == cvU16 || cvI == cvI16) pValue.pu16++ ;
+		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32) pValue.pu32++ ;
+		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32) pValue.pu64++ ;
+		else return erJSON_NUM_TYPE ;
 	}
 	return ecJsonAddChar(pJson, CHR_R_SQUARE) ;			// Step 4: write the closing ' ] '
 }
@@ -205,8 +188,8 @@ static	int32_t  ecJsonAddNumberArray(json_obj_t * pJson, px_t pValue, cvi_e cvI,
  * @param xNumber		Number of digits to set
  * @return				erSUCCESS if xNumber in range, else erFAILURE
  */
-int32_t	ecJsonSetDecimals(int32_t xNumber) {
-	if (INRANGE(0, xNumber, xpfMAXIMUM_DECIMALS, int32_t)) {
+int	ecJsonSetDecimals(int xNumber) {
+	if (INRANGE(0, xNumber, xpfMAXIMUM_DECIMALS, int)) {
 		ecJsonDecimals = xNumber ;
 		return erSUCCESS ;
 	}
@@ -227,35 +210,25 @@ int32_t	ecJsonSetDecimals(int32_t xNumber) {
  * \note:	In the case of adding a new object, pValue must be a pointer to the location
  * 			of the the new Json object struct to be filled in....
  */
-int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_t jForm, cvi_e cvI, size_t xArrSize) {
+int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_t jForm, cvi_e cvI, size_t xArrSize) {
 	json_obj_t * pJson1	;
 	IF_SL_INFO(debugTRACK, "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, jForm, cvI, xArrSize) ;
 	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halCONFIG_inMEM(pValue.pv)) ;
 
-	if (pJson->val_count > 0) {							// Step 1: if already something in the object
-		ecJsonAddChar(pJson, CHR_COMMA) ;				//			write separating ','
-	}
+	if (pJson->val_count > 0) ecJsonAddChar(pJson, CHR_COMMA);
 	if (pKey != 0) {									// Step 2: If key supplied
 		ecJsonAddString(pJson, pKey, 0) ;				//			add it...
 		ecJsonAddChar(pJson, CHR_COLON) ;
 	}
 	switch(jForm) {										// Step 3: Add the value
-	case jsonNULL:
-		ecJsonAddChars(pJson, "null", sizeof("null") - 1) ;
-		break ;
-	case jsonFALSE:
-		ecJsonAddChars(pJson, "false", sizeof("false") - 1) ;
-		break ;
-	case jsonTRUE:
-		ecJsonAddChars(pJson, "true", sizeof("true") - 1) ;
-		break ;
+	case jsonNULL: ecJsonAddChars(pJson, "null", sizeof("null") - 1); break ;
+	case jsonFALSE: ecJsonAddChars(pJson, "false", sizeof("false") - 1); break ;
+	case jsonTRUE: ecJsonAddChars(pJson, "true", sizeof("true") - 1); break ;
 	case jsonXXX:
 		IF_myASSERT(debugSTATE, xArrSize == 1) ;
 		ecJsonAddNumber(pJson, pValue, cvI) ;
 		break ;
-	case jsonSXX:
-		ecJsonAddString(pJson, pValue.pc8, xArrSize) ;
-		break ;
+	case jsonSXX: ecJsonAddString(pJson, pValue.pc8, xArrSize); break ;
 #if		(jsonHAS_TIMESTAMP == 1)
 	case jsonEDTZ:
 		ecJsonAddTimeStamp(pJson, pValue, cvI) ;
@@ -263,14 +236,9 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u
 #endif
 	case jsonARRAY:
 		IF_myASSERT(debugSTATE, xArrSize > 0) ;
-		if (cvI <= cvSXX) {
-			ecJsonAddNumberArray(pJson, pValue, cvI, xArrSize) ;
-		} else if (cvI == cvSXX) {
-			ecJsonAddStringArray(pJson, pValue, xArrSize) ;
-		} else {
-			IF_myASSERT(debugRESULT, 0) ;
-			return erJSON_ARRAY ;
-		}
+		if (cvI <= cvSXX) ecJsonAddNumberArray(pJson, pValue, cvI, xArrSize) ;
+		else if (cvI == cvSXX) ecJsonAddStringArray(pJson, pValue, xArrSize) ;
+		else return erJSON_ARRAY ;
 		break ;
 	case jsonOBJ:
 		IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv) ) ;	// can be in FLASH or SRAM
@@ -280,13 +248,9 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u
 		pJson1->parent	= pJson ;						// setup link from child to parent
 		pJson->obj_nest++ ;								// increase parent nest level
 		break ;
-	default:
-		IF_myASSERT(debugRESULT, 0) ;
-		return erJSON_TYPE ;
+	default: IF_myASSERT(debugRESULT, 0); return erJSON_TYPE ;
 	}
-	if (jForm != jsonOBJ) {							// for all key:value pairs other than OBJECT
-		pJson->val_count++ ;							// increase the object count
-	}
+	if (jForm != jsonOBJ) pJson->val_count++;
 	IF_SL_INFO(debugBUILD, "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf) ;
 	return erSUCCESS ;
 }
@@ -296,10 +260,8 @@ int32_t  ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u
  * @param pJson
  * @return
  */
-int32_t  ecJsonCloseObject(json_obj_t * pJson) {
-	if (pJson->child) {									// Is this a "parent" with a "child" ?
-		ecJsonCloseObject(pJson->child) ;				// recurse to close the child first..
-	}
+int	ecJsonCloseObject(json_obj_t * pJson) {
+	if (pJson->child) ecJsonCloseObject(pJson->child) ;	// recurse to close the child first..
 	IF_myASSERT(debugPARAM, pJson->obj_nest == 0) ;		// should be zero after recursing to lowest level
 	ecJsonAddChar(pJson, CHR_R_CURLY) ;					// close the current object
 	if (pJson->parent) {								// is this a child to a parent ?
@@ -316,7 +278,7 @@ int32_t  ecJsonCloseObject(json_obj_t * pJson) {
  * @param psBuf
  * @return
  */
-int32_t  ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psBuf) {
+int	ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psBuf) {
 	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(psBuf)) ;
 	pJson->parent		= pJson->child	= 0 ;
 	pJson->psBuf		= psBuf ;

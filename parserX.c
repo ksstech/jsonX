@@ -10,12 +10,14 @@
 
 #include	"hal_config.h"
 #include	"parserX.h"
+
 #include	"x_string_general.h"
 #include	"x_string_to_values.h"
-#include	"x_errors_events.h"
-#include	"printfx.h"									// x_definitions stdarg stdint stdio
 
-#include	<stdlib.h>
+#include	"printfx.h"									// x_definitions stdarg stdint stdio
+#include	"x_errors_events.h"
+
+//#include	<stdlib.h>
 #include	<string.h>
 #include	<ctype.h>
 
@@ -146,14 +148,12 @@ int32_t	xJsonReadValue(const char * pBuf, jsmntok_t * pToken, double * pDouble) 
 int32_t	xJsonCompareKey(const char * pKey, int32_t TokLen, char * pTok) {
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pKey) && halCONFIG_inMEM(pTok) && TokLen > 0) ;
 	while (*pKey && *pTok && TokLen) {
-		if (toupper((int)*pKey) != toupper((int)*pTok)) {
-		    return erFAILURE ;
-		}
+		if (toupper((int)*pKey) != toupper((int)*pTok)) return erFAILURE;
 		++pKey ;
 		++pTok ;
 		--TokLen ;
 	}
-	return (*pKey == CHR_NUL && TokLen == 0) ? erSUCCESS : erFAILURE ;
+	return (*pKey == 0 && TokLen == 0) ? erSUCCESS : erFAILURE ;
 }
 
 int32_t	xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int32_t NumTok, const char * pKey) {

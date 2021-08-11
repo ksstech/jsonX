@@ -1,1 +1,1 @@
-# "./z-components/jsonX" pseudo-component makefile.
+# pseudo component makefile.
