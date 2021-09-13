@@ -8,7 +8,7 @@
  *
  */
 
-#include	"hal_config.h"
+#include	"hal_variables.h"
 #include	"parserX.h"
 
 #include	"x_string_general.h"
@@ -17,7 +17,6 @@
 #include	"printfx.h"									// x_definitions stdarg stdint stdio
 #include	"x_errors_events.h"
 
-//#include	<stdlib.h>
 #include	<string.h>
 #include	<ctype.h>
 
@@ -115,12 +114,12 @@ int32_t	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmnto
 		return iRV1 ;
 	}
 
-	*ppTokenList = (jsmntok_t *) malloc(iRV1 * sizeof(jsmntok_t)) ;		// alloc buffer
+	*ppTokenList = (jsmntok_t *) pvRtosMalloc(iRV1 * sizeof(jsmntok_t)) ;		// alloc buffer
 	jsmn_init(pParser) ;								// Init & do actual parse...
 	iRV2 = jsmn_parse(pParser, (const char *) pBuf, xLen, *ppTokenList, iRV1) ;
 	IF_EXEC_4(debugPARSE, xJsonPrintTokens, pBuf, *ppTokenList, iRV1, 0) ;
 	if (iRV1 != iRV2) {
-		free(*ppTokenList) ;
+		vRtosFree(*ppTokenList) ;
 		*ppTokenList = NULL ;
 		IF_PRINT(debugPARSE, "Failed (%d != %d)\n", iRV1, iRV2) ;
 		return iRV1 ;
@@ -361,6 +360,6 @@ int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPList, const char 
 		}
 	}
 	IF_EXEC_4(debugHDLR && iRV >= erSUCCESS, xJsonPrintTokens, pcBuf, sPH.psTList, sPH.NumTok, 0) ;
-	free(sPH.psTList) ;
+	vRtosFree(sPH.psTList) ;
     return sPH.NumOK ? sPH.NumOK : iRV ;
 }
