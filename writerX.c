@@ -39,8 +39,8 @@
 
 #define	debugFLAG					0xC000
 
-#define	debugBUILD					(debugFLAG & 0xC000)
-#define	debugSTATE					(debugFLAG & 0x0001)
+#define	debugBUILD					(debugFLAG & 0x0001)
+#define	debugSTATE					(debugFLAG & 0x0002)
 
 #define	debugTIMING					(debugFLAG_GLOBAL & debugFLAG & 0x1000)
 #define	debugTRACK					(debugFLAG_GLOBAL & debugFLAG & 0x2000)
@@ -69,7 +69,7 @@ static int ecJsonAddChar(json_obj_t * pJson, char cChar) {
  * @return
  */
 static int ecJsonAddChars(json_obj_t * pJson, const char * pString, size_t xArrSize) {
-	if (xArrSize == 0) xArrSize = xstrlen(pString);	// Step 1: determine the string length
+	if (xArrSize == 0) xArrSize = xstrlen(pString);		// Step 1: determine the string length
 	IF_myASSERT(debugSTATE, xArrSize > 0) ;
 	while (xArrSize--) {								// Step 2: handle characters (with optional escapes)
 		if (strchr(ESChars, *pString) != NULL) ecJsonAddChar(pJson, CHR_BACKSLASH);
@@ -85,7 +85,7 @@ static int ecJsonAddChars(json_obj_t * pJson, const char * pString, size_t xArrS
  * @return
  */
 static int ecJsonAddString(json_obj_t * pJson, const char * pString, size_t xArrSize) {
-	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pString)) ;		// can be in FLASH or SRAM
+	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pString)) ;	// can be in FLASH or SRAM
 	ecJsonAddChar(pJson, CHR_DOUBLE_QUOTE) ;			// Step 1: write the opening ' " '
 	ecJsonAddChars(pJson, pString, xArrSize) ;			// Step 2: write the string
 	return ecJsonAddChar(pJson, CHR_DOUBLE_QUOTE) ;		// Step 3: write the closing ' " '
@@ -212,7 +212,7 @@ int	ecJsonSetDecimals(int xNumber) {
  */
 int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_t jForm, cvi_e cvI, size_t xArrSize) {
 	json_obj_t * pJson1	;
-	IF_SL_INFO(debugTRACK, "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, jForm, cvI, xArrSize) ;
+	IF_PRINT(debugTRACK, "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, jForm, cvI, xArrSize) ;
 	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halCONFIG_inMEM(pValue.pv)) ;
 
 	if (pJson->val_count > 0) ecJsonAddChar(pJson, CHR_COMMA);
@@ -251,7 +251,7 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_
 	default: IF_myASSERT(debugRESULT, 0); return erJSON_TYPE ;
 	}
 	if (jForm != jsonOBJ) pJson->val_count++;
-	IF_SL_INFO(debugBUILD, "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf) ;
+	IF_PRINT(debugBUILD, "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf) ;
 	return erSUCCESS ;
 }
 
