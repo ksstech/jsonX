@@ -28,12 +28,12 @@
  *
  */
 
-#include	"hal_config.h"
+#include	"hal_variables.h"
 #include	"writerX.h"
 
-#include	"x_string_general.h"
 #include	"printfx.h"				// +x_definitions +stdarg +stdint +stdio
 #include	"syslog.h"
+#include	"x_string_general.h"
 
 #include	<string.h>
 
@@ -212,7 +212,7 @@ int	ecJsonSetDecimals(int xNumber) {
  */
 int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_t jForm, cvi_e cvI, size_t xArrSize) {
 	json_obj_t * pJson1	;
-	IF_PRINT(debugTRACK, "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, jForm, cvI, xArrSize) ;
+	IF_PRINT(debugTRACK && ioB1GET(ioW_JSON), "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, jForm, cvI, xArrSize) ;
 	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halCONFIG_inMEM(pValue.pv)) ;
 
 	if (pJson->val_count > 0) ecJsonAddChar(pJson, CHR_COMMA);
