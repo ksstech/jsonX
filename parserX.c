@@ -110,7 +110,7 @@ int32_t	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmnto
 	*ppTokenList = NULL ;				// default allocation pointer to NULL
 	iRV1 = jsmn_parse(pParser, (const char *) pBuf, xLen, NULL, 0) ;	// count tokens
 	if (iRV1 <= 0) {
-		IF_PRINT(debugPARSE, "Failed (%d)\n", iRV1) ;
+		IF_P(debugPARSE, "Failed (%d)\n", iRV1) ;
 		return iRV1 ;
 	}
 
@@ -121,10 +121,10 @@ int32_t	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmnto
 	if (iRV1 != iRV2) {
 		vRtosFree(*ppTokenList) ;
 		*ppTokenList = NULL ;
-		IF_PRINT(debugPARSE, "Failed (%d != %d)\n", iRV1, iRV2) ;
+		IF_P(debugPARSE, "Failed (%d != %d)\n", iRV1, iRV2) ;
 		return iRV1 ;
 	}
-	IF_PRINT(debugPARSE, "Passed (%d) parsed OK\n", iRV2) ;
+	IF_P(debugPARSE, "Passed (%d) parsed OK\n", iRV2) ;
 	return iRV2 ;
 }
 
@@ -155,8 +155,8 @@ int32_t	xJsonCompareKey(const char * pKey, int32_t TokLen, char * pTok) {
 	return (*pKey == 0 && TokLen == 0) ? erSUCCESS : erFAILURE ;
 }
 
-int32_t	xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int32_t NumTok, const char * pKey) {
-	IF_PRINT(debugFINDKEY, "\r\n%s: Key='%s'\n", __FUNCTION__, pKey) ;
+int	xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int32_t NumTok, const char * pKey) {
+	IF_P(debugFINDKEY,"\r\n%s: Key='%s'\n", __FUNCTION__, pKey) ;
 	int32_t	KeyLen = xstrlen(pKey) ;
 	for (int32_t CurTok = 0; CurTok < NumTok; CurTok++, pToken++) {
 		if (KeyLen != (pToken->end - pToken->start)) {
