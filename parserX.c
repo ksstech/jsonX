@@ -162,14 +162,14 @@ int	xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int32_t NumTok, const ch
 		if (KeyLen != (pToken->end - pToken->start)) {
 			continue ;							// not same length, skip
 		}
-		IF_PRINT(debugFINDKEY, "[Tok='%.*s'] ", pToken->end - pToken->start, pBuf + pToken->start) ;
+		IF_P(debugFINDKEY, "[Tok='%.*s'] ", pToken->end - pToken->start, pBuf + pToken->start) ;
 		if (xJsonCompareKey(pKey, KeyLen, (char *) pBuf + pToken->start) == erFAILURE) {
 			continue ;							// not matching, skip
 		}
-		IF_PRINT(debugFINDKEY, "\n") ;
+		IF_P(debugFINDKEY, "\n") ;
 		return CurTok ;							// all OK, return token number
 	}
-	IF_PRINT(debugFINDKEY, "\n") ;
+	IF_P(debugFINDKEY, "\n") ;
 	return erFAILURE ;
 }
 
@@ -228,7 +228,7 @@ int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int32_t NumTok
  */
 int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int32_t szArr, dbf_t paDBF[]) {
 	if (psPH->psTList[psPH->jtI].size != szArr) {
-		IF_PRINT(debugARRAY, "Invalid Array size (%u) or count(%u)\n", psPH->psTList[psPH->jtI].size, szArr) ;
+		IF_P(debugARRAY, "Invalid Array size (%u) or count(%u)\n", psPH->psTList[psPH->jtI].size, szArr) ;
 		return erFAILURE ;
 	}
 	int32_t NumOK = 0 ;
@@ -285,7 +285,7 @@ int32_t xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int32_t(* Hdlr)(char *),
 						int32_t szArr, vf_e cvF, vs_e cvS) {
 	IF_EXEC_1(debugARRAY, xJsonPrintCurTok, psPH) ;
 	if (szArr < 1 || psPH->psTList[psPH->jtI].size != szArr) {
-		IF_PRINT(debugARRAY, "Invalid Array size (%u) or count(%u)\n", psPH->psTList[psPH->jtI].size, szArr) ;
+		IF_P(debugARRAY, "Invalid Array size (%u) or count(%u)\n", psPH->psTList[psPH->jtI].size, szArr) ;
 		return erFAILURE ;
 	}
 	int32_t NumOK = 0 ;
@@ -333,7 +333,7 @@ int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPList, const char 
 	int32_t iRV = 0 ;
 	iRV = xJsonParse(pcBuf, szBuf, &sPH.sParser, &sPH.psTList) ;
 	if (iRV < 1 || sPH.psTList == NULL) {
-		IF_PRINT(debugRESULT, "jsmnX parse error (%d)\n", iRV) ;
+		IF_P(debugRESULT, "jsmnX parse error (%d)\n", iRV) ;
 		return erFAILURE ;
 	}
 	sPH.pcBuf	= pcBuf ;
