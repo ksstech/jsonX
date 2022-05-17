@@ -28,14 +28,14 @@
  *
  */
 
+#include	<string.h>
+
 #include	"hal_variables.h"
 #include	"writerX.h"
 
 #include	"printfx.h"				// +x_definitions +stdarg +stdint +stdio
 #include	"syslog.h"
 #include	"x_string_general.h"
-
-#include	<string.h>
 
 #define	debugFLAG					0xC000
 
