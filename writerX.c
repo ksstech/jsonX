@@ -199,15 +199,15 @@ int	ecJsonSetDecimals(int xNumber) {
 
 /**
  * ecJsonAddKeyValue() - add a key : value[number array] pair
- * \brief
- * \param[in]	JSON object to build into
- * \param[in]	string to use as key value
- * \param[in]	variable type based on Complex Var definitions
- * \param[in]	type of value being jsonXXXX (NULL / FALSE / TRUE / NUMBER / STRING / ARRAY / OBJECT)
- * \param[in]	number type being cvxxx (Ixx / Uxx / Fxx | x08 / x16 / x32 / x64 || NAN)
- * \param[in]	number of items in array (or 1 if not an array)
- * \return
- * \note:	In the case of adding a new object, pValue must be a pointer to the location
+ * @brief
+ * @param[in]	JSON object to build into
+ * @param[in]	string to use as key value
+ * @param[in]	variable type based on Complex Var definitions
+ * @param[in]	type of value being jsonXXXX (NULL / FALSE / TRUE / NUMBER / STRING / ARRAY / OBJECT)
+ * @param[in]	number type being cvxxx (Ixx / Uxx / Fxx | x08 / x16 / x32 / x64 || NAN)
+ * @param[in]	number of items in array (or 1 if not an array)
+ * @return
+ * @note:	In the case of adding a new object, pValue must be a pointer to the location
  * 			of the the new Json object struct to be filled in....
  */
 int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_t jForm, cvi_e cvI, size_t xArrSize) {
