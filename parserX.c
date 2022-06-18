@@ -60,7 +60,7 @@ void	xJsonPrintIndent(int Depth, int Sep, int CR0, int CR1) {
  * @param Depth
  * @return
  */
-int32_t	 xJsonPrintTokens(const char * pcBuf, jsmntok_t * psT, size_t Count, int Depth) {
+int	 xJsonPrintTokens(const char * pcBuf, jsmntok_t * psT, size_t Count, int Depth) {
 	if (Count == 0) {
 		return erSUCCESS ;
 	}
@@ -104,8 +104,8 @@ int32_t	 xJsonPrintTokens(const char * pcBuf, jsmntok_t * psT, size_t Count, int
  * @param	ppTokenList
  * @return	number of tokens parsed, 0 or less if error
  */
-int32_t	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmntok_t * * ppTokenList) {
-	int32_t iRV1 = 0, iRV2 = 0 ;
+int	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmntok_t * * ppTokenList) {
+	int iRV1 = 0, iRV2 = 0 ;
 	jsmn_init(pParser) ;
 	*ppTokenList = NULL ;				// default allocation pointer to NULL
 	iRV1 = jsmn_parse(pParser, (const char *) pBuf, xLen, NULL, 0) ;	// count tokens
@@ -135,16 +135,16 @@ int32_t	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmnto
  * @param	pDouble
  * @return	erSUCCESS or erFAILURE
  */
-int32_t	xJsonReadValue(const char * pBuf, jsmntok_t * pToken, double * pDouble) {
+int	xJsonReadValue(const char * pBuf, jsmntok_t * pToken, double * pDouble) {
 	char * 	pSrc = (char *) (pBuf + pToken->start) ;
-	int32_t	Sign ;
+	int	Sign ;
 	if (pcStringParseF64(pSrc, pDouble, &Sign, " ,") == pcFAILURE) {
 		return erFAILURE ;
 	}
 	return erSUCCESS ;
 }
 
-int32_t	xJsonCompareKey(const char * pKey, int32_t TokLen, char * pTok) {
+int	xJsonCompareKey(const char * pKey, int TokLen, char * pTok) {
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pKey) && halCONFIG_inMEM(pTok) && TokLen > 0) ;
 	while (*pKey && *pTok && TokLen) {
 		if (toupper((int)*pKey) != toupper((int)*pTok)) return erFAILURE;
@@ -155,10 +155,10 @@ int32_t	xJsonCompareKey(const char * pKey, int32_t TokLen, char * pTok) {
 	return (*pKey == 0 && TokLen == 0) ? erSUCCESS : erFAILURE ;
 }
 
-int	xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int32_t NumTok, const char * pKey) {
+int	xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int NumTok, const char * pKey) {
 	IF_P(debugFINDKEY,"\r\n%s: Key='%s'\r\n", __FUNCTION__, pKey) ;
-	int32_t	KeyLen = xstrlen(pKey) ;
-	for (int32_t CurTok = 0; CurTok < NumTok; CurTok++, pToken++) {
+	int	KeyLen = xstrlen(pKey) ;
+	for (int CurTok = 0; CurTok < NumTok; CurTok++, pToken++) {
 		if (KeyLen != (pToken->end - pToken->start)) {
 			continue ;							// not same length, skip
 		}
@@ -183,11 +183,11 @@ int	xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int32_t NumTok, const ch
  * @param VarForm
  * @return			erSUCCESS or erFAILURE
  */
-int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int32_t NumTok, const char * pKey, void * pValue, vf_e VarForm) {
-	int32_t	xLen ;
+int xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int NumTok, const char * pKey, void * pValue, vf_e VarForm) {
+	int	xLen ;
 	char * pDst, * pSrc ;
 	double	f64Value ;
-	int32_t iRV = xJsonFindKey(pBuf, pToken, NumTok, pKey) ;
+	int iRV = xJsonFindKey(pBuf, pToken, NumTok, pKey) ;
 	if (iRV == erFAILURE) {
 		return iRV ;
 	}
@@ -226,14 +226,14 @@ int32_t	xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int32_t NumTok
  * 			if successful, leaves jtI set to next token to parse
  * 			if failed, jti left at the failing element
  */
-int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int32_t szArr, dbf_t paDBF[]) {
+int xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int szArr, dbf_t paDBF[]) {
 	if (psPH->psTList[psPH->jtI].size != szArr) {
 		IF_P(debugARRAY, "Invalid Array size (%u) or count(%u)\r\n", psPH->psTList[psPH->jtI].size, szArr) ;
 		return erFAILURE ;
 	}
-	int32_t NumOK = 0 ;
+	int NumOK = 0 ;
 	jsmntok_t * psT = &psPH->psTList[++psPH->jtI] ;		// step into ARRAY to 1st ELEMENT
-	for (int32_t i = 0; i < szArr; ++psT, ++i) {
+	for (int i = 0; i < szArr; ++psT, ++i) {
 		vf_e cvF = xCV_Index2Form(paDBF[i].cvI) ;
 		char * pcBuf = (char *) psPH->pcBuf + psT->start ;
 		char * pSaved = (char *) psPH->pcBuf + psT->end ;
@@ -281,16 +281,16 @@ int32_t xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int32_t szArr, dbf_
  * 			if successful, leaves jtI set to next token to parse
  * 			if failed, jti left at the failing element
  */
-int32_t xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int32_t(* Hdlr)(char *),
-						int32_t szArr, vf_e cvF, vs_e cvS) {
+int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *),
+						int szArr, vf_e cvF, vs_e cvS) {
 	IF_EXEC_1(debugARRAY, xJsonPrintCurTok, psPH) ;
 	if (szArr < 1 || psPH->psTList[psPH->jtI].size != szArr) {
 		IF_P(debugARRAY, "Invalid Array size (%u) or count(%u)\r\n", psPH->psTList[psPH->jtI].size, szArr) ;
 		return erFAILURE ;
 	}
-	int32_t NumOK = 0 ;
+	int NumOK = 0 ;
 	jsmntok_t * psT = &psPH->psTList[++psPH->jtI] ;		// step to first ARRAY ELEMENT
-	for (int32_t i = 0; i < szArr; ++psT, ++i) {
+	for (int i = 0; i < szArr; ++psT, ++i) {
 		char * pcBuf = (char *) psPH->pcBuf + psT->start ;
 		char * pSaved = (char *) psPH->pcBuf + psT->end ;
 		char cSaved = *pSaved ;							// Save char before overwrite
@@ -311,7 +311,7 @@ int32_t xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int32_t(* Hdlr)(char *),
 			++psPH->jtI ;
 			pDst.pu8 += xCV_Size2Field(cvS) ;
 		} else if (psT->type == JSMN_STRING && cvF == vfSXX && Hdlr) {
-			int32_t iRV = Hdlr(pcBuf) ;
+			int iRV = Hdlr(pcBuf) ;
 			if (iRV < erSUCCESS) {
 				*pSaved = cSaved ;
 				return iRV ;
@@ -326,11 +326,11 @@ int32_t xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int32_t(* Hdlr)(char *),
 	return NumOK ;
 }
 
-int32_t	xJsonParseList(const parse_list_t * psPlist, size_t szPList, const char * pcBuf, size_t szBuf, void * pvArg) {
+int	xJsonParseList(const parse_list_t * psPlist, size_t szPList, const char * pcBuf, size_t szBuf, void * pvArg) {
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(psPlist) && szPList > 0) ;
 	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pcBuf) && szBuf > 0) ;
 	parse_hdlr_t sPH = { 0 } ;
-	int32_t iRV = 0 ;
+	int iRV = 0 ;
 	iRV = xJsonParse(pcBuf, szBuf, &sPH.sParser, &sPH.psTList) ;
 	if (iRV < 1 || sPH.psTList == NULL) {
 		IF_P(debugRESULT, "jsmnX parse error (%d)\r\n", iRV) ;
