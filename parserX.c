@@ -205,10 +205,10 @@ int xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int NumTok, const 
 		iRV = xJsonReadValue(pBuf, pToken, &f64Value) ;
 		if (iRV == erSUCCESS) {
 			switch(VarForm) {
-			case vfUXX:	*((uint32_t *) pValue)	= (uint32_t) f64Value ;			break ;
-			case vfIXX:	*((int32_t *) pValue)	= (int32_t) f64Value ;			break ;
-			case vfFXX:	*((float *) pValue)		= (float) f64Value ;			break ;
-			case vfSXX:															break ;
+			case vfUXX:	*((u32_t *) pValue)	= (u32_t) f64Value ; break;
+			case vfIXX:	*((s32_t *) pValue)	= (s32_t) f64Value ; break;
+			case vfFXX:	*((float *) pValue)	= (float) f64Value ; break;
+			case vfSXX:	break;
 			}
 		}
 	}
