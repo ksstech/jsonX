@@ -1,5 +1,6 @@
 /*
- * writerX.c Copyright 2014-21 Andre M. Maree/KSS Technologies (Pty) Ltd.
+ * writerX.c
+ * Copyright (c) 2014-22 Andre M. Maree / KSS Technologies (Pty) Ltd.
  *
  * References:
  * 	http://www.json.org/
@@ -25,22 +26,16 @@
  *	Currently support string only and numbers only arrays, not mixed or other
  *	Ad hoc opening & closing of arrays not yet supported
  *	\uxxxx (four hex digits) not yet escaped...
- *
  */
 
-#include	<string.h>
+#include "hal_variables.h"
+#include "writerX.h"
 
-#include	"hal_variables.h"
-#include	"writerX.h"
-
-#include	"printfx.h"				// +x_definitions +stdarg +stdint +stdio
-#include	"syslog.h"
-#include	"x_string_general.h"
+#include "printfx.h"				// +x_definitions +stdarg +stdint +stdio
+#include "syslog.h"
+#include "x_string_general.h"
 
 #define	debugFLAG					0xC000
-
-#define	debugBUILD					(debugFLAG & 0x0001)
-#define	debugSTATE					(debugFLAG & 0x0002)
 
 #define	debugTIMING					(debugFLAG_GLOBAL & debugFLAG & 0x1000)
 #define	debugTRACK					(debugFLAG_GLOBAL & debugFLAG & 0x2000)
@@ -57,7 +52,8 @@ static const char ESChars[] = { CHR_BACKSLASH,CHR_DOUBLE_QUOTE,CHR_FWDSLASH,CHR_
  * @return
  */
 static int ecJsonAddChar(json_obj_t * pJson, char cChar) {
-	if (xUBufSpace(pJson->psBuf) == 0) return erFAILURE ;
+	if (xUBufSpace(pJson->psBuf) == 0)
+		return erFAILURE ;
 	uprintfx(pJson->psBuf, "%c", cChar) ;
 	return erSUCCESS ;
 }
@@ -69,10 +65,12 @@ static int ecJsonAddChar(json_obj_t * pJson, char cChar) {
  * @return
  */
 static int ecJsonAddChars(json_obj_t * pJson, const char * pString, size_t xArrSize) {
-	if (xArrSize == 0) xArrSize = xstrlen(pString);		// Step 1: determine the string length
-	IF_myASSERT(debugSTATE, xArrSize > 0) ;
+	if (xArrSize == 0)
+		xArrSize = xstrlen(pString);					// Step 1: determine the string length
+	IF_myASSERT(debugPARAM, xArrSize > 0);
 	while (xArrSize--) {								// Step 2: handle characters (with optional escapes)
-		if (strchr(ESChars, *pString) != NULL) ecJsonAddChar(pJson, CHR_BACKSLASH);
+		if (strchr(ESChars, *pString) != NULL)
+			ecJsonAddChar(pJson, CHR_BACKSLASH);
 		ecJsonAddChar(pJson, *pString++) ;				// Step 4: process the actual character
 	}
 	return erSUCCESS ;
@@ -103,7 +101,8 @@ static int ecJsonAddStringArray(json_obj_t * pJson, px_t pValue, size_t xSize) {
 	ecJsonAddChar(pJson, CHR_L_SQUARE) ;				// Step 1: write the opening ' [ '
 	while (xSize--) {									// Step 2: handle each string from array, 1 by 1
 		ecJsonAddString(pJson, *pValue.ppc8++, 0) ;		// Step 2a: add the string
-		if (xSize != 0) ecJsonAddChar(pJson, CHR_COMMA);
+		if (xSize != 0)
+			ecJsonAddChar(pJson, CHR_COMMA);
 	}
 	return ecJsonAddChar(pJson, CHR_R_SQUARE) ;			// Step 3: write the closing ' ] '
 }
@@ -133,11 +132,12 @@ static int ecJsonAddNumber(json_obj_t * pJson, px_t pX, cvi_e cvI) {
 	}
 	// Step 2: write the value, format depending on fractional part
 	uprintfx(pJson->psBuf, cvI < cvI08 ? "%llu" : cvI < cvF32 ? "%lld" : "%g" , X64.f64) ;
-	if (xUBufSpace(pJson->psBuf) == 0) return erJSON_BUF_FULL ;
+	if (xUBufSpace(pJson->psBuf) == 0)
+		return erJSON_BUF_FULL ;
 	return  erSUCCESS ;
 }
 
-#if		(jsonHAS_TIMESTAMP == 1)
+#if	(jsonHAS_TIMESTAMP == 1)
 /**
  * ecJsonAddTimeStamp()
  * @param pJson		- JSON structure on which to operate
@@ -153,10 +153,9 @@ static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cvi_e cvI) {
 	case cvDT_TZ:	uprintfx(pJson->psBuf, "\"%+Z\"", pValue.pv) ;	break ;
 	default:		IF_myASSERT(debugPARAM, 0) ; 						return erJSON_FORMAT ;
 	}
-	if (xUBufSpace(pJson->psBuf) == 0) {
-		return erJSON_BUF_FULL ;
-	}
-	return  erSUCCESS ;
+	if (xUBufSpace(pJson->psBuf) == 0)
+		return erJSON_BUF_FULL;
+	return  erSUCCESS;
 }
 #endif
 
@@ -172,12 +171,17 @@ static int ecJsonAddNumberArray(json_obj_t * pJson, px_t pValue, cvi_e cvI, size
 
 	while (xSize--) {									// Step 2: handle each array value, 1 by 1
 		ecJsonAddNumber(pJson, pValue, cvI) ;			// Step 2a: add the number
-		if (xSize != 0) ecJsonAddChar(pJson, CHR_COMMA);
-		if (cvI == cvU08 || cvI == cvI08) pValue.pu8++ ;
-		else if (cvI == cvU16 || cvI == cvI16) pValue.pu16++ ;
-		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32) pValue.pu32++ ;
-		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32) pValue.pu64++ ;
-		else return erJSON_NUM_TYPE ;
+		if (xSize != 0)
+			ecJsonAddChar(pJson, CHR_COMMA);
+		if (cvI == cvU08 || cvI == cvI08)
+			pValue.pu8++;
+		else if (cvI == cvU16 || cvI == cvI16)
+			pValue.pu16++;
+		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32)
+			pValue.pu32++;
+		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32)
+			pValue.pu64++;
+		else return erJSON_NUM_TYPE;
 	}
 	return ecJsonAddChar(pJson, CHR_R_SQUARE) ;			// Step 4: write the closing ' ] '
 }
@@ -229,16 +233,19 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_
 		ecJsonAddNumber(pJson, pValue, cvI) ;
 		break ;
 	case jsonSXX: ecJsonAddString(pJson, pValue.pc8, xArrSize); break ;
-#if		(jsonHAS_TIMESTAMP == 1)
+	#if	(jsonHAS_TIMESTAMP == 1)
 	case jsonEDTZ:
 		ecJsonAddTimeStamp(pJson, pValue, cvI) ;
 		break ;
-#endif
+	#endif
 	case jsonARRAY:
 		IF_myASSERT(debugSTATE, xArrSize > 0) ;
-		if (cvI <= cvSXX) ecJsonAddNumberArray(pJson, pValue, cvI, xArrSize) ;
-		else if (cvI == cvSXX) ecJsonAddStringArray(pJson, pValue, xArrSize) ;
-		else return erJSON_ARRAY ;
+		if (cvI <= cvSXX)
+			ecJsonAddNumberArray(pJson, pValue, cvI, xArrSize);
+		else if (cvI == cvSXX)
+			ecJsonAddStringArray(pJson, pValue, xArrSize);
+		else
+			return erJSON_ARRAY;
 		break ;
 	case jsonOBJ:
 		IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv) ) ;	// can be in FLASH or SRAM
@@ -250,8 +257,9 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_
 		break ;
 	default: IF_myASSERT(debugRESULT, 0); return erJSON_TYPE ;
 	}
-	if (jForm != jsonOBJ) pJson->val_count++;
 	IF_P(debugBUILD, "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf) ;
+	if (jForm != jsonOBJ)
+		pJson->val_count++;
 	return erSUCCESS ;
 }
 
