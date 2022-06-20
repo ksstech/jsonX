@@ -128,7 +128,7 @@ static int ecJsonAddNumber(json_obj_t * pJson, px_t pX, cvi_e cvI) {
 	case cvI64:	X64.i64	= *pX.pi64 ;	break ;
 	case cvF32:	X64.f64	= *pX.pf32 ;	break ;
 	case cvF64:	X64.f64	= *pX.pf64 ;	break ;
-	default: IF_myASSERT(debugSTATE, 0) ;	return erJSON_FORMAT ;
+	default: IF_myASSERT(debugPARAM, 0) ;	return erJSON_FORMAT ;
 	}
 	// Step 2: write the value, format depending on fractional part
 	uprintfx(pJson->psBuf, cvI < cvI08 ? "%llu" : cvI < cvF32 ? "%lld" : "%g" , X64.f64) ;
@@ -229,7 +229,7 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_
 	case jsonFALSE: ecJsonAddChars(pJson, "false", sizeof("false") - 1); break ;
 	case jsonTRUE: ecJsonAddChars(pJson, "true", sizeof("true") - 1); break ;
 	case jsonXXX:
-		IF_myASSERT(debugSTATE, xArrSize == 1) ;
+		IF_myASSERT(debugPARAM, xArrSize == 1) ;
 		ecJsonAddNumber(pJson, pValue, cvI) ;
 		break ;
 	case jsonSXX: ecJsonAddString(pJson, pValue.pc8, xArrSize); break ;
@@ -239,7 +239,7 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_
 		break ;
 	#endif
 	case jsonARRAY:
-		IF_myASSERT(debugSTATE, xArrSize > 0) ;
+		IF_myASSERT(debugPARAM, xArrSize > 0);
 		if (cvI <= cvSXX)
 			ecJsonAddNumberArray(pJson, pValue, cvI, xArrSize);
 		else if (cvI == cvSXX)
@@ -257,9 +257,9 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_
 		break ;
 	default: IF_myASSERT(debugRESULT, 0); return erJSON_TYPE ;
 	}
-	IF_P(debugBUILD, "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf) ;
 	if (jForm != jsonOBJ)
 		pJson->val_count++;
+	IF_P(debugTRACK && ioB1GET(ioW_JSON), "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf) ;
 	return erSUCCESS ;
 }
 
