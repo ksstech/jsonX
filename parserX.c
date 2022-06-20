@@ -1,15 +1,12 @@
 /*
  * parserX.c
- * Copyright 2014-21 Andre M. Maree/KSS Technologies (Pty) Ltd.
+ * Copyright 2014-21 Andre M. Maree / KSS Technologies (Pty) Ltd.
  *
  * References:
  * 	http://www.json.org/
  * 	http://json-schema.org/
  *
  */
-
-#include	<string.h>
-#include	<ctype.h>
 
 #include	"hal_variables.h"
 #include	"parserX.h"
