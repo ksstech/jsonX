@@ -193,7 +193,7 @@ static int ecJsonAddNumberArray(json_obj_t * pJson, px_t pValue, cvi_e cvI, size
  * @return				erSUCCESS if xNumber in range, else erFAILURE
  */
 int	ecJsonSetDecimals(int xNumber) {
-	if (INRANGE(0, xNumber, xpfMAXIMUM_DECIMALS, int)) {
+	if (INRANGE(0, xNumber, xpfMAXIMUM_DECIMALS)) {
 		ecJsonDecimals = xNumber ;
 		return erSUCCESS ;
 	}
