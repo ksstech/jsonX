@@ -154,7 +154,7 @@ int	xJsonCompareKey(const char * pKey, int TokLen, char * pTok) {
 
 int	xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int NumTok, const char * pKey) {
 	IF_P(debugFINDKEY,"\r\n%s: Key='%s'\r\n", __FUNCTION__, pKey) ;
-	int	KeyLen = xstrlen(pKey) ;
+	size_t KeyLen = strlen(pKey);
 	for (int CurTok = 0; CurTok < NumTok; CurTok++, pToken++) {
 		if (KeyLen != (pToken->end - pToken->start)) {
 			continue ;							// not same length, skip
@@ -339,7 +339,7 @@ int	xJsonParseList(const parse_list_t * psPlist, size_t szPList, const char * pc
 	sPH.NumTok	= iRV ;
 	for (sPH.plI = 0; sPH.plI < szPList; ++sPH.plI) {			// Outside parse_list_t loop
 		sPH.pcKey = psPlist[sPH.plI].pToken ;
-		sPH.szKey = xstrlen(sPH.pcKey) ;
+		sPH.szKey = strlen(sPH.pcKey) ;
 		sPH.jtI	= 0 ;
 		while(sPH.jtI < sPH.NumTok) {							// Inside jsmntok loop
 			jsmntok_t * psT = &sPH.psTList[sPH.jtI] ;

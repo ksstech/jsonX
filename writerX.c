@@ -66,7 +66,7 @@ static int ecJsonAddChar(json_obj_t * pJson, char cChar) {
  */
 static int ecJsonAddChars(json_obj_t * pJson, const char * pString, size_t xArrSize) {
 	if (xArrSize == 0)
-		xArrSize = xstrlen(pString);					// Step 1: determine the string length
+		xArrSize = strlen(pString);					// Step 1: determine the string length
 	IF_myASSERT(debugPARAM, xArrSize > 0);
 	while (xArrSize--) {								// Step 2: handle characters (with optional escapes)
 		if (strchr(ESChars, *pString) != NULL)
