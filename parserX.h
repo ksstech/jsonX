@@ -50,6 +50,6 @@ int	xJsonCompareKey(const char * pKey, int TokLen, char * pTok) ;
 int	xJsonFindKey(const char * pBuf, jsmntok_t * pTokenList, int NumTok, const char * pKey) ;
 
 int	xJsonParseKeyValue(const char * pBuf, jsmntok_t * psT, int NumTok, const char * pKey, void * pValue, vf_e VarForm) ;
-int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *), int szArr, vf_e cvF, vs_e cvS) ;
 int xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int szArr, dbf_t paDBF[]);
+int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *), int szArr, cvi_e cvI);
 int	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf, void * pvArg) ;

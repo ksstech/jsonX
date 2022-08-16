@@ -278,14 +278,15 @@ int xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int szArr, dbf_t paDBF[
  * 			if successful, leaves jtI set to next token to parse
  * 			if failed, jti left at the failing element
  */
-int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *),
-						int szArr, vf_e cvF, vs_e cvS) {
+
+int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *), int szArr, cvi_e cvI) {
 	IF_EXEC_1(debugARRAY, xJsonPrintCurTok, psPH) ;
 	if (szArr < 1 || psPH->psTList[psPH->jtI].size != szArr) {
 		IF_P(debugARRAY, "Invalid Array size (%u) or count(%u)\r\n", psPH->psTList[psPH->jtI].size, szArr) ;
 		return erFAILURE ;
 	}
 	int NumOK = 0 ;
+	vf_e cvF = xIndex2Form(cvI);
 	jsmntok_t * psT = &psPH->psTList[++psPH->jtI] ;		// step to first ARRAY ELEMENT
 	for (int i = 0; i < szArr; ++psT, ++i) {
 		char * pcBuf = (char *) psPH->pcBuf + psT->start ;
@@ -300,13 +301,13 @@ int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *),
 				pcBuf[0] = CHR_1 ;						// default 'true' to 1
 				pcBuf[1] = CHR_NUL ;
 			}
-			if (pcStringParseValue(pcBuf, pDst, cvF, cvS, NULL) == pvFAILURE) {
+			if (pcStringParseValue(pcBuf, pDst, cvI, NULL) == pvFAILURE) {
 				*pSaved = cSaved ;
 				return erFAILURE ;
 			}
 			++NumOK ;
 			++psPH->jtI ;
-			pDst.pu8 += xCV_Size2Field(cvS) ;
+			pDst.pu8 += xIndex2Field(cvI) ;
 		} else if (psT->type == JSMN_STRING && cvF == vfSXX && Hdlr) {
 			int iRV = Hdlr(pcBuf) ;
 			if (iRV < erSUCCESS) {
