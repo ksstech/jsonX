@@ -42,11 +42,16 @@ void	xJsonPrintCurTok(parse_hdlr_t * psPH) {
 }
 
 void	xJsonPrintIndent(int Depth, int Sep, int CR0, int CR1) {
-	if (CR0)							printfx("\r\n") ;
-	for (int x = 0; x < Depth; ++x)		printfx("  ") ;
-	if (Sep)							printfx(" %c", Sep) ;
-	if (CR0)							printfx("(s=%d)", CR0) ;
-	if (CR1)							printfx("\r\n") ;
+	if (CR0)
+		printfx(strCRLF);
+	for (int x = 0; x < Depth; ++x)
+		printfx("  ");
+	if (Sep)
+		printfx(" %c", Sep);
+	if (CR0)
+		printfx("(s=%d)", CR0);
+	if (CR1)
+		printfx(strCRLF);
 }
 
 /**
@@ -73,7 +78,7 @@ int	 xJsonPrintTokens(const char * pcBuf, jsmntok_t * psT, size_t Count, int Dep
 			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1) ;
 			printfx(" : ") ;
 			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1) ;
-			printfx("\r\n") ;
+			printfx(strCRLF);
 		}
 		xJsonPrintIndent(Depth, CHR_R_CURLY, 0, 0) ;
 		return j + 1 ;
@@ -84,12 +89,12 @@ int	 xJsonPrintTokens(const char * pcBuf, jsmntok_t * psT, size_t Count, int Dep
 		for (int i = 0; i < psT->size; ++i) {
 			xJsonPrintIndent(Depth+2, 0, 0, 0) ;
 			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1) ;
-			printfx("\r\n") ;
+			printfx(strCRLF) ;
 		}
 		xJsonPrintIndent(Depth, CHR_R_SQUARE, 0, 0) ;
 		return j + 1 ;
 	}
-	printfx("\r\n") ;
+	printfx(strCRLF) ;
 	return 0 ;
 }
 
@@ -163,10 +168,10 @@ int	xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int NumTok, const char *
 		if (xJsonCompareKey(pKey, KeyLen, (char *) pBuf + pToken->start) == erFAILURE) {
 			continue ;							// not matching, skip
 		}
-		IF_P(debugFINDKEY, "\r\n") ;
+		IF_P(debugFINDKEY, strCRLF) ;
 		return CurTok ;							// all OK, return token number
 	}
-	IF_P(debugFINDKEY, "\r\n") ;
+	IF_P(debugFINDKEY, strCRLF) ;
 	return erFAILURE ;
 }
 
