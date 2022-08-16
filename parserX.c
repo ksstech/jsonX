@@ -244,7 +244,7 @@ int xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int szArr, dbf_t paDBF[
 				pcBuf[0] = CHR_1 ;						// default 'true' to 1
 				pcBuf[1] = CHR_NUL ;
 			}
-			if (pcStringParseValue(pcBuf, paDst[i], cvF, xCV_Index2Size(paDBF[i].cvI), NULL) == pcFAILURE) {
+			if (pcStringParseValue(pcBuf, paDst[i], paDBF[i].cvI, NULL) == pcFAILURE) {
 				*pSaved = cSaved ;
 				IF_EXEC_1(debugARRAY, xJsonPrintCurTok, psPH) ;
 				return erFAILURE ;
