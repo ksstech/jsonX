@@ -231,7 +231,7 @@ int xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int szArr, dbf_t paDBF[
 	int NumOK = 0 ;
 	jsmntok_t * psT = &psPH->psTList[++psPH->jtI] ;		// step into ARRAY to 1st ELEMENT
 	for (int i = 0; i < szArr; ++psT, ++i) {
-		vf_e cvF = xCV_Index2Form(paDBF[i].cvI) ;
+		vf_e cvF = xIndex2Form(paDBF[i].cvI) ;
 		char * pcBuf = (char *) psPH->pcBuf + psT->start ;
 		char * pSaved = (char *) psPH->pcBuf + psT->end ;
 		char cSaved = *pSaved ;							// Save char before overwrite
