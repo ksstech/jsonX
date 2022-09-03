@@ -66,7 +66,7 @@ static int ecJsonAddChar(json_obj_t * pJson, char cChar) {
  */
 static int ecJsonAddChars(json_obj_t * pJson, const char * pString, size_t xArrSize) {
 	if (xArrSize == 0)
-		xArrSize = strlen(pString);					// Step 1: determine the string length
+		xArrSize = strlen(pString);						// Step 1: determine the string length
 	IF_myASSERT(debugPARAM, xArrSize > 0);
 	while (xArrSize--) {								// Step 2: handle characters (with optional escapes)
 		if (strchr(ESChars, *pString) != NULL)
@@ -216,7 +216,7 @@ int	ecJsonSetDecimals(int xNumber) {
  */
 int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_t jForm, cvi_e cvI, size_t xArrSize) {
 	json_obj_t * pJson1	;
-	IF_P(debugTRACK && ioB1GET(ioW_JSON), "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, jForm, cvI, xArrSize) ;
+	IF_P(debugTRACK && ioB1GET(dbgJSONwr), "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, jForm, cvI, xArrSize) ;
 	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halCONFIG_inMEM(pValue.pv)) ;
 
 	if (pJson->val_count > 0) ecJsonAddChar(pJson, CHR_COMMA);
@@ -259,7 +259,7 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_
 	}
 	if (jForm != jsonOBJ)
 		pJson->val_count++;
-	IF_P(debugTRACK && ioB1GET(ioW_JSON), "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf) ;
+	IF_P(debugTRACK && ioB1GET(dbgJSONwr), "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf) ;
 	return erSUCCESS ;
 }
 
