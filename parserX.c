@@ -139,8 +139,8 @@ int	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmntok_t 
  */
 int	xJsonReadValue(const char * pBuf, jsmntok_t * pToken, double * pDouble) {
 	char * 	pSrc = (char *) (pBuf + pToken->start) ;
-	int	Sign ;
-	if (pcStringParseF64(pSrc, pDouble, &Sign, " ,") == pcFAILURE) {
+	int	Sign;
+	if (pcStringParseF64(pSrc, pDouble, &Sign) == pcFAILURE) {
 		return erFAILURE ;
 	}
 	return erSUCCESS ;
@@ -249,7 +249,7 @@ int xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int szArr, dbf_t paDBF[
 				pcBuf[0] = CHR_1 ;						// default 'true' to 1
 				pcBuf[1] = CHR_NUL ;
 			}
-			if (pcStringParseValue(pcBuf, paDst[i], paDBF[i].cvI, NULL) == pcFAILURE) {
+			if (pcStringParseValue(pcBuf, paDst[i], paDBF[i].cvI) == pcFAILURE) {
 				*pSaved = cSaved ;
 				IF_EXEC_1(debugARRAY, xJsonPrintCurTok, psPH) ;
 				return erFAILURE ;
@@ -306,7 +306,7 @@ int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *), int szA
 				pcBuf[0] = CHR_1 ;						// default 'true' to 1
 				pcBuf[1] = CHR_NUL ;
 			}
-			if (pcStringParseValue(pcBuf, pDst, cvI, NULL) == pvFAILURE) {
+			if (pcStringParseValue(pcBuf, pDst, cvI) == pvFAILURE) {
 				*pSaved = cSaved ;
 				return erFAILURE ;
 			}
