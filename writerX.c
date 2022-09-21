@@ -214,7 +214,7 @@ int	ecJsonSetDecimals(int xNumber) {
  * @note:	In the case of adding a new object, pValue must be a pointer to the location
  * 			of the the new Json object struct to be filled in....
  */
-int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_t jForm, cvi_e cvI, size_t xArrSize) {
+int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u8_t jForm, cvi_e cvI, size_t xArrSize) {
 	json_obj_t * pJson1	;
 	IF_P(debugTRACK && ioB1GET(dbgJSONwr), "p1=%p  p2=%s  p3=%p  p4=%d  p5=%d  p6=%d", pJson, pKey, pValue, jForm, cvI, xArrSize) ;
 	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halCONFIG_inMEM(pValue.pv)) ;
