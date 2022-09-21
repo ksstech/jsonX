@@ -131,7 +131,8 @@ int xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmntok_t 
 int xJsonCompareKey(const char * pKey, int TokLen, char * pTok) {
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pKey) && halCONFIG_inMEM(pTok) && TokLen > 0) ;
 	while (*pKey && *pTok && TokLen) {
-		if (toupper((int)*pKey) != toupper((int)*pTok)) return erFAILURE;
+		if (toupper((int)*pKey) != toupper((int)*pTok))
+			return erFAILURE;
 		++pKey ;
 		++pTok ;
 		--TokLen ;
@@ -253,7 +254,6 @@ int xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int szArr, dbf_t paDBF[
  * 			if successful, leaves jtI set to next token to parse
  * 			if failed, jti left at the failing element
  */
-
 int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *), int szArr, cvi_e cvI) {
 	IF_EXEC_1(debugARRAY, xJsonPrintCurTok, psPH) ;
 	if (szArr < 1 || psPH->psTList[psPH->jtI].size != szArr) {
