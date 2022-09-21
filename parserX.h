@@ -26,11 +26,11 @@ typedef struct {
 	size_t		szKey ;									// current key size
 	jsmn_parser sParser ;								// jsmn control structure
 	jsmntok_t *	psTList ;								// jsmntok_t array allocated memory
-	int32_t		NumTok ;								// number of tokens parsed by jsmn
-	int32_t		NumOK ;									// sum of values returned by handlers.
-	int32_t		plI ;									// parse_list_t index
-	int32_t		jtI ;									// jsmntok_t index
-	void *		pvArg ;
+	int NumTok;											// number of tokens parsed by jsmn
+	int NumOK;											// sum of values returned by handlers.
+	int plI;											// parse_list_t index
+	int jtI;											// jsmntok_t index
+	void * pvArg;
 } parse_hdlr_t ;
 
 typedef struct {
