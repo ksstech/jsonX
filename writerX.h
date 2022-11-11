@@ -48,19 +48,19 @@ enum {
 typedef struct json_obj_t {
 	struct json_obj_t *	parent ;
 	struct json_obj_t *	child ;
-    ubuf_t *		psBuf ;
+    ubuf_t * psBuf ;
     struct {
-    	uint8_t		obj_nest : 4 ;                      // count OBJECT nesting level in this object
-    	uint8_t		arr_nest : 4 ;						// count ARRAY nesting level in this object
-    	uint8_t		val_count : 8 ;						// max 255 values per object
-    	uint8_t		f_NoSep : 1 ;						// once off separator skip..
-    	uint8_t		type ;
-    } ;
-} json_obj_t ;
+    	u8_t obj_nest:4;			// count OBJECT nesting level in this object
+    	u8_t arr_nest:4;			// count ARRAY nesting level in this object
+    	u8_t val_count:8;			// max 255 values per object
+    	u8_t f_NoSep:1;				// once off separator skip..
+    	u8_t type;
+    };
+} json_obj_t;
 
 // ####################################### global functions ########################################
 
 int	ecJsonSetDecimals(int xNumber) ;
-int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, uint8_t jForm, cvi_e cvI, size_t xArrSize) ;
+int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u8_t jForm, cvi_e cvI, size_t xArrSize) ;
 int	ecJsonCloseObject(json_obj_t * pJson) ;
 int	ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psBuf) ;
