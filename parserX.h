@@ -11,6 +11,10 @@
 #include	"jsmn.h"
 #include	"database.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ########################################## macros ###############################################
 
 
@@ -52,3 +56,7 @@ int	xJsonParseKeyValue(const char * pBuf, jsmntok_t * psT, int NumTok, const cha
 int xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int szArr, dbf_t paDBF[]);
 int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *), int szArr, cvi_e cvI);
 int	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf, void * pvArg) ;
+
+#ifdef __cplusplus
+}
+#endif
