@@ -1,6 +1,6 @@
 /*
  * parserX.c
- * Copyright 2014-21 Andre M. Maree / KSS Technologies (Pty) Ltd.
+ * Copyright 2014-22 Andre M. Maree / KSS Technologies (Pty) Ltd.
  *
  * References:
  * 	http://www.json.org/
@@ -8,14 +8,14 @@
  *
  */
 
-#include	"hal_variables.h"
-#include	"parserX.h"
+#include "hal_variables.h"
+#include "parserX.h"
 
-#include	"x_string_general.h"
-#include	"x_string_to_values.h"
+#include "x_string_general.h"
+#include "x_string_to_values.h"
 
-#include	"printfx.h"									// x_definitions stdarg stdint stdio
-#include	"x_errors_events.h"
+#include "printfx.h"									// x_definitions stdarg stdint stdio
+#include "x_errors_events.h"
 
 // ############################### BUILD: debug configuration options ##############################
 

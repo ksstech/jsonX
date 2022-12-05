@@ -1,15 +1,14 @@
 /*
- * Copyright 2014-21 Andre M. Maree/KSS Technologies (Pty) Ltd.
- */
-
-/*
  * parserX.h
+ * Copyright 2014-22 Andre M. Maree/KSS Technologies (Pty) Ltd.
  */
 
 #pragma once
 
-#include	"jsmn.h"
-#include	"database.h"
+#define JSMN_HEADER
+#include "jsmn.h"
+
+#include "database.h"
 
 #ifdef __cplusplus
 extern "C" {
