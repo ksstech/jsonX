@@ -10,12 +10,11 @@
 
 #include "hal_variables.h"
 #include "parserX.h"
-
+#include "printfx.h"									// x_definitions stdarg stdint stdio
+#include "syslog.h"
+#include "x_errors_events.h"
 #include "x_string_general.h"
 #include "x_string_to_values.h"
-
-#include "printfx.h"									// x_definitions stdarg stdint stdio
-#include "x_errors_events.h"
 
 // ############################### BUILD: debug configuration options ##############################
 
@@ -154,7 +153,8 @@ int xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int NumTok, const char *
 		IF_P(debugFINDKEY, strCRLF) ;
 		return CurTok ;							// all OK, return token number
 	}
-	IF_P(debugFINDKEY, strCRLF) ;
+	IF_P(debugFINDKEY, strCRLF);
+	SL_ERR("Key '%s' not found!", pKey);
 	return erFAILURE ;
 }
 
@@ -185,7 +185,7 @@ int xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int NumTok, const 
 		char * pTmp = cvParseValue(pSrc, cvI, pX);
 		iRV = (pTmp == pcFAILURE) ? erFAILURE : erSUCCESS;
 	}
-	return iRV ;
+	return iRV;
 }
 
 /**
