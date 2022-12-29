@@ -28,7 +28,7 @@
  *	\uxxxx (four hex digits) not yet escaped...
  */
 
-#include "hal_variables.h"
+#include "main.h"
 #include "writerX.h"
 
 #include "printfx.h"				// +x_definitions +stdarg +stdint +stdio

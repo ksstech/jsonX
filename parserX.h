@@ -7,7 +7,6 @@
 
 #define JSMN_HEADER
 #include "jsmn.h"
-
 #include "database.h"
 
 #ifdef __cplusplus
