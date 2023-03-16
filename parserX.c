@@ -33,22 +33,22 @@
 // ####################################### Global Functions ########################################
 
 void xJsonPrintCurTok(parse_hdlr_t * psPH) {
-	jsmntok_t * psT = &psPH->psTList[psPH->jtI] ;
-	printfx("#%d/%d  t=%d  s=%d  b=%d  e=%d  '%.*s'\r\n", psPH->jtI, psPH->NumTok, psT->type,
-		psT->size, psT->start, psT->end, psT->end - psT->start, psPH->pcBuf + psT->start) ;
+	jsmntok_t * psT = &psPH->psTList[psPH->jtI];
+	printf("#%d/%d  type=%d  size=%d  beg=%d  end=%d  '%.*s'\r\n", psPH->jtI, psPH->NumTok, psT->type,
+		psT->size, psT->start, psT->end, psT->end - psT->start, psPH->pcBuf + psT->start);
 }
 
 void xJsonPrintIndent(int Depth, int Sep, int CR0, int CR1) {
 	if (CR0)
-		printfx(strCRLF);
+		printf(strCRLF);
 	for (int x = 0; x < Depth; ++x)
-		printfx("  ");
+		printf("  ");
 	if (Sep)
-		printfx(" %c", Sep);
+		printf(" %c", Sep);
 	if (CR0)
-		printfx("(s=%d)", CR0);
+		printf("(s=%d)", CR0);
 	if (CR1)
-		printfx(strCRLF);
+		printf(strCRLF);
 }
 
 /**
@@ -61,38 +61,38 @@ void xJsonPrintIndent(int Depth, int Sep, int CR0, int CR1) {
  */
 int xJsonPrintTokens(const char * pcBuf, jsmntok_t * psT, size_t Count, int Depth) {
 	if (Count == 0) {
-		return erSUCCESS ;
+		return erSUCCESS;
 	}
 	if (psT->type == JSMN_PRIMITIVE || psT->type == JSMN_STRING) {
-		printfx("%d='%.*s'", psT->type, psT->end - psT->start, pcBuf+psT->start) ;
-		return 1 ;
+		printf("%d='%.*s'", psT->type, psT->end - psT->start, pcBuf+psT->start);
+		return 1;
 
 	} else if (psT->type == JSMN_OBJECT) {
-		xJsonPrintIndent(Depth, CHR_L_CURLY, psT->size, 1) ;
-		int j = 0 ;
+		xJsonPrintIndent(Depth, CHR_L_CURLY, psT->size, 1);
+		int j = 0;
 		for (int i = 0; i < psT->size; ++i) {
-			xJsonPrintIndent(Depth+2, 0, 0, 0) ;
-			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1) ;
-			printfx(" : ") ;
-			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1) ;
-			printfx(strCRLF);
+			xJsonPrintIndent(Depth+2, 0, 0, 0);
+			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1);
+			printf(" : ");
+			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1);
+			printf(strCRLF);
 		}
-		xJsonPrintIndent(Depth, CHR_R_CURLY, 0, 0) ;
-		return j + 1 ;
+		xJsonPrintIndent(Depth, CHR_R_CURLY, 0, 0);
+		return j + 1;
 
 	} else if (psT->type == JSMN_ARRAY) {
-		xJsonPrintIndent(Depth, CHR_L_SQUARE, psT->size, 1) ;
-		int j = 0 ;
+		xJsonPrintIndent(Depth, CHR_L_SQUARE, psT->size, 1);
+		int j = 0;
 		for (int i = 0; i < psT->size; ++i) {
-			xJsonPrintIndent(Depth+2, 0, 0, 0) ;
-			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1) ;
-			printfx(strCRLF) ;
+			xJsonPrintIndent(Depth+2, 0, 0, 0);
+			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1);
+			printf(strCRLF);
 		}
-		xJsonPrintIndent(Depth, CHR_R_SQUARE, 0, 0) ;
-		return j + 1 ;
+		xJsonPrintIndent(Depth, CHR_R_SQUARE, 0, 0);
+		return j + 1;
 	}
-	printfx(strCRLF) ;
-	return 0 ;
+	printf(strCRLF);
+	return 0;
 }
 
 /**
