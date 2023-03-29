@@ -28,11 +28,12 @@
  *	\uxxxx (four hex digits) not yet escaped...
  */
 
-#include "main.h"
-#include "writerX.h"
+#include "hal_variables.h"
 
+#include "options.h"
 #include "printfx.h"				// +x_definitions +stdarg +stdint +stdio
 #include "syslog.h"
+#include "writerX.h"
 #include "x_string_general.h"
 
 #define	debugFLAG					0xC000
