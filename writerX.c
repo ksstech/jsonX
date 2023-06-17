@@ -207,7 +207,7 @@ int	ecJsonSetDecimals(int xNumber) {
  * @brief
  * @param[in]	JSON object to build into
  * @param[in]	string to use as key value
- * @param[in]	variable type based on Complex Var definitions
+ * @param[in]	pointer to variable(s) to be encoded
  * @param[in]	type of value being jsonXXXX (NULL / FALSE / TRUE / NUMBER / STRING / ARRAY / OBJECT)
  * @param[in]	number type being cvxxx (Ixx / Uxx / Fxx | x08 / x16 / x32 / x64 || NAN)
  * @param[in]	number of items in array (or 1 if not an array)
