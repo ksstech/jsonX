@@ -43,8 +43,8 @@
 #define	debugPARAM					(debugFLAG_GLOBAL & debugFLAG & 0x4000)
 #define	debugRESULT					(debugFLAG_GLOBAL & debugFLAG & 0x8000)
 
-static int	ecJsonDecimals = xpfDEFAULT_DECIMALS ;
-static const char ESChars[] = { CHR_BACKSLASH,CHR_DOUBLE_QUOTE,CHR_FWDSLASH,CHR_BS,CHR_FF,CHR_TAB,CHR_LF,CHR_CR,CHR_NUL } ;
+static int	ecJsonDecimals = xpfDEFAULT_DECIMALS;
+static const char ESChars[] = { CHR_BACKSLASH,CHR_DOUBLE_QUOTE,CHR_FWDSLASH,CHR_BS,CHR_FF,CHR_TAB,CHR_LF,CHR_CR,CHR_NUL };
 
 /**
  * ecJsonAddChar() - write a single char to the stream
@@ -54,9 +54,9 @@ static const char ESChars[] = { CHR_BACKSLASH,CHR_DOUBLE_QUOTE,CHR_FWDSLASH,CHR_
  */
 static int ecJsonAddChar(json_obj_t * pJson, char cChar) {
 	if (xUBufSpace(pJson->psBuf) == 0)
-		return erFAILURE ;
-	uprintfx(pJson->psBuf, "%c", cChar) ;
-	return erSUCCESS ;
+		return erFAILURE;
+	uprintfx(pJson->psBuf, "%c", cChar);
+	return erSUCCESS;
 }
 
 /**
@@ -72,9 +72,9 @@ static int ecJsonAddChars(json_obj_t * pJson, const char * pString, size_t xArrS
 	while (xArrSize--) {								// Step 2: handle characters (with optional escapes)
 		if (strchr(ESChars, *pString) != NULL)
 			ecJsonAddChar(pJson, CHR_BACKSLASH);
-		ecJsonAddChar(pJson, *pString++) ;				// Step 4: process the actual character
+		ecJsonAddChar(pJson, *pString++);				// Step 4: process the actual character
 	}
-	return erSUCCESS ;
+	return erSUCCESS;
 }
 
 /**
@@ -84,10 +84,10 @@ static int ecJsonAddChars(json_obj_t * pJson, const char * pString, size_t xArrS
  * @return
  */
 static int ecJsonAddString(json_obj_t * pJson, const char * pString, size_t xArrSize) {
-	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pString)) ;	// can be in FLASH or SRAM
-	ecJsonAddChar(pJson, CHR_DOUBLE_QUOTE) ;			// Step 1: write the opening ' " '
-	ecJsonAddChars(pJson, pString, xArrSize) ;			// Step 2: write the string
-	return ecJsonAddChar(pJson, CHR_DOUBLE_QUOTE) ;		// Step 3: write the closing ' " '
+	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pString));	// can be in FLASH or SRAM
+	ecJsonAddChar(pJson, CHR_DOUBLE_QUOTE);			// Step 1: write the opening ' " '
+	ecJsonAddChars(pJson, pString, xArrSize);			// Step 2: write the string
+	return ecJsonAddChar(pJson, CHR_DOUBLE_QUOTE);		// Step 3: write the closing ' " '
 }
 
 /**
@@ -99,13 +99,13 @@ static int ecJsonAddString(json_obj_t * pJson, const char * pString, size_t xArr
  */
 static int ecJsonAddStringArray(json_obj_t * pJson, px_t pValue, size_t xSize) {
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv));	// can be in FLASH or SRAM
-	ecJsonAddChar(pJson, CHR_L_SQUARE) ;				// Step 1: write the opening ' [ '
+	ecJsonAddChar(pJson, CHR_L_SQUARE);				// Step 1: write the opening ' [ '
 	while (xSize--) {									// Step 2: handle each string from array, 1 by 1
-		ecJsonAddString(pJson, *pValue.ppc8++, 0) ;		// Step 2a: add the string
+		ecJsonAddString(pJson, *pValue.ppc8++, 0);		// Step 2a: add the string
 		if (xSize != 0)
 			ecJsonAddChar(pJson, CHR_COMMA);
 	}
-	return ecJsonAddChar(pJson, CHR_R_SQUARE) ;			// Step 3: write the closing ' ] '
+	return ecJsonAddChar(pJson, CHR_R_SQUARE);			// Step 3: write the closing ' ] '
 }
 
 /**
@@ -116,26 +116,26 @@ static int ecJsonAddStringArray(json_obj_t * pJson, px_t pValue, size_t xSize) {
  * @return
  */
 static int ecJsonAddNumber(json_obj_t * pJson, px_t pX, cvi_e cvI) {
-	x64_t X64 ;
-	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pX.pv) ) ;
+	x64_t X64;
+	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pX.pv) );
 	switch(cvI) {									// Normalize size to X64
-	case cvU08:	X64.u64	= *pX.pu8 ;		break ;
-	case cvU16:	X64.u64	= *pX.pu16 ;	break ;
-	case cvU32:	X64.u64	= *pX.pu32 ;	break ;
-	case cvU64:	X64.u64	= *pX.pu64 ;	break ;
-	case cvI08:	X64.i64	= *pX.pi8 ;		break ;
-	case cvI16:	X64.i64	= *pX.pi16 ;	break ;
-	case cvI32:	X64.i64	= *pX.pi32 ;	break ;
-	case cvI64:	X64.i64	= *pX.pi64 ;	break ;
-	case cvF32:	X64.f64	= *pX.pf32 ;	break ;
-	case cvF64:	X64.f64	= *pX.pf64 ;	break ;
-	default: IF_myASSERT(debugPARAM, 0) ;	return erJSON_FORMAT ;
+	case cvU08:	X64.u64	= *pX.pu8;		break;
+	case cvU16:	X64.u64	= *pX.pu16;	break;
+	case cvU32:	X64.u64	= *pX.pu32;	break;
+	case cvU64:	X64.u64	= *pX.pu64;	break;
+	case cvI08:	X64.i64	= *pX.pi8;		break;
+	case cvI16:	X64.i64	= *pX.pi16;	break;
+	case cvI32:	X64.i64	= *pX.pi32;	break;
+	case cvI64:	X64.i64	= *pX.pi64;	break;
+	case cvF32:	X64.f64	= *pX.pf32;	break;
+	case cvF64:	X64.f64	= *pX.pf64;	break;
+	default: IF_myASSERT(debugPARAM, 0);	return erJSON_FORMAT;
 	}
 	// Step 2: write the value, format depending on fractional part
-	uprintfx(pJson->psBuf, cvI < cvI08 ? "%llu" : cvI < cvF32 ? "%lld" : "%g" , X64.f64) ;
+	uprintfx(pJson->psBuf, cvI < cvI08 ? "%llu" : cvI < cvF32 ? "%lld" : "%g" , X64.f64);
 	if (xUBufSpace(pJson->psBuf) == 0)
-		return erJSON_BUF_FULL ;
-	return  erSUCCESS ;
+		return erJSON_BUF_FULL;
+	return  erSUCCESS;
 }
 
 #if	(jsonHAS_TIMESTAMP == 1)
@@ -148,11 +148,11 @@ static int ecJsonAddNumber(json_obj_t * pJson, px_t pX, cvi_e cvI) {
  */
 static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cvi_e cvI) {
 	switch(cvI) {
-	case cvDT_ELAP:	uprintfx(pJson->psBuf, "\"%!R\"", *pValue.pu64) ;	break ;
-	case cvDT_UTC:	uprintfx(pJson->psBuf, "\"%R\"", *pValue.pu64) ;	break ;
-	case cvDT_ALT:	uprintfx(pJson->psBuf, "\"%#Z\"", pValue.pv) ;	break ;
-	case cvDT_TZ:	uprintfx(pJson->psBuf, "\"%+Z\"", pValue.pv) ;	break ;
-	default:		IF_myASSERT(debugPARAM, 0) ; 						return erJSON_FORMAT ;
+	case cvDT_ELAP:	uprintfx(pJson->psBuf, "\"%!R\"", *pValue.pu64);	break;
+	case cvDT_UTC:	uprintfx(pJson->psBuf, "\"%R\"", *pValue.pu64);	break;
+	case cvDT_ALT:	uprintfx(pJson->psBuf, "\"%#Z\"", pValue.pv);	break;
+	case cvDT_TZ:	uprintfx(pJson->psBuf, "\"%+Z\"", pValue.pv);	break;
+	default:		IF_myASSERT(debugPARAM, 0); 						return erJSON_FORMAT;
 	}
 	if (xUBufSpace(pJson->psBuf) == 0)
 		return erJSON_BUF_FULL;
@@ -167,11 +167,11 @@ static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cvi_e cvI) {
  * already in the object..
  */
 static int ecJsonAddNumberArray(json_obj_t * pJson, px_t pValue, cvi_e cvI, size_t xSize) {
-	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv)) ;// can be in FLASH or SRAM
-	ecJsonAddChar(pJson, CHR_L_SQUARE) ;				// Step 1: write the opening ' [ '
+	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv));// can be in FLASH or SRAM
+	ecJsonAddChar(pJson, CHR_L_SQUARE);				// Step 1: write the opening ' [ '
 
 	while (xSize--) {									// Step 2: handle each array value, 1 by 1
-		ecJsonAddNumber(pJson, pValue, cvI) ;			// Step 2a: add the number
+		ecJsonAddNumber(pJson, pValue, cvI);			// Step 2a: add the number
 		if (xSize != 0)
 			ecJsonAddChar(pJson, CHR_COMMA);
 		if (cvI == cvU08 || cvI == cvI08)
@@ -184,7 +184,7 @@ static int ecJsonAddNumberArray(json_obj_t * pJson, px_t pValue, cvi_e cvI, size
 			pValue.pu64++;
 		else return erJSON_NUM_TYPE;
 	}
-	return ecJsonAddChar(pJson, CHR_R_SQUARE) ;			// Step 4: write the closing ' ] '
+	return ecJsonAddChar(pJson, CHR_R_SQUARE);			// Step 4: write the closing ' ] '
 }
 
 /**
@@ -195,11 +195,11 @@ static int ecJsonAddNumberArray(json_obj_t * pJson, px_t pValue, cvi_e cvI, size
  */
 int	ecJsonSetDecimals(int xNumber) {
 	if (INRANGE(0, xNumber, xpfMAXIMUM_DECIMALS)) {
-		ecJsonDecimals = xNumber ;
-		return erSUCCESS ;
+		ecJsonDecimals = xNumber;
+		return erSUCCESS;
 	}
-	ecJsonDecimals = xpfDEFAULT_DECIMALS ;
-	return erFAILURE ;
+	ecJsonDecimals = xpfDEFAULT_DECIMALS;
+	return erFAILURE;
 }
 
 /**
@@ -218,27 +218,27 @@ int	ecJsonSetDecimals(int xNumber) {
 int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u8_t jForm, cvi_e cvI, size_t xArrSize) {
 	json_obj_t * pJson1	;
 	IF_PX(debugTRACK && ioB1GET(dbgJSONwr), "p1=%p  p2=%s  p3=%p  p4=%hhu  p5=%hhu  p6=%zu",
-			(void *)pJson, pKey, pValue.pv, jForm, cvI, xArrSize) ;
-	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halCONFIG_inMEM(pValue.pv)) ;
+			(void *)pJson, pKey, pValue.pv, jForm, cvI, xArrSize);
+	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halCONFIG_inMEM(pValue.pv));
 
 	if (pJson->val_count > 0) ecJsonAddChar(pJson, CHR_COMMA);
 	if (pKey != 0) {									// Step 2: If key supplied
-		ecJsonAddString(pJson, pKey, 0) ;				//			add it...
-		ecJsonAddChar(pJson, CHR_COLON) ;
+		ecJsonAddString(pJson, pKey, 0);				//			add it...
+		ecJsonAddChar(pJson, CHR_COLON);
 	}
 	switch(jForm) {										// Step 3: Add the value
-	case jsonNULL: ecJsonAddChars(pJson, "null", sizeof("null") - 1); break ;
-	case jsonFALSE: ecJsonAddChars(pJson, "false", sizeof("false") - 1); break ;
-	case jsonTRUE: ecJsonAddChars(pJson, "true", sizeof("true") - 1); break ;
+	case jsonNULL: ecJsonAddChars(pJson, "null", sizeof("null") - 1); break;
+	case jsonFALSE: ecJsonAddChars(pJson, "false", sizeof("false") - 1); break;
+	case jsonTRUE: ecJsonAddChars(pJson, "true", sizeof("true") - 1); break;
 	case jsonXXX:
-		IF_myASSERT(debugPARAM, xArrSize == 1) ;
-		ecJsonAddNumber(pJson, pValue, cvI) ;
-		break ;
-	case jsonSXX: ecJsonAddString(pJson, pValue.pc8, xArrSize); break ;
+		IF_myASSERT(debugPARAM, xArrSize == 1);
+		ecJsonAddNumber(pJson, pValue, cvI);
+		break;
+	case jsonSXX: ecJsonAddString(pJson, pValue.pc8, xArrSize); break;
 	#if	(jsonHAS_TIMESTAMP == 1)
 	case jsonEDTZ:
-		ecJsonAddTimeStamp(pJson, pValue, cvI) ;
-		break ;
+		ecJsonAddTimeStamp(pJson, pValue, cvI);
+		break;
 	#endif
 	case jsonARRAY:
 		IF_myASSERT(debugPARAM, xArrSize > 0);
@@ -248,21 +248,21 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u8_t j
 			ecJsonAddStringArray(pJson, pValue, xArrSize);
 		else
 			return erJSON_ARRAY;
-		break ;
+		break;
 	case jsonOBJ:
-		IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv) ) ;	// can be in FLASH or SRAM
-		pJson1	= (json_obj_t *) pValue.pv ;
-		ecJsonCreateObject(pJson1, pJson->psBuf) ; 		// create new object with same buffer
-		pJson->child	= pJson1 ;						// setup link from parent to child
-		pJson1->parent	= pJson ;						// setup link from child to parent
-		pJson->obj_nest++ ;								// increase parent nest level
-		break ;
-	default: IF_myASSERT(debugRESULT, 0); return erJSON_TYPE ;
+		IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv) );	// can be in FLASH or SRAM
+		pJson1	= (json_obj_t *) pValue.pv;
+		ecJsonCreateObject(pJson1, pJson->psBuf); 		// create new object with same buffer
+		pJson->child	= pJson1;						// setup link from parent to child
+		pJson1->parent	= pJson;						// setup link from child to parent
+		pJson->obj_nest++;								// increase parent nest level
+		break;
+	default: IF_myASSERT(debugRESULT, 0); return erJSON_TYPE;
 	}
 	if (jForm != jsonOBJ)
 		pJson->val_count++;
-	IF_P(debugTRACK && ioB1GET(dbgJSONwr), "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf) ;
-	return erSUCCESS ;
+	IF_P(debugTRACK && ioB1GET(dbgJSONwr), "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf);
+	return erSUCCESS;
 }
 
 /**
@@ -271,15 +271,15 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u8_t j
  * @return
  */
 int	ecJsonCloseObject(json_obj_t * pJson) {
-	if (pJson->child) ecJsonCloseObject(pJson->child) ;	// recurse to close the child first..
-	IF_myASSERT(debugPARAM, pJson->obj_nest == 0) ;		// should be zero after recursing to lowest level
-	ecJsonAddChar(pJson, CHR_R_CURLY) ;					// close the current object
+	if (pJson->child) ecJsonCloseObject(pJson->child);	// recurse to close the child first..
+	IF_myASSERT(debugPARAM, pJson->obj_nest == 0);		// should be zero after recursing to lowest level
+	ecJsonAddChar(pJson, CHR_R_CURLY);					// close the current object
 	if (pJson->parent) {								// is this a child to a parent ?
-		pJson->parent->obj_nest-- ;						// adjust the nesting level of the parent
-		pJson->parent->child	= 0 ;					// reset parent to child link
-		pJson->parent			= 0 ;					// reset child to parent link
+		pJson->parent->obj_nest--;						// adjust the nesting level of the parent
+		pJson->parent->child	= 0;					// reset parent to child link
+		pJson->parent			= 0;					// reset child to parent link
 	}
-	return  erSUCCESS ;
+	return  erSUCCESS;
 }
 
 /**
@@ -289,11 +289,11 @@ int	ecJsonCloseObject(json_obj_t * pJson) {
  * @return
  */
 int	ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psBuf) {
-	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(psBuf)) ;
-	pJson->parent		= pJson->child	= 0 ;
-	pJson->psBuf		= psBuf ;
-	pJson->val_count	= 0 ;
-	pJson->obj_nest		= 0 ;
-	ecJsonAddChar(pJson, CHR_L_CURLY) ;
-	return  erSUCCESS ;
+	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(psBuf));
+	pJson->parent		= pJson->child	= 0;
+	pJson->psBuf		= psBuf;
+	pJson->val_count	= 0;
+	pJson->obj_nest		= 0;
+	ecJsonAddChar(pJson, CHR_L_CURLY);
+	return  erSUCCESS;
 }
