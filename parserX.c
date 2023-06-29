@@ -296,6 +296,51 @@ int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *), int szA
 	return NumOK;
 }
 
+/* parse the buffer
+ * find token "method"
+ * {"method":"sense","params":{"req":[1,1,2],"sval":["sense /idi 1 0 3;sense /idi 2 0 3;sense /idi 3 0 3;sense /idi 4 0 0;sense /idi 5 0 -1","sense /clock/uptime 1000 60000"]}}
+ * {"method":"rule","params":{"req":[1,1,1,1],"rval":["sch IP4B IF HR GE 1 AND HR LT 4 then upgrade"]}}
+ */
+int	xJsonParsePayload(parse_hdlr_t * psPH, const ph_list_t * psHL, size_t szHL) {
+	IF_myASSERT(debugPARAM, halCONFIG_inMEM(psHL) && szHL > 0);
+	int iRV = xJsonParse(psPH->pcBuf, psPH->szBuf, &psPH->sParser, &psPH->psTList);
+	if (iRV < 1 || psPH->psTList == NULL)
+		goto exit;
+	psPH->NumTok = iRV;
+
+	// Check if not a "status" message
+	iRV = xJsonFindKey(psPH->pcBuf, psPH->psTList, psPH->NumTok, "status");
+	if (iRV >= erSUCCESS)
+		goto exit;
+
+	// "method" is what we looking for...
+	iRV = xJsonFindKey(psPH->pcBuf, psPH->psTList, psPH->NumTok, "method");
+	if (iRV < erSUCCESS)
+		goto exit;
+	psPH->jtI = ++iRV;
+
+	while(psPH->jtI < psPH->NumTok) {					// Inside jsmntok loop
+		jsmntok_t * psT = &psPH->psTList[psPH->jtI];
+		for (int hlI = 0; hlI < szHL; ++hlI) {			// loop PARSE HANDLER LIST
+			const ph_list_t * psH = &psHL[hlI];
+			if (xstrncmp(psPH->pcBuf + psT->start, psH->pToken, strlen(psH->pToken), true)) {
+				++psPH->jtI;
+				iRV = psH->pHdlr(psPH);					// invoke CB handler
+				if (iRV >= erSUCCESS) {
+					psPH->NumOK += iRV;
+				} else {
+					SL_ERR("WTF: %s:%d '%.*s'", __FUNCTION__, __LINE__, psT->end - psT->start, psPH->pcBuf + psT->start);
+				}
+				break;
+			}
+		}
+	}
+	IF_EXEC_4(debugLIST && iRV >= erSUCCESS, xJsonPrintTokens, psPH->pcBuf, psPH->psTList, psPH->NumTok, 0);
+exit:
+	vRtosFree(psPH->psTList);
+    return psPH->NumOK ? psPH->NumOK : iRV;
+}
+
 // Old API replaced with above...
 int	xJsonParseList(const ph_list_t * psPlist, size_t szPList, const char * pcBuf, size_t szBuf, void * pvArg) {
 	IF_myASSERT(debugPARAM, halCONFIG_inMEM(psPlist) && szPList > 0);
