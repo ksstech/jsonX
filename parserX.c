@@ -158,13 +158,12 @@ int xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int NumTok, const 
 	if (pX.pv == NULL)										// if no parse destination supplied
 		return iRV;										// just return the token index
 	if (cvI == cvSXX) {
-		int xLen = pToken->end - pToken->start ;			// calculate length
-		strncpy(pX.pc8, pSrc, xLen) ;
-		*(pX.pc8 + xLen) = CHR_NUL ;						// strncpy with exact size, no termination..
-		iRV = erSUCCESS ;
+		int xLen = pToken->end - pToken->start;			// calculate length
+		strncpy(pX.pc8, pSrc, xLen);					// strncpy with exact size,
+		*(pX.pc8 + xLen) = CHR_NUL;						// terminate
 	} else {
-		char * pTmp = cvParseValue(pSrc, cvI, pX);
-		iRV = (pTmp == pcFAILURE) ? erFAILURE : erSUCCESS;
+		if (cvParseValue(pSrc, cvI, pX) == pcFAILURE)
+			return erFAILURE;
 	}
 	return iRV;
 }
