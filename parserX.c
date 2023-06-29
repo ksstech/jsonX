@@ -147,30 +147,20 @@ int xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int NumTok, const char *
 	return erFAILURE ;
 }
 
-/**
- * @brief
- * @param	pBuf
- * @param	pToken
- * @param	NumTok
- * @param	pKey
- * @param	pValue
- * @param	cvF
- * @return	erSUCCESS or erFAILURE
- */
 int xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int NumTok, const char * pKey, px_t pX, cvi_e cvI) {
 	int iRV = xJsonFindKey(pBuf, pToken, NumTok, pKey);
 	if (iRV == erFAILURE)
 		return iRV;
-	pToken += iRV + 1 ;									// step to token after matching token..
+	pToken += iRV + 1;									// step to token after matching token..
 	char * pSrc = (char *) pBuf + pToken->start;
+	IF_myASSERT(debugPARAM, (cvI == cvSXX && pToken->type == JSMN_STRING) ||
+							(cvI != cvSXX && pToken->type == JSMN_PRIMITIVE));
 	if (cvI == cvSXX) {
-		IF_myASSERT(debugPARAM, pToken->type == JSMN_STRING) ;
 		int xLen = pToken->end - pToken->start ;			// calculate length
 		strncpy(pX.pc8, pSrc, xLen) ;
 		*(pX.pc8 + xLen) = CHR_NUL ;						// strncpy with exact size, no termination..
 		iRV = erSUCCESS ;
 	} else {
-		IF_myASSERT(debugPARAM, pToken->type == JSMN_PRIMITIVE);
 		char * pTmp = cvParseValue(pSrc, cvI, pX);
 		iRV = (pTmp == pcFAILURE) ? erFAILURE : erSUCCESS;
 	}
