@@ -39,18 +39,22 @@ typedef struct {
 
 // ####################################### global functions ########################################
 
-void xJsonPrintCurTok(parse_hdlr_t * psPH) ;
+void xJsonPrintCurTok(parse_hdlr_t * psPH);
 
-int	xJsonPrintTokens(const char * pcBuf, jsmntok_t * pToken, size_t Count, int Depth) ;
-int	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmntok_t * * ppTokenList) ;
+int	xJsonPrintTokens(const char * pcBuf, jsmntok_t * pToken, size_t Count, int Depth);
+int	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmntok_t * * ppTokenList);
 
-int	xJsonCompareKey(const char * pKey, int TokLen, char * pTok) ;
-int	xJsonFindKey(const char * pBuf, jsmntok_t * pTokenList, int NumTok, const char * pKey) ;
+bool xJsonTokenIsKey(const char * pBuf, jsmntok_t * pToken);
 
-int	xJsonParseKeyValue(const char * pBuf, jsmntok_t * psT, int NumTok, const char * pKey, px_t pX, cvi_e cvI) ;
+int	xJsonFindToken(const char * pBuf, jsmntok_t * pTokenList, int NumTok, const char * pKey, bool Key);
+#define xJsonFindValue(pBuf, pTL, numTok, pK) xJsonFindToken(pBuf, pTL, numTok, pK, false)
+#define xJsonFindKey(pBuf, pTL, numTok, pK) xJsonFindToken(pBuf, pTL, numTok, pK, true)
+
+int	xJsonParseKeyValue(const char * pBuf, jsmntok_t * psT, int NumTok, const char * pKey, px_t pX, cvi_e cvI);
 int xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int szArr, dbf_t paDBF[]);
 int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *), int szArr, cvi_e cvI);
-int	xJsonParseList(const parse_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf, void * pvArg) ;
+int	xJsonParsePayload(parse_hdlr_t * psPH, const ph_list_t * psPL, size_t szPL);
+int	xJsonParseList(const ph_list_t * psPlist, size_t szPlist, const char * pcBuf, size_t szBuf, void * pvArg);
 
 #ifdef __cplusplus
 }
