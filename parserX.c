@@ -126,6 +126,9 @@ int xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmntok_t 
 	return iRV2;
 }
 
+bool xJsonTokenIsKey(const char * pBuf, jsmntok_t * pToken) {
+	size_t Sz = (pToken+1)->start - pToken->end;
+	return memchr(pBuf+pToken->end, CHR_COLON, Sz) ? 1 : 0;
 }
 
 int xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int NumTok, const char * pKey) {
