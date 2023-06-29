@@ -141,9 +141,9 @@ int xJsonFindToken(const char * pBuf, jsmntok_t * pT, int numTok, const char * p
 		if (!Key || xJsonTokenIsKey(pBuf, pT))		// key required and found?
 			return curTok;								// bingo!!!
 	}
-	IF_P(debugFINDKEY, strCRLF);
-	SL_ERR("Key '%s' not found!", pKey);
-	return erFAILURE ;
+	return erFAILURE;
+}
+
 int xJsonFindKeyValue(const char * pBuf, jsmntok_t * pToken, int NumTok, const char * pK, const char * pV) {
 	// Step 1: Find the required Key
 	PX("K=%s:", pK);
