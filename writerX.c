@@ -169,6 +169,12 @@ static json_obj_t * ecJsonAddObject(json_obj_t * pJson, px_t pX) {
 	return pJson1;
 }
 
+static json_obj_t * ecJsonAddArrayObject(json_obj_t * pJson, px_t pX) {
+	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pX.pv));	// MUST be in SRAM
+	ecJsonAddChar(pJson, CHR_L_SQUARE);					// Step 1: write the opening '['
+	return ecJsonAddObject(pJson, pX);					// Step 2: create the object '{'
+}
+
 #if	(jsonHAS_TIMESTAMP == 1)
 /**
  * ecJsonAddTimeStamp()
@@ -246,14 +252,17 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jF
 	#endif
 
 	case jsonARRAY:
-		IF_myASSERT(debugPARAM, xArrSize > 0);
-		if (cvI <= cvSXX)
-			ecJsonAddNumberArray(pJson, pValue, cvI, xArrSize);
-		else if (cvI == cvSXX)
-			ecJsonAddStringArray(pJson, pValue, xArrSize);
-		else
-			return erJSON_ARRAY;
-		break;
+		if (cvI == cvXXX)
+			ecJsonAddArrayObject(pJson, pX)->type = jsonTYPE_ARRAY;	// Sz ignored
+		else {
+			IF_myASSERT(debugPARAM, Sz > 0);
+			if (cvI <= cvSXX)
+				ecJsonAddArrayNumbers(pJson, pX, cvI, Sz);
+			else if (cvI == cvSXX)
+				ecJsonAddArrayStrings(pJson, pX, Sz);
+			else
+				return erJSON_ARRAY;
+		}
 		break;
 	case jsonOBJ: ecJsonAddObject(pJson, pX); break;
 
@@ -275,6 +284,8 @@ int	ecJsonCloseObject(json_obj_t * pJson) {
 		ecJsonCloseObject(pJson->child);				// recurse to close the child first..
 	IF_myASSERT(debugPARAM, pJson->obj_nest == 0);		// should be zero after recursing to lowest level
 	ecJsonAddChar(pJson, CHR_R_CURLY);					// close the object
+	if (pJson->type == jsonTYPE_ARRAY)
+		ecJsonAddChar(pJson, CHR_R_SQUARE);				// close the array
 	if (pJson->parent) {								// is this a child to a parent ?
 		pJson->parent->obj_nest--;						// adjust the nesting level of the parent
 		pJson->parent->child = 0;						// reset parent to child link
