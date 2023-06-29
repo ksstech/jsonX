@@ -66,8 +66,8 @@ typedef struct json_obj_t {
 
 // ####################################### global functions ########################################
 
-int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u8_t jForm, cvi_e cvI, size_t xArrSize) ;
 int	ecJsonSetDecimals(int xNumber);
+int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, jform_t jForm, cvi_e cvI, size_t xArrSize);
 int	ecJsonCloseObject(json_obj_t * pJson);
 int	ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psBuf);
 
