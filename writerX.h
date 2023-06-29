@@ -22,7 +22,7 @@ extern "C" {
 
 // ######################################## enumerations ###########################################
 
-enum {
+typedef enum {
 	jsonNULL= 0,
 	jsonFALSE,
 	jsonTRUE,
@@ -33,7 +33,7 @@ enum {
 	#endif
 	jsonARRAY,
 	jsonOBJ
-} ;
+} jform_t;
 
 enum {
 	erJSON_CREATE			= -3110,							// start 10 down from Appl error codes
