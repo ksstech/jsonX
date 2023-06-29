@@ -279,8 +279,6 @@ int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *), int szA
 				*pSaved = cSaved;
 				return erFAILURE;
 			}
-			++NumOK ;
-			++psPH->jtI ;
 			pDst.pu8 += xIndex2Field(cvI);
 		} else if ((psT->type == JSMN_STRING) && (cvF == vfSXX) && Hdlr) {
 			int iRV = Hdlr(pcBuf);
@@ -288,11 +286,11 @@ int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *), int szA
 				*pSaved = cSaved;
 				return iRV;
 			}
-			++NumOK ;
-			++psPH->jtI ;
 		} else {
 			return erFAILURE;
 		}
+		++NumOK;
+		++psPH->jtI;
 		*pSaved = cSaved;
 	}
 	return NumOK;
