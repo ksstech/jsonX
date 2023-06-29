@@ -295,7 +295,7 @@ int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *), int szA
 		}
 		*pSaved = cSaved;
 	}
-	return NumOK ;
+	return NumOK;
 }
 
 // Old API replaced with above...
