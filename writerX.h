@@ -28,9 +28,9 @@ enum {
 	jsonTRUE,
 	jsonXXX,
 	jsonSXX,
-#if		(jsonHAS_TIMESTAMP == 1)
+	#if	(jsonHAS_TIMESTAMP == 1)
 	jsonEDTZ,
-#endif
+	#endif
 	jsonARRAY,
 	jsonOBJ
 } ;
@@ -45,14 +45,14 @@ enum {
 	erJSON_FORMAT,
 	erJSON_ARRAY,
     erJSON_UNDEF,
-}  ;
+} ;
 
 // ############################################ structures #########################################
 
 typedef struct json_obj_t {
-	struct json_obj_t *	parent ;
-	struct json_obj_t *	child ;
-    ubuf_t * psBuf ;
+	struct json_obj_t *	parent;
+	struct json_obj_t *	child;
+    ubuf_t * psBuf;
     struct {
     	u8_t obj_nest:4;			// count OBJECT nesting level in this object
     	u8_t arr_nest:4;			// count ARRAY nesting level in this object
@@ -64,10 +64,10 @@ typedef struct json_obj_t {
 
 // ####################################### global functions ########################################
 
-int	ecJsonSetDecimals(int xNumber) ;
 int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pValue, u8_t jForm, cvi_e cvI, size_t xArrSize) ;
-int	ecJsonCloseObject(json_obj_t * pJson) ;
-int	ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psBuf) ;
+int	ecJsonSetDecimals(int xNumber);
+int	ecJsonCloseObject(json_obj_t * pJson);
+int	ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psBuf);
 
 #ifdef __cplusplus
 }
