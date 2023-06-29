@@ -155,6 +155,8 @@ int xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int NumTok, const 
 	char * pSrc = (char *) pBuf + pToken->start;
 	IF_myASSERT(debugPARAM, (cvI == cvSXX && pToken->type == JSMN_STRING) ||
 							(cvI != cvSXX && pToken->type == JSMN_PRIMITIVE));
+	if (pX.pv == NULL)										// if no parse destination supplied
+		return iRV;										// just return the token index
 	if (cvI == cvSXX) {
 		int xLen = pToken->end - pToken->start ;			// calculate length
 		strncpy(pX.pc8, pSrc, xLen) ;
