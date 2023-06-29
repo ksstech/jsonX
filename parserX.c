@@ -293,7 +293,7 @@ int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *), int szA
 		} else {
 			return erFAILURE;
 		}
-		*pSaved = cSaved ;
+		*pSaved = cSaved;
 	}
 	return NumOK ;
 }
