@@ -135,6 +135,31 @@ static int ecJsonAddNumber(json_obj_t * pJson, px_t pX, cvi_e cvI) {
 	return  erSUCCESS;
 }
 
+/**
+ * @brief	add and array of number, any format and size, to the stream
+ * @brief	Assume the members of the array are all there and ready to be added.
+ * @brief	Will open, fill and close the array, with a leading COMMA is other values
+ * @brief	already in the object..
+ */
+static int ecJsonAddArrayNumbers(json_obj_t * pJson, px_t pX, cvi_e cvI, size_t Sz) {
+	ecJsonAddChar(pJson, CHR_L_SQUARE);				// Step 1: write the opening ' [ '
+	while (Sz--) {									// Step 2: handle each array value, 1 by 1
+		ecJsonAddNumber(pJson, pX, cvI);			// Step 2a: add the number
+		if (Sz != 0)
+			ecJsonAddChar(pJson, CHR_COMMA);
+		if (cvI == cvU08 || cvI == cvI08)
+			pX.pu8++;
+		else if (cvI == cvU16 || cvI == cvI16)
+			pX.pu16++;
+		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32)
+			pX.pu32++;
+		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32)
+			pX.pu64++;
+		else return erJSON_NUM_TYPE;
+	}
+	return ecJsonAddChar(pJson, CHR_R_SQUARE);			// Step 4: write the closing ' ] '
+}
+
 static json_obj_t * ecJsonAddObject(json_obj_t * pJson, px_t pX) {
 	json_obj_t * pJson1	= (json_obj_t *) pX.pv;
 	ecJsonCreateObject(pJson1, pJson->psBuf); 			// create new object with same buffer
@@ -165,33 +190,6 @@ static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cvi_e cvI) {
 	return  erSUCCESS;
 }
 #endif
-
-/**
- * ecJsonAddNumberArray() - add and array of number, any format and size, to the stream
- * Assume the members of the array are all there and ready to be added.
- * Will open, fill and close the array, with a leading COMMA is other values
- * already in the object..
- */
-static int ecJsonAddNumberArray(json_obj_t * pJson, px_t pValue, cvi_e cvI, size_t xSize) {
-	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv));// can be in FLASH or SRAM
-	ecJsonAddChar(pJson, CHR_L_SQUARE);				// Step 1: write the opening ' [ '
-
-	while (xSize--) {									// Step 2: handle each array value, 1 by 1
-		ecJsonAddNumber(pJson, pValue, cvI);			// Step 2a: add the number
-		if (xSize != 0)
-			ecJsonAddChar(pJson, CHR_COMMA);
-		if (cvI == cvU08 || cvI == cvI08)
-			pValue.pu8++;
-		else if (cvI == cvU16 || cvI == cvI16)
-			pValue.pu16++;
-		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32)
-			pValue.pu32++;
-		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32)
-			pValue.pu64++;
-		else return erJSON_NUM_TYPE;
-	}
-	return ecJsonAddChar(pJson, CHR_R_SQUARE);			// Step 4: write the closing ' ] '
-}
 
 /**
  * ecJsonSetDecimals()	Set the number of decimals to display
