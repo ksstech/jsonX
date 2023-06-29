@@ -22,18 +22,15 @@ extern "C" {
 // ############################################ structures #########################################
 
 typedef struct {
-	const char *pcBuf ;									// JSON source buffer
-	size_t		szBuf ;									// source buffer size
-	const char *pcKey ;									// current key in parse_list_t
-	size_t		szKey ;									// current key size
-	jsmn_parser sParser ;								// jsmn control structure
-	jsmntok_t *	psTList ;								// jsmntok_t array allocated memory
+	const char * pcBuf;									// JSON source buffer
+	size_t szBuf;										// source buffer size
+	jsmn_parser sParser;								// jsmn control structure
+	jsmntok_t *	psTList;								// jsmntok_t array allocated memory
 	int NumTok;											// number of tokens parsed by jsmn
 	int NumOK;											// sum of values returned by handlers.
-	int plI;											// parse_list_t index
 	int jtI;											// jsmntok_t index
 	void * pvArg;
-} parse_hdlr_t ;
+} parse_hdlr_t;
 
 typedef struct {
 	char * pToken ;
