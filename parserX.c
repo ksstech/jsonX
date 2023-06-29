@@ -131,19 +131,15 @@ bool xJsonTokenIsKey(const char * pBuf, jsmntok_t * pToken) {
 	return memchr(pBuf+pToken->end, CHR_COLON, Sz) ? 1 : 0;
 }
 
-int xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int NumTok, const char * pKey) {
-	IF_P(debugFINDKEY,"\r\n%s: Key='%s'\r\n", __FUNCTION__, pKey) ;
-	size_t KeyLen = strlen(pKey);
-	for (int CurTok = 0; CurTok < NumTok; CurTok++, pToken++) {
-		if (KeyLen != (pToken->end - pToken->start)) {
-			continue ;							// not same length, skip
-		}
-		IF_P(debugFINDKEY, "[Tok='%.*s'] ", pToken->end - pToken->start, pBuf + pToken->start) ;
-		if (xJsonCompareKey(pKey, KeyLen, (char *) pBuf + pToken->start) == erFAILURE) {
-			continue ;							// not matching, skip
-		}
-		IF_P(debugFINDKEY, strCRLF) ;
-		return CurTok ;							// all OK, return token number
+int xJsonFindToken(const char * pBuf, jsmntok_t * pT, int numTok, const char * pK, bool Key) {
+	size_t kL = strlen(pK);
+	for (int curTok = 0; curTok < numTok; ++curTok, ++pT) {
+		size_t tL = pT->end - pT->start;
+		// check foe same length & content
+		if (kL != tL || !xstrncmp(pK, (char *) pBuf + pT->start, kL, 1))
+			continue;
+		if (!Key || xJsonTokenIsKey(pBuf, pT))		// key required and found?
+			return curTok;								// bingo!!!
 	}
 	IF_P(debugFINDKEY, strCRLF);
 	SL_ERR("Key '%s' not found!", pKey);
