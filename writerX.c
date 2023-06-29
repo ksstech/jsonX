@@ -135,6 +135,15 @@ static int ecJsonAddNumber(json_obj_t * pJson, px_t pX, cvi_e cvI) {
 	return  erSUCCESS;
 }
 
+static json_obj_t * ecJsonAddObject(json_obj_t * pJson, px_t pX) {
+	json_obj_t * pJson1	= (json_obj_t *) pX.pv;
+	ecJsonCreateObject(pJson1, pJson->psBuf); 			// create new object with same buffer
+	pJson->child = pJson1;								// setup link from parent to child
+	pJson1->parent = pJson;								// setup link from child to parent
+	pJson->obj_nest++;									// increase parent nest level
+	return pJson1;
+}
+
 #if	(jsonHAS_TIMESTAMP == 1)
 /**
  * ecJsonAddTimeStamp()
@@ -247,14 +256,9 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jF
 		else
 			return erJSON_ARRAY;
 		break;
-	case jsonOBJ:
-		IF_myASSERT(debugPARAM, halCONFIG_inMEM(pValue.pv) );	// can be in FLASH or SRAM
-		pJson1	= (json_obj_t *) pValue.pv;
-		ecJsonCreateObject(pJson1, pJson->psBuf); 		// create new object with same buffer
-		pJson->child	= pJson1;						// setup link from parent to child
-		pJson1->parent	= pJson;						// setup link from child to parent
-		pJson->obj_nest++;								// increase parent nest level
 		break;
+	case jsonOBJ: ecJsonAddObject(pJson, pX); break;
+
 	default: IF_myASSERT(debugRESULT, 0); return erJSON_TYPE;
 	}
 	if (jForm != jsonOBJ)
