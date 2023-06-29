@@ -47,6 +47,8 @@ enum {
     erJSON_UNDEF,
 } ;
 
+enum { jsonTYPE_NULL, jsonTYPE_ARRAY };
+
 // ############################################ structures #########################################
 
 typedef struct json_obj_t {

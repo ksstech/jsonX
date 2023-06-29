@@ -306,6 +306,7 @@ int	ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psBuf) {
 	pJson->psBuf = psBuf;
 	pJson->val_count = 0;
 	pJson->obj_nest = 0;
+	pJson->type = jsonTYPE_NULL;
 	ecJsonAddChar(pJson, CHR_L_CURLY);
 	return erSUCCESS;
 }
