@@ -33,9 +33,9 @@ typedef struct {
 } parse_hdlr_t;
 
 typedef struct {
-	char * pToken ;
-	int (* pHdlr)(parse_hdlr_t *) ;
-} parse_list_t ;
+	char * pToken;
+	int (* pHdlr)(parse_hdlr_t *);
+} ph_list_t;
 
 // ####################################### global functions ########################################
 
