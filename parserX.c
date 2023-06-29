@@ -145,6 +145,20 @@ int xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int NumTok, const char *
 	IF_P(debugFINDKEY, strCRLF);
 	SL_ERR("Key '%s' not found!", pKey);
 	return erFAILURE ;
+int xJsonFindKeyValue(const char * pBuf, jsmntok_t * pToken, int NumTok, const char * pK, const char * pV) {
+	// Step 1: Find the required Key
+	PX("K=%s:", pK);
+	int iRV = xJsonFindKey(pBuf, pToken, NumTok, pK);
+	if (iRV == erFAILURE)
+		return erFAILURE;
+	else
+		++iRV;											// step to next token
+	// Step 2: ensure Value match
+	jsmntok_t * pTV = pToken + iRV;
+	PX("V=%s vs %.*s", pV, pToken->end - pToken->start, pBuf + pToken->start);
+	if (xstrncmp(pBuf+pTV->start, pV, pTV->end-pTV->start, 1))
+		return iRV;
+	return erFAILURE;
 }
 
 int xJsonParseKeyValue(const char * pBuf, jsmntok_t * pToken, int NumTok, const char * pKey, px_t pX, cvi_e cvI) {
