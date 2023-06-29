@@ -126,16 +126,6 @@ int xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmntok_t 
 	return iRV2;
 }
 
-int xJsonCompareKey(const char * pKey, int TokLen, char * pTok) {
-	IF_myASSERT(debugPARAM, halCONFIG_inMEM(pKey) && halCONFIG_inMEM(pTok) && TokLen > 0) ;
-	while (*pKey && *pTok && TokLen) {
-		if (toupper((int)*pKey) != toupper((int)*pTok))
-			return erFAILURE;
-		++pKey ;
-		++pTok ;
-		--TokLen ;
-	}
-	return (*pKey == 0 && TokLen == 0) ? erSUCCESS : erFAILURE ;
 }
 
 int xJsonFindKey(const char * pBuf, jsmntok_t * pToken, int NumTok, const char * pKey) {
