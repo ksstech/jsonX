@@ -323,7 +323,7 @@ int	xJsonParsePayload(parse_hdlr_t * psPH, const ph_list_t * psHL, size_t szHL) 
 				if (iRV >= erSUCCESS) {
 					psPH->NumOK += iRV;
 				} else {
-					SL_ERR("WTF: %s:%d '%.*s'", __FUNCTION__, __LINE__, psT->end - psT->start, psPH->pcBuf + psT->start);
+					SL_CRIT("WTF: '%.*s'", psT->end - psT->start, psPH->pcBuf + psT->start);
 				}
 				break;
 			}
