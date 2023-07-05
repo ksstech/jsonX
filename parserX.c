@@ -149,12 +149,10 @@ int xJsonFindKeyValue(const char * pBuf, jsmntok_t * psT, int NumTok, const char
 	int iRV = xJsonFindKey(pBuf, psT, NumTok, pK);		// Step 1: Find the required Key
 	if (iRV == erFAILURE)
 		return erFAILURE;
-	else
-		++iRV;											// step to next token
 	// Step 2: ensure Value match
-	jsmntok_t * pTV = pToken + iRV;
 	PX("V=%s vs %.*s", pV, pToken->end - pToken->start, pBuf + pToken->start);
 	if (xstrncmp(pBuf+pTV->start, pV, pTV->end-pTV->start, 1))
+	jsmntok_t * psTV = psT + (++iRV);					// Step 2: ensure Value match
 		return iRV;
 	return erFAILURE;
 }
