@@ -9,6 +9,7 @@
  */
 
 #include "hal_variables.h"
+#include "hal_network.h"
 #include "parserX.h"
 #include "printfx.h"									// x_definitions stdarg stdint stdio
 #include "syslog.h"
@@ -131,23 +132,21 @@ bool xJsonTokenIsKey(const char * pBuf, jsmntok_t * pToken) {
 	return memchr(pBuf+pToken->end, CHR_COLON, Sz) ? 1 : 0;
 }
 
-int xJsonFindToken(const char * pBuf, jsmntok_t * pT, int numTok, const char * pK, bool Key) {
+int xJsonFindToken(const char * pBuf, jsmntok_t * psT, int numTok, const char * pK, bool Key) {
 	size_t kL = strlen(pK);
-	for (int curTok = 0; curTok < numTok; ++curTok, ++pT) {
-		size_t tL = pT->end - pT->start;
+	for (int curTok = 0; curTok < numTok; ++curTok, ++psT) {
+		size_t tL = psT->end - psT->start;
 		// check foe same length & content
-		if (kL != tL || !xstrncmp(pK, (char *) pBuf + pT->start, kL, 1))
+		if (kL != tL || !xstrncmp(pK, (char *) pBuf + psT->start, kL, 1))
 			continue;
-		if (!Key || xJsonTokenIsKey(pBuf, pT))		// key required and found?
+		if (!Key || xJsonTokenIsKey(pBuf, psT))			// key required and found?
 			return curTok;								// bingo!!!
 	}
 	return erFAILURE;
 }
 
-int xJsonFindKeyValue(const char * pBuf, jsmntok_t * pToken, int NumTok, const char * pK, const char * pV) {
-	// Step 1: Find the required Key
-	PX("K=%s:", pK);
-	int iRV = xJsonFindKey(pBuf, pToken, NumTok, pK);
+int xJsonFindKeyValue(const char * pBuf, jsmntok_t * psT, int NumTok, const char * pK, const char * pV) {
+	int iRV = xJsonFindKey(pBuf, psT, NumTok, pK);		// Step 1: Find the required Key
 	if (iRV == erFAILURE)
 		return erFAILURE;
 	else
@@ -305,18 +304,20 @@ int	xJsonParsePayload(parse_hdlr_t * psPH, const ph_list_t * psHL, size_t szHL) 
 	// Check if not a "status" message
 	iRV = xJsonFindKey(psPH->pcBuf, psPH->psTList, psPH->NumTok, "status");
 	if (iRV >= erSUCCESS)
-		goto exit;
+		goto exit;										// just ignore
 
-	// "method" is what we looking for...
-	iRV = xJsonFindKey(psPH->pcBuf, psPH->psTList, psPH->NumTok, "method");
-	if (iRV < erSUCCESS)
-		goto exit;
-	psPH->jtI = ++iRV;
+		// "method" is what we REALLY should be getting...
+		iRV = xJsonFindKey(psPH->pcBuf, psPH->psTList, psPH->NumTok, "method");
+		if (iRV < erSUCCESS)
+			goto exit;
+		psPH->jtI = ++iRV;	// step over 'method'
 
 	while(psPH->jtI < psPH->NumTok) {					// Inside jsmntok loop
 		jsmntok_t * psT = &psPH->psTList[psPH->jtI];
+//		RPL("V1='%s'", psPH->pcBuf+psT->start);
 		for (int hlI = 0; hlI < szHL; ++hlI) {			// loop PARSE HANDLER LIST
 			const ph_list_t * psH = &psHL[hlI];
+//			RP("  V2='%s'", psH->pToken);
 			if (xstrncmp(psPH->pcBuf + psT->start, psH->pToken, strlen(psH->pToken), true)) {
 				++psPH->jtI;
 				iRV = psH->pHdlr(psPH);					// invoke CB handler
@@ -326,7 +327,10 @@ int	xJsonParsePayload(parse_hdlr_t * psPH, const ph_list_t * psHL, size_t szHL) 
 					SL_CRIT("WTF: '%.*s'", psT->end - psT->start, psPH->pcBuf + psT->start);
 				}
 				break;
+			} else {
+				// try next hlI entry in the list
 			}
+		} // all hlI entries tried.
 		}
 	}
 	IF_EXEC_4(debugLIST && iRV >= erSUCCESS, xJsonPrintTokens, psPH->pcBuf, psPH->psTList, psPH->NumTok, 0);
