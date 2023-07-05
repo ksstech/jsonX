@@ -39,16 +39,11 @@ void xJsonPrintCurTok(parse_hdlr_t * psPH) {
 }
 
 void xJsonPrintIndent(int Depth, int Sep, int CR0, int CR1) {
-	if (CR0)
-		printf(strCRLF);
-	for (int x = 0; x < Depth; ++x)
-		printf("  ");
-	if (Sep)
-		printf(" %c", Sep);
-	if (CR0)
-		printf("(s=%d)", CR0);
-	if (CR1)
-		printf(strCRLF);
+	if (CR0) printf(strCRLF);
+	for (int x = 0; x < Depth; ++x) printf("  ");
+	if (Sep) printf(" %c", Sep);
+	if (CR0) printf("(s=%d)", CR0);
+	if (CR1) printf(strCRLF);
 }
 
 /**
