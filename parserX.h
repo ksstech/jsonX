@@ -50,7 +50,8 @@ int	xJsonFindToken(const char * pBuf, jsmntok_t * pTokenList, int NumTok, const 
 #define xJsonFindValue(pBuf, pTL, numTok, pK) xJsonFindToken(pBuf, pTL, numTok, pK, false)
 #define xJsonFindKey(pBuf, pTL, numTok, pK) xJsonFindToken(pBuf, pTL, numTok, pK, true)
 
-int	xJsonParseKeyValue(const char * pBuf, jsmntok_t * psT, int NumTok, const char * pKey, px_t pX, cvi_e cvI);
+int xJsonFindKeyValue(const char * pBuf, jsmntok_t * psT, int NumTok, const char * pK, const char * pV);
+int	xJsonParseKeyValue(const char * pBuf, jsmntok_t * psT, int NumTok, const char * pK, px_t pX, cvi_e cvI);
 int xJsonParseArrayDB(parse_hdlr_t * psPH, px_t paDst[], int szArr, dbf_t paDBF[]);
 int xJsonParseArray(parse_hdlr_t * psPH, px_t pDst, int(* Hdlr)(char *), int szArr, cvi_e cvI);
 int	xJsonParsePayload(parse_hdlr_t * psPH, const ph_list_t * psPL, size_t szPL);
