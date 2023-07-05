@@ -306,11 +306,18 @@ int	xJsonParsePayload(parse_hdlr_t * psPH, const ph_list_t * psHL, size_t szHL) 
 	if (iRV >= erSUCCESS)
 		goto exit;										// just ignore
 
+	// XXX MUST change response to {"method":"allocate","params":{"token":"0123456789ABCDEFGHIJ"}}
+	// currently format is {"mac":"240ac4035de8","token":"NQh^}7z9U10zKq6H*;uk"}
+	iRV = xJsonFindKeyValue(psPH->pcBuf, psPH->psTList, psPH->NumTok, "mac", (const char *)idSTA);
+	if (iRV >= erSUCCESS) {
+		psPH->jtI = ++iRV;	// step over "0123456789AB"
+	} else {
 		// "method" is what we REALLY should be getting...
 		iRV = xJsonFindKey(psPH->pcBuf, psPH->psTList, psPH->NumTok, "method");
 		if (iRV < erSUCCESS)
 			goto exit;
 		psPH->jtI = ++iRV;	// step over 'method'
+	}
 
 	while(psPH->jtI < psPH->NumTok) {					// Inside jsmntok loop
 		jsmntok_t * psT = &psPH->psTList[psPH->jtI];
