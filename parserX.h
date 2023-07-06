@@ -22,12 +22,11 @@ extern "C" {
 // ############################################ structures #########################################
 
 typedef struct {
-	const char * pcBuf;									// JSON source buffer
+	char * pcBuf;										// JSON source buffer
 	size_t szBuf;										// source buffer size
 	jsmn_parser sParser;								// jsmn control structure
 	jsmntok_t *	psTList;								// jsmntok_t array allocated memory
 	int NumTok;											// number of tokens parsed by jsmn
-	int NumOK;											// sum of values returned by handlers.
 	int jtI;											// jsmntok_t index
 	void * pvArg;
 } parse_hdlr_t;
@@ -39,19 +38,20 @@ typedef struct {
 
 // ####################################### global functions ########################################
 
-void xJsonPrintCurTok(parse_hdlr_t * psPH);
+void xJsonPrintToken(char * pcBuf, jsmntok_t * psT);
+void xJsonPrintCurTok(parse_hdlr_t * psPH, const char * pLabel);
 
-int	xJsonPrintTokens(const char * pcBuf, jsmntok_t * pToken, size_t Count, int Depth);
-int	xJsonParse(const char * pBuf, size_t xLen, jsmn_parser * pParser, jsmntok_t * * ppTokenList);
+int	xJsonPrintTokens(char * pcBuf, jsmntok_t * pToken, size_t Count, int Depth);
+int	xJsonParse(char * pBuf, size_t xLen, jsmn_parser * pParser, jsmntok_t * * ppTokenList);
 
-bool xJsonTokenIsKey(const char * pBuf, jsmntok_t * pToken);
+bool xJsonTokenIsKey(char * pBuf, jsmntok_t * pToken);
 
-int	xJsonFindToken(const char * pBuf, jsmntok_t * pTokenList, int NumTok, const char * pKey, bool Key);
+int	xJsonFindToken(char * pBuf, jsmntok_t * pTokenList, int NumTok, const char * pKey, bool Key);
 #define xJsonFindValue(pBuf, pTL, numTok, pK) xJsonFindToken(pBuf, pTL, numTok, pK, false)
 #define xJsonFindKey(pBuf, pTL, numTok, pK) xJsonFindToken(pBuf, pTL, numTok, pK, true)
 
-int xJsonFindKeyValue(const char * pBuf, jsmntok_t * psT, int NumTok, const char * pK, const char * pV);
-int	xJsonParseKeyValue(const char * pBuf, jsmntok_t * psT, int NumTok, const char * pK, px_t pX, cvi_e cvI);
+int xJsonFindKeyValue(char * pBuf, jsmntok_t * psT, int NumTok, const char * pK, const char * pV);
+int	xJsonParseKeyValue(char * pBuf, jsmntok_t * psT, int NumTok, const char * pK, px_t pX, cvi_e cvI);
 
 #ifdef __cplusplus
 }
