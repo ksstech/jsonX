@@ -54,7 +54,7 @@ static const char ESChars[] = { '\\', '"', '/', '\b', '\f', '\t', '\n', '\r', '\
  * @return
  */
 static int ecJsonAddChar(json_obj_t * pJson, char cChar) {
-	if (xUBufSpace(pJson->psBuf) == 0)
+	if (xUBufGetSpace(pJson->psBuf) == 0)
 		return erFAILURE;
 	uprintfx(pJson->psBuf, "%c", cChar);
 	return erSUCCESS;
@@ -130,7 +130,7 @@ static int ecJsonAddNumber(json_obj_t * pJson, px_t pX, cvi_e cvI) {
 	}
 	// Step 2: write the value, format depending on fractional part
 	uprintfx(pJson->psBuf, cvI < cvI08 ? "%llu" : cvI < cvF32 ? "%lld" : "%g" , X64.f64);
-	if (xUBufSpace(pJson->psBuf) == 0)
+	if (xUBufGetSpace(pJson->psBuf) == 0)
 		return erJSON_BUF_FULL;
 	return  erSUCCESS;
 }
@@ -191,7 +191,7 @@ static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cvi_e cvI) {
 	case cvDT_TZ:	uprintfx(pJson->psBuf, "\"%+Z\"", pValue.pv);	break;
 	default:		IF_myASSERT(debugPARAM, 0); 						return erJSON_FORMAT;
 	}
-	if (xUBufSpace(pJson->psBuf) == 0)
+	if (xUBufGetSpace(pJson->psBuf) == 0)
 		return erJSON_BUF_FULL;
 	return  erSUCCESS;
 }
