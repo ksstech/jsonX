@@ -8,7 +8,8 @@
  *
  */
 
-#include "hal_variables.h"
+#include "hal_config.h"
+#include "hal_options.h"
 #include "parserX.h"
 #include "printfx.h"									// x_definitions stdarg stdint stdio
 #include "syslog.h"
