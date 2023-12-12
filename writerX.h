@@ -1,16 +1,12 @@
 /*
- * Copyright 2014-21 Andre M. Maree/KSS Technologies (Pty) Ltd.
- */
-
-/*
- * writerX.h
+ * writerX.h - Copyright (c) 2014-23 Andre M. Maree/KSS Technologies (Pty) Ltd.
  */
 
 #pragma once
 
-#include	"complex_vars.h"
-#include	"x_ubuf.h"
-#include	"x_errors_events.h"
+#include "complex_vars.h"
+#include "x_ubuf.h"
+#include "x_errors_events.h"
 
 #ifdef __cplusplus
 extern "C" {
