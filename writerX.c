@@ -55,8 +55,7 @@ static const char ESChars[] = { '\\', '"', '/', '\b', '\f', '\t', '\n', '\r', '\
  * @return
  */
 static int ecJsonAddChar(json_obj_t * pJson, char cChar) {
-	if (xUBufGetSpace(pJson->psBuf) == 0)
-		return erFAILURE;
+	if (xUBufGetSpace(pJson->psBuf) == 0) return erFAILURE;
 	uprintfx(pJson->psBuf, "%c", cChar);
 	return erSUCCESS;
 }
@@ -68,12 +67,10 @@ static int ecJsonAddChar(json_obj_t * pJson, char cChar) {
  * @return
  */
 static int ecJsonAddChars(json_obj_t * pJson, const char * pStr, size_t Sz) {
-	if (Sz == 0)
-		Sz = strlen(pStr);								// Step 1: determine the string length
+	if (Sz == 0) Sz = strlen(pStr);						// Step 1: determine the string length
 	while (Sz--) {										// Step 2: handle characters (with optional escapes)
-		if (strchr(ESChars, *pStr))
-			ecJsonAddChar(pJson, CHR_BACKSLASH);
-		ecJsonAddChar(pJson, *pStr++);					// Step 4: process the actual character
+		if (strchr(ESChars, *pStr)) ecJsonAddChar(pJson, CHR_BACKSLASH);
+		ecJsonAddChar(pJson, *pStr++);			// Step 3: process the actual character
 	}
 	return erSUCCESS;
 }
@@ -184,7 +181,7 @@ static json_obj_t * ecJsonAddArrayObject(json_obj_t * pJson, px_t pX) {
  * @param eFormType	- format in which to write the timestamp
  * @return
  */
-static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cvi_e cvI) {
+static i32_t ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cvi_e cvI) {
 	switch(cvI) {
 	case cvDT_ELAP:	uprintfx(pJson->psBuf, "\"%!R\"", *pValue.pu64);	break;
 	case cvDT_UTC:	uprintfx(pJson->psBuf, "\"%R\"", *pValue.pu64);	break;
@@ -192,8 +189,7 @@ static int32_t  ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cvi_e cvI) {
 	case cvDT_TZ:	uprintfx(pJson->psBuf, "\"%+Z\"", pValue.pv);	break;
 	default:		IF_myASSERT(debugPARAM, 0); 						return erJSON_FORMAT;
 	}
-	if (xUBufGetSpace(pJson->psBuf) == 0)
-		return erJSON_BUF_FULL;
+	if (xUBufGetSpace(pJson->psBuf) == 0) return erJSON_BUF_FULL;
 	return  erSUCCESS;
 }
 #endif
