@@ -35,6 +35,8 @@
 #include "writerX.h"
 #include "x_string_general.h"
 
+#include <string.h>
+
 #define	debugFLAG					0xF000
 
 #define	debugTIMING					(debugFLAG_GLOBAL & debugFLAG & 0x1000)

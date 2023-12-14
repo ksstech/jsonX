@@ -1,11 +1,9 @@
 /*
- * parserX.c
- * Copyright 2014-22 Andre M. Maree / KSS Technologies (Pty) Ltd.
+ * parserX.c - Copyright 2014-23 Andre M. Maree / KSS Technologies (Pty) Ltd.
  *
  * References:
  * 	http://www.json.org/
  * 	http://json-schema.org/
- *
  */
 
 #include "hal_config.h"
@@ -16,6 +14,8 @@
 #include "x_errors_events.h"
 #include "x_string_general.h"
 #include "x_string_to_values.h"
+
+#include <string.h>
 
 // ############################### BUILD: debug configuration options ##############################
 
