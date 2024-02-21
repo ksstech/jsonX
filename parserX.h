@@ -1,6 +1,4 @@
-/*
- * parserX.h - Copyright (c) 2014-24 Andre M. Maree/KSS Technologies (Pty) Ltd.
- */
+// parserX.h - Copyright (c) 2014-24 Andre M. Maree/KSS Technologies (Pty) Ltd.
 
 #pragma once
 
@@ -23,9 +21,9 @@ extern "C" {
 typedef struct {
 	char * pcBuf;										// JSON source buffer
 	size_t szBuf;										// source buffer size
-	jsmn_parser sParser;								// jsmn control structure
+	jsmn_parser sParser;								// control structure
 	jsmntok_t *	psTList;								// jsmntok_t array allocated memory
-	int NumTok;											// number of tokens parsed by jsmn
+	int NumTok;											// number of tokens parsed
 	int jtI;											// jsmntok_t index
 	void * pvArg;
 } parse_hdlr_t;
