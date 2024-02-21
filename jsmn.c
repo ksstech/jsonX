@@ -1,5 +1,3 @@
-/*
- * jsmn.c
- */
+// jsmn.c
 
 #include "jsmn.h"
