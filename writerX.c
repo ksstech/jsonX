@@ -28,7 +28,7 @@
  *	\uxxxx (four hex digits) not yet escaped...
  */
 
-#include "hal_config.h"
+#include "hal_platform.h"
 #include "hal_options.h"
 #include "printfx.h"				// +x_definitions +stdarg +stdint +stdio
 #include "syslog.h"
