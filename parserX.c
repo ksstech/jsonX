@@ -133,7 +133,7 @@ int xJsonParse(char * pBuf, size_t xLen, jsmn_parser * pParser, jsmntok_t * * pp
 	}
 
 	// Add a spare entry at the end to use as a marker.
-	*ppTL = (jsmntok_t *) pvRtosMalloc((iRV1 + 1) * sizeof(jsmntok_t));		// alloc buffer
+	*ppTL = (jsmntok_t *) malloc((iRV1 + 1) * sizeof(jsmntok_t));		// alloc buffer
 	jsmn_init(pParser);								// Init & do actual parse...
 	iRV2 = jsmn_parse(pParser, (const char *) pBuf, xLen, *ppTL, iRV1);
 	// Address extra token and fill with recognisable content
@@ -143,7 +143,7 @@ int xJsonParse(char * pBuf, size_t xLen, jsmn_parser * pParser, jsmntok_t * * pp
 	psT->start = psT->end = psT->size = 0;
 	IF_EXEC_4(debugTRACK && ioB1GET(dbgJSONrd), xJsonPrintTokens, pBuf, *ppTL, iRV1, 0);
 	if (iRV1 != iRV2) {
-		vRtosFree(*ppTL);
+		free(*ppTL);
 		*ppTL = NULL;
 		IF_P(debugPARSE, "Failed (%d != %d)\r\n", iRV1, iRV2);
 		return iRV1;
