@@ -29,6 +29,7 @@
  */
 
 #include "hal_platform.h"
+#include "hal_memory.h"
 #include "hal_options.h"
 #include "printfx.h"				// +x_definitions +stdarg +stdint +stdio
 #include "syslog.h"
@@ -225,7 +226,7 @@ int	ecJsonSetDecimals(int xNumber) {
 int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jForm, cvi_e cvI, size_t Sz) {
 	IF_PX(debugTRACK && ioB1GET(dbgJSONwr), "p1=%p  p2=%s  p3=%p  p4=%hhu  p5=%hhu  p6=%zu",
 			(void *)pJson, pKey, pX.pv, jForm, cvI, Sz);
-	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halCONFIG_inMEM(pX.pv));
+	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halMEM_AddrInANY(pX.pv));
 
 	if (pJson->val_count > 0)
 		ecJsonAddChar(pJson, CHR_COMMA);
