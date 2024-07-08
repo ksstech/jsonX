@@ -63,11 +63,11 @@ void xJsonPrintCurTok(parse_hdlr_t * psPH, const char * pLabel) {
 }
 
 void xJsonPrintIndent(int Depth, int Sep, int CR0, int CR1) {
-	if (CR0) wprintfx(NULL, strCRLF);
+	if (CR0) wprintfx(NULL, strNL);
 	for (int x = 0; x < Depth; wprintfx(NULL, "  "), ++x);
 	if (Sep) wprintfx(NULL, " %c", Sep);
 	if (CR0) wprintfx(NULL, "(s=%d)", CR0);
-	if (CR1) wprintfx(NULL, strCRLF);
+	if (CR1) wprintfx(NULL, strNL);
 }
 
 /**
@@ -94,7 +94,7 @@ int xJsonPrintTokens(char * pcBuf, jsmntok_t * psT, size_t Count, int Depth) {
 			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1);
 			wprintfx(NULL, " : ");
 			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1);
-			wprintfx(NULL, strCRLF);
+			wprintfx(NULL, strNL);
 		}
 		xJsonPrintIndent(Depth, CHR_R_CURLY, 0, 0);
 		return j + 1;
@@ -105,12 +105,12 @@ int xJsonPrintTokens(char * pcBuf, jsmntok_t * psT, size_t Count, int Depth) {
 		for (int i = 0; i < psT->size; ++i) {
 			xJsonPrintIndent(Depth+2, 0, 0, 0);
 			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1);
-			wprintfx(NULL, strCRLF);
+			wprintfx(NULL, strNL);
 		}
 		xJsonPrintIndent(Depth, CHR_R_SQUARE, 0, 0);
 		return j + 1;
 	}
-	wprintfx(NULL, strCRLF);
+	wprintfx(NULL, strNL);
 	return 0;
 }
 
