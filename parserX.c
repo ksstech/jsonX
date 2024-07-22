@@ -20,9 +20,7 @@
 // ############################### BUILD: debug configuration options ##############################
 
 #define	debugFLAG					0xF000
-
 #define	debugPARSE					(debugFLAG & 0x0001)
-
 #define	debugTIMING					(debugFLAG_GLOBAL & debugFLAG & 0x1000)
 #define	debugTRACK					(debugFLAG_GLOBAL & debugFLAG & 0x2000)
 #define	debugPARAM					(debugFLAG_GLOBAL & debugFLAG & 0x4000)
@@ -32,183 +30,214 @@ const char * tokType[] = { "Undef", "Object", "Array", "", "String", "", "", "",
 
 // ####################################### Global Functions ########################################
 
-void xJsonTrackToken(char * pcBuf, jsmntok_t * psT) {
-	if (psT->type != JSMN_UNDEFINED || psT->start || psT->end || psT->size) {
-		wprintfx(NULL, "t=%d/%s  i=%d  s=%d  e=%d  l=%d '%.*s'\r\n", psT->type, tokType[psT->type], psT->size,
-			psT->start, psT->end, psT->end - psT->start, psT->end - psT->start, pcBuf + psT->start);
-	} else {
-		wprintfx(NULL, "[ END ]");
+static int xJsonPrintToken(report_t * psR,  parse_hdlr_t * psPH) {
+	IF_myASSERT(debugTRACK, INRANGE(0, psPH->CurTok, psPH->NumTok));
+	IF_myASSERT(debugTRACK, INRANGE(psPH->psT0, psPH->psTx, &psPH->psT0[psPH->CurTok]));
+	int iRV = 0;
+	if (psPH->psTx->start && psPH->psTx->end)
+		iRV += wprintfx(psR, "'%.*s' ", psPH->psTx->end - psPH->psTx->start, psPH->pcBuf + psPH->psTx->start);
+	if (iRV && psPH->psTx->type && psPH->psTx->size) {
+		iRV += wprintfx(psR, "t=%d/%s s=%d b=%d e=%d l=%d", psPH->psTx->type, tokType[psPH->psTx->type],
+			psPH->psTx->size, psPH->psTx->start, psPH->psTx->end, psPH->psTx->end - psPH->psTx->start);
 	}
+	if (iRV)
+		iRV += wprintfx(psR, strNL);
+	return iRV;
 }
 
-void xJsonPrintToken(char * pcBuf, jsmntok_t * psT) {
-	if (psT->type != JSMN_UNDEFINED || psT->start || psT->end || psT->size) {
-		wprintfx(NULL, "t=%d/%s  i=%d  s=%d  e=%d  l=%d  '%.*s'\r\n", psT->type, tokType[psT->type],psT->size,
-			psT->start, psT->end, psT->end - psT->start, psT->end - psT->start, pcBuf + psT->start);
-	} else {
-		wprintfx(NULL, "[ END ]");
-	}
+static int xJsonPrintIndent(report_t * psR, int Depth, int Sep, int CR0, int CR1) {
+	int iRV = 0;
+	if (CR0)
+		iRV += wprintfx(psR, strNL);
+//	iRV += wprintfx(psR, "%*s", Depth * psR->sFM.jsIndent, " ");
+	for (int x = 0; x < Depth; ++x) iRV += wprintfx(psR, "  ");
+	if (Sep)
+		iRV += wprintfx(psR, " %c", Sep);
+	if (CR0)
+		iRV += wprintfx(psR, "(s=%d)", CR0);
+	if (CR1)
+		iRV += wprintfx(psR, strNL);
+	return iRV;
 }
 
 void xJsonPrintCurTok(parse_hdlr_t * psPH, const char * pLabel) {
-	if (pLabel == NULL)
-		pLabel = strNUL;
-	if (psPH->jtI < psPH->NumTok) {
-		jsmntok_t * psT = &psPH->psTList[psPH->jtI];
-		wprintfx(NULL, "%s#%d/%d  ", pLabel, psPH->jtI, psPH->NumTok);
-		xJsonPrintToken(psPH->pcBuf, psT);
-	} else {
-		wprintfx(NULL, "%s%d=END\r\n", pLabel, psPH->NumTok);
-	}
-}
-
-void xJsonPrintIndent(int Depth, int Sep, int CR0, int CR1) {
-	if (CR0) wprintfx(NULL, strNL);
-	for (int x = 0; x < Depth; wprintfx(NULL, "  "), ++x);
-	if (Sep) wprintfx(NULL, " %c", Sep);
-	if (CR0) wprintfx(NULL, "(s=%d)", CR0);
-	if (CR1) wprintfx(NULL, strNL);
+	report_t sRprt = { .sFM.u32Val = makeMASK08_3x8(0,0,0,0,0,0,0,0,2,0,0) };
+	psPH->psTx = &psPH->psT0[psPH->CurTok];
+	wprintfx(&sRprt, "%s#%d/%d  ", pLabel ? pLabel : strNUL, psPH->CurTok, psPH->NumTok);
+	xJsonPrintToken(&sRprt, psPH);
 }
 
 /**
  * Iterates through the token list and prints all tokens, type, size and actual value
- * @param pcBuf
- * @param psT
- * @param Count
+ * @param psP
+ * @param psPH
  * @param Depth
  * @return
  */
-int xJsonPrintTokens(char * pcBuf, jsmntok_t * psT, size_t Count, int Depth) {
-	if (Count == 0) {
-		return erSUCCESS;
-	}
-	if (psT->type == JSMN_PRIMITIVE || psT->type == JSMN_STRING) {
-		wprintfx(NULL, "%d/%s='%.*s'", psT->type, tokType[psT->type], psT->end - psT->start, pcBuf+psT->start);
-		return 1;
-
-	} else if (psT->type == JSMN_OBJECT) {
-		xJsonPrintIndent(Depth, CHR_L_CURLY, psT->size, 1);
+static int xJsonReportTokensRecurse(report_t * psR, parse_hdlr_t * psPH, jsmntok_t * pasTL, int Count, int Depth) {
+	IF_myASSERT(debugTRACK, psR);
+//	if (Count == 0) return 0;
+	int iRV;
+	if (pasTL->type == JSMN_PRIMITIVE || pasTL->type == JSMN_STRING) {
+		wprintfx(psR, "%d/%s='%.*s'", pasTL->type, tokType[pasTL->type], pasTL->end - pasTL->start, psPH->pcBuf + pasTL->start);
+		iRV = 1;
+	} else if (pasTL->type == JSMN_OBJECT) {
+		if (repFLAG_TST(psR,sFM.jsIndent))
+			xJsonPrintIndent(psR, Depth, CHR_L_CURLY, pasTL->size, 1);
 		int j = 0;
-		for (int i = 0; i < psT->size; ++i) {
-			xJsonPrintIndent(Depth+2, 0, 0, 0);
-			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1);
-			wprintfx(NULL, " : ");
-			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1);
-			wprintfx(NULL, strNL);
+		for (int i = 0; i < pasTL->size; ++i) {
+			if (repFLAG_TST(psR,sFM.jsIndent))
+				xJsonPrintIndent(psR, Depth+2, 0, 0, 0);
+			j += xJsonReportTokensRecurse(psR, psPH, pasTL+j+1, Count-j, Depth+1);
+			wprintfx(psR, " : ");
+			j += xJsonReportTokensRecurse(psR, psPH, pasTL+j+1, Count-j, Depth+1);
+			wprintfx(psR, strNL);
 		}
-		xJsonPrintIndent(Depth, CHR_R_CURLY, 0, 0);
-		return j + 1;
-
-	} else if (psT->type == JSMN_ARRAY) {
-		xJsonPrintIndent(Depth, CHR_L_SQUARE, psT->size, 1);
+		if (repFLAG_TST(psR,sFM.jsIndent))
+			xJsonPrintIndent(psR, Depth, CHR_R_CURLY, 0, 0);
+		iRV = j + 1;
+	} else if (pasTL->type == JSMN_ARRAY) {
+		if (repFLAG_TST(psR,sFM.jsIndent))
+			xJsonPrintIndent(psR, Depth, CHR_L_SQUARE, pasTL->size, 1);
 		int j = 0;
-		for (int i = 0; i < psT->size; ++i) {
-			xJsonPrintIndent(Depth+2, 0, 0, 0);
-			j += xJsonPrintTokens(pcBuf, psT+j+1, Count-j, Depth+1);
-			wprintfx(NULL, strNL);
+		for (int i = 0; i < pasTL->size; ++i) {
+			if (repFLAG_TST(psR,sFM.jsIndent))
+				xJsonPrintIndent(psR, Depth+2, 0, 0, 0);
+			j += xJsonReportTokensRecurse(psR, psPH, pasTL+j+1, Count-j, Depth+1);
+			wprintfx(psR, strNL);
 		}
-		xJsonPrintIndent(Depth, CHR_R_SQUARE, 0, 0);
-		return j + 1;
+		if (repFLAG_TST(psR,sFM.jsIndent))
+			xJsonPrintIndent(psR, Depth, CHR_R_SQUARE, 0, 0);
+		iRV = j + 1;
+	} else {
+		iRV = 0;
+		wprintfx(psR, strNL);
 	}
-	wprintfx(NULL, strNL);
-	return 0;
+	return iRV;
+}
+
+int xJsonReportTokens(parse_hdlr_t * psPH, int Depth) {
+	report_t sRprt = { .sFM.u32Val = makeMASK08_3x8(0,0,0,0,0,0,0,0,2,0,0) };
+	psPH->CurTok = 0;
+	psPH->psTx = &psPH->psT0[psPH->CurTok];
+	return xJsonReportTokensRecurse(&sRprt, psPH, psPH->psTx, 0, Depth);
 }
 
 /**
- * Invokes parser to determines # of tokens, allocate memory and recalls parser with buffer
+ * @brief	parser to determines # of tokens, allocate memory and recalls parser with buffer
  * @param	pBuf
  * @param	xLen
  * @param	pParser
  * @param	ppTokenList
  * @return	number of tokens parsed, 0 or less if error
  */
-int xJsonParse(char * pBuf, size_t xLen, jsmn_parser * pParser, jsmntok_t * * ppTL) {
-	int iRV1 = 0, iRV2 = 0;
-	jsmn_init(pParser);
-	*ppTL = NULL;				// default allocation pointer to NULL
-	iRV1 = jsmn_parse(pParser, (const char *) pBuf, xLen, NULL, 0);	// count tokens
-	if (iRV1 <= 0) {
-		IF_PX(debugPARSE, "Failed (%d)\r\n", iRV1);
-		return iRV1;
+int xJsonParse(parse_hdlr_t * psPH) {
+	#define jsonEXTRA_SIZE	5
+	// count tokens to determine buffer to be allocated
+	jsmn_init(&psPH->sParser);
+	int iRV = jsmn_parse(&psPH->sParser, psPH->pcBuf, psPH->szBuf, NULL, 0);
+	if (iRV > 0) {
+		psPH->NumTok = iRV;
+		// Allocate memory, add spare space at the end (all ZEROS ie JSMN_UNDEFINED)
+		psPH->psT0 = (jsmntok_t *) calloc(iRV+jsonEXTRA_SIZE, sizeof(jsmntok_t));
+		IF_myASSERT(debugRESULT, psPH->psT0);
+		// perform the actual parsing process
+		jsmn_init(&psPH->sParser);
+		iRV = jsmn_parse(&psPH->sParser, psPH->pcBuf, psPH->szBuf, psPH->psT0, iRV+jsonEXTRA_SIZE);
+		if (psPH->NumTok != iRV)
+			SL_ERR("Incomplete parsing %d vs %d", iRV, psPH->NumTok);
+		IF_EXEC_2(debugTRACK && ioB2GET(dbgJSONrd)==3, xJsonReportTokens, psPH, 0);
 	}
-
-	// Add a spare entry at the end to use as a marker.
-	*ppTL = (jsmntok_t *) malloc((iRV1 + 1) * sizeof(jsmntok_t));		// alloc buffer
-	jsmn_init(pParser);								// Init & do actual parse...
-	iRV2 = jsmn_parse(pParser, (const char *) pBuf, xLen, *ppTL, iRV1);
-	// Address extra token and fill with recognisable content
-	jsmntok_t * psT = *ppTL;
-	psT += iRV1;
-	psT->type = JSMN_UNDEFINED;
-	psT->start = psT->end = psT->size = 0;
-	IF_EXEC_4(debugTRACK && ioB1GET(dbgJSONrd), xJsonPrintTokens, pBuf, *ppTL, iRV1, 0);
-	if (iRV1 != iRV2) {
-		free(*ppTL);
-		*ppTL = NULL;
-		IF_PX(debugPARSE, "Failed (%d != %d)\r\n", iRV1, iRV2);
-		return iRV1;
-	}
-	IF_PX(debugPARSE, "Passed (%d) parsed OK\r\n", iRV2);
-	return iRV2;
-}
-
-bool xJsonTokenIsKey(char * pBuf, jsmntok_t * pToken) {
-	size_t Sz = (pToken+1)->start - pToken->end;		// calc gap size between current & next tokens
-	return memchr(pBuf+pToken->end, CHR_COLON, Sz) ? 1 : 0;
-}
-
-int xJsonFindToken(char * pBuf, jsmntok_t * psT, int nTok, const char * pTok, bool Key) {
-	size_t tokLen = strlen(pTok);
-	for (int curTok = 0; curTok < nTok; ++curTok, ++psT) {
-		size_t curLen = psT->end - psT->start;
-		// check for same length & exact content
-		if (tokLen != curLen || memcmp(pTok, (char*)pBuf + psT->start, tokLen))
-			continue;									// non-matching length or content....
-		if (Key && xJsonTokenIsKey(pBuf, psT))			// matching but key required, this a key?
-			return ++curTok;							// bingo!!!
-	}
-	return erFAILURE;
-}
-
-int xJsonFindKeyValue(char * pBuf, jsmntok_t * psT, int nTok, const char * pK, const char * pV) {
-	IF_EXEC_2(debugTRACK && ioB1GET(dbgJSONrd), xJsonPrintToken, pBuf, psT);
-	int iRV = xJsonFindToken(pBuf, psT, nTok, pK, 1);	// Step 1: Find the required Key
-	if (iRV < erSUCCESS)
-		return iRV;
-	psT += iRV;											// Step 2: ensure Value match
-	IF_EXEC_2(debugTRACK && ioB1GET(dbgJSONrd), xJsonPrintToken, pBuf, psT);
-	size_t szT = psT->end - psT->start;
-	size_t szV = strlen(pV);
-//	PL("szT=%d (%.*s) szV=%d (%s)", szT, psT->end-psT->start, pBuf + psT->start, szV, pV);
-	if ((szT != szV) || memcmp(pBuf + psT->start, pV, szV))
-		return erFAILURE;
-	++iRV;
-	IF_EXEC_2(debugTRACK && ioB1GET(dbgJSONrd), xJsonPrintToken, pBuf, psT);
 	return iRV;
 }
 
 /**
- * @brief	Primarily used by HTTP requests to pare response values...
+ * @brief	Find a specific token in the buffer
+ * @return	Value > 0 (the NEXT token index) if found else erFAILURE
  */
-int xJsonParseKeyValue(char * pBuf, jsmntok_t * psT, int nTok, const char * pK, px_t pX, cvi_e cvI) {
-	IF_EXEC_2(debugTRACK && ioB1GET(dbgJSONrd), xJsonPrintToken, pBuf, psT);
-//	xJsonTrackToken(pBuf, psT);
-	int iRV = xJsonFindToken(pBuf, psT, nTok, pK, 1);	// locate the Key
+int xJsonFindToken(parse_hdlr_t * psPH, const char * pTok, int xKey) {
+	size_t tokLen = strlen(pTok);
+	IF_PX(debugTRACK && allSYSFLAGS(sfTRACKER), "Find '%s'(%d) (%s)\r\n", pTok, tokLen, xKey ? "KEY" : "token");
+	// Ensure we are starting at current indexed token...
+	psPH->psTx = &psPH->psT0[psPH->CurTok];
+	for (psPH->CurTok = 0; psPH->CurTok < psPH->NumTok; ++psPH->CurTok) {
+		psPH->psTx = &psPH->psT0[psPH->CurTok];
+		size_t curLen = psPH->psTx->end - psPH->psTx->start;
+		// Fix to avoid crash if full object not received, ie xJsonParse 2 phase returned different results
+		if (curLen > psPH->szBuf)
+			goto next;
+		IF_PX(debugTRACK && allSYSFLAGS(sfTRACKER), "T#%d/%d  %d->%d=%d '%.*s'\r\n", psPH->CurTok, psPH->NumTok, psPH->psTx->start, psPH->psTx->end, psPH->psTx->end-psPH->psTx->start, curLen, psPH->pcBuf+psPH->psTx->start);
+		// check for same length & exact content
+		if ((tokLen == curLen) &&								// check length
+			(memcmp(pTok, psPH->pcBuf + psPH->psTx->start, curLen) == 0)) {	// length OK, check content
+			if (xKey != 0) {
+				jsmntok_t * pTokNxt = (jsmntok_t*) ((void *) psPH->psTx + sizeof(jsmntok_t));
+				size_t GapLen = pTokNxt->start - psPH->psTx->end;
+				// Now check if ':' present in characters between the 2 tokens...
+				void * pV = memchr(psPH->pcBuf+psPH->psTx->end, CHR_COLON, GapLen);
+				IF_PX(debugTRACK && allSYSFLAGS(sfTRACKER), " %p `%.*s`", pV, GapLen, psPH->pcBuf+psPH->psTx->end);
+				if (pV == NULL) {
+					IF_PX(debugTRACK && allSYSFLAGS(sfTRACKER), " %d=not KEY", psPH->CurTok);
+					goto next;
+				}
+			}
+			IF_PX(debugTRACK && allSYSFLAGS(sfTRACKER), " [Found]" strNL);
+			++psPH->CurTok;								// Index to value after "key : "
+			psPH->psTx = &psPH->psT0[psPH->CurTok];		// and set pointer the same...
+			return psPH->CurTok;
+		}
+next:
+	}
+	IF_PX(debugTRACK && allSYSFLAGS(sfTRACKER), " [NOT FOUND]" strNL);
+	psPH->CurTok = 0;
+	psPH->psTx = NULL;
+	return erFAILURE;
+}
+
+int xJsonFindKeyValue(parse_hdlr_t * psPH, const char * pK, const char * pV) {
+	IF_EXEC_2(debugTRACK && ioB2GET(dbgJSONrd)&1, xJsonPrintToken, NULL, psPH);
+	int iRV = xJsonFindToken(psPH, pK, 1);	// Step 1: Find the required Key
 	if (iRV < erSUCCESS)
 		return iRV;
-	psT += iRV;									// step to "value" after matching token..
-	IF_EXEC_2(debugTRACK && ioB1GET(dbgJSONrd), xJsonPrintToken, pBuf, psT);
-//	xJsonTrackToken(pBuf, psT);
-	char * pSrc = (char *) pBuf + psT->start;
-	if (cvI == cvSXX) {
-		IF_myASSERT(debugPARAM, psT->type == JSMN_STRING);
-		size_t szV = psT->end - psT->start;			// calculate length
-		strncpy(pX.pc8, pSrc, szV);					// strncpy with exact size,
-		*(pX.pc8 + szV) = CHR_NUL;					// terminate
-		++iRV;
-	} else {
-		IF_myASSERT(debugPARAM, psT->type == JSMN_PRIMITIVE);
-		iRV = (cvParseValue(pSrc, cvI, pX) == pcFAILURE) ? erFAILURE : iRV + 1;
+	// at this stage psPH members are setup based on token found....
+	IF_EXEC_2(debugTRACK && ioB2GET(dbgJSONrd)&1, xJsonPrintToken, NULL, psPH);
+	size_t szT = psPH->psTx->end - psPH->psTx->start;
+	size_t szV = strlen(pV);
+	if ((szT != szV) || memcmp(psPH->pcBuf + psPH->psTx->start, pV, szV) != 0) {
+		psPH->CurTok = 0;
+		psPH->psTx = NULL;
+		return erFAILURE;
 	}
+	++psPH->CurTok;								// Index to value after "key : "
+	psPH->psTx = &psPH->psT0[psPH->CurTok];		// and set pointer the same...
+	IF_EXEC_2(debugTRACK && ioB2GET(dbgJSONrd)&1, xJsonPrintToken, NULL, psPH);
 	return iRV;
+}
+
+/**
+ * @brief	Primarily used by HTTP requests to parse response values to variable locations
+ * @return	0 if token not found or error parsing else 1
+ */
+int xJsonParseEntry(parse_hdlr_t * psPH, ph_entry_t * psEntry) {
+	IF_PX(debugTRACK && allSYSFLAGS(sfTRACKER), "[%s/%s] ", pcIndex2String(psEntry->cvI), psEntry->pcKey);
+	int iRV = xJsonFindToken(psPH, psEntry->pcKey, 1);
+	if (iRV <= erSUCCESS)
+		return 0;
+	// if successful, structure members already updates for token found...
+	IF_EXEC_2(debugTRACK && ioB2GET(dbgJSONrd)&1, xJsonPrintToken, NULL, psPH);
+	char * pSrc = (char *) psPH->pcBuf + psPH->psTx->start;
+	if (psEntry->pxVar.pv != NULL) {
+		if (psEntry->cvI == cvSXX) {
+			IF_myASSERT(debugTRACK, psPH->psTx->type == JSMN_STRING);
+			size_t szV = psPH->psTx->end - psPH->psTx->start;				// calculate length
+			strncpy(psEntry->pxVar.pc8, pSrc, szV);			// strncpy with exact size,
+			*(psEntry->pxVar.pc8 + szV) = CHR_NUL;			// terminate
+		} else {
+			IF_myASSERT(debugTRACK, psPH->psTx->type == JSMN_PRIMITIVE);
+			if (cvParseValue(pSrc, psEntry->cvI, psEntry->pxVar) == pcFAILURE) {
+				return 0;
+			}
+		}
+	}
+	return 1;
 }
