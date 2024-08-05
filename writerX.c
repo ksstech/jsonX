@@ -169,7 +169,7 @@ static json_obj_t * ecJsonAddObject(json_obj_t * pJson, px_t pX) {
 }
 
 static json_obj_t * ecJsonAddArrayObject(json_obj_t * pJson, px_t pX) {
-	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pX.pv));	// MUST be in SRAM
+	IF_myASSERT(debugPARAM, halMemorySRAM(pX.pv));	// MUST be in SRAM
 	ecJsonAddChar(pJson, CHR_L_SQUARE);					// Step 1: write the opening '['
 	return ecJsonAddObject(pJson, pX);					// Step 2: create the object '{'
 }
@@ -226,7 +226,7 @@ int	ecJsonSetDecimals(int xNumber) {
 int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jForm, cvi_e cvI, size_t Sz) {
 	IF_PX(debugTRACK && ioB1GET(dbgJSONwr), "p1=%p  p2=%s  p3=%p  p4=%hhu  p5=%hhu  p6=%zu",
 			(void *)pJson, pKey, pX.pv, jForm, cvI, Sz);
-	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(pJson->psBuf) && halMEM_AddrInANY(pX.pv));
+	IF_myASSERT(debugPARAM, halMemorySRAM(pJson) && halMemorySRAM(pJson->psBuf) && halMemoryANY(pX.pv));
 
 	if (pJson->val_count > 0)
 		ecJsonAddChar(pJson, CHR_COMMA);
@@ -299,7 +299,7 @@ int	ecJsonCloseObject(json_obj_t * pJson) {
  * @return
  */
 int	ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psBuf) {
-	IF_myASSERT(debugPARAM, halCONFIG_inSRAM(pJson) && halCONFIG_inSRAM(psBuf));
+	IF_myASSERT(debugPARAM, halMemorySRAM(pJson) && halMemorySRAM(psBuf));
 	pJson->parent = pJson->child = 0;
 	pJson->psBuf = psBuf;
 	pJson->val_count = 0;
