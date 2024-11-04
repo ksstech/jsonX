@@ -11,9 +11,9 @@
 #include "parserX.h"
 #include "printfx.h"									// x_definitions stdarg stdint stdio
 #include "syslog.h"
-#include "x_errors_events.h"
-#include "x_string_general.h"
-#include "x_string_to_values.h"
+#include "errors_events.h"
+#include "string_general.h"
+#include "string_to_values.h"
 
 #include <string.h>
 

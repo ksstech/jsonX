@@ -34,7 +34,7 @@
 #include "printfx.h"				// +x_definitions +stdarg +stdint +stdio
 #include "syslog.h"
 #include "writerX.h"
-#include "x_string_general.h"
+#include "string_general.h"
 
 #include <string.h>
 
