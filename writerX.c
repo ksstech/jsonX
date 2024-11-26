@@ -179,7 +179,6 @@ static json_obj_t * ecJsonAddArrayObject(json_obj_t * pJson, px_t pX) {
  */
 static void ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cvi_e cvI) {
 	switch(cvI) {
-	default:		IF_myASSERT(debugPARAM, 0); 						return erJSON_FORMAT;
 	case cvDT_ELAP: uprintfx(pJson->psUB, "\"%!R\"", *pValue.pu64);	break;
 	case cvDT_UTC: uprintfx(pJson->psUB, "\"%R\"", *pValue.pu64);	break;
 	case cvDT_ALT: uprintfx(pJson->psUB, "\"%#Z\"", pValue.pv);	break;
