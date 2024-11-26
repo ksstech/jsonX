@@ -196,14 +196,7 @@ static void ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cvi_e cvI) {
  * @param xNumber		Number of digits to set
  * @return				erSUCCESS if xNumber in range, else erFAILURE
  */
-int	ecJsonSetDecimals(int xNumber) {
-	if (INRANGE(0, xNumber, xpfMAXIMUM_DECIMALS)) {
-		ecJsonDecimals = xNumber;
-		return erSUCCESS;
-	}
-	ecJsonDecimals = xpfDEFAULT_DECIMALS;
-	return erFAILURE;
-}
+void ecJsonSetDecimals(int xNumber) { ecJsonDecimals = INRANGE(0, xNumber, xpfMAXIMUM_DECIMALS) ? xNumber : xpfDEFAULT_DECIMALS; }
 
 /**
  * ecJsonAddKeyValue() - add a key : value[number array] pair
