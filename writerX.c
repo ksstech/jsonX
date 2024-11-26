@@ -223,12 +223,10 @@ int	ecJsonSetDecimals(int xNumber) {
  * 			of the the new Json object struct to be filled in....
  */
 int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jForm, cvi_e cvI, size_t Sz) {
-	IF_PX(debugTRACK && ioB1GET(dbgJSONwr), "p1=%p  p2=%s  p3=%p  p4=%hhu  p5=%hhu  p6=%zu",
-			(void *)pJson, pKey, pX.pv, jForm, cvI, Sz);
-	IF_myASSERT(debugPARAM, halMemorySRAM(pJson) && halMemorySRAM(pJson->psBuf) && halMemoryANY(pX.pv));
+	IF_PX(debugTRACK && ioB1GET(dbgJSONwr), "p1=%p  p2=%s  p3=%p  p4=%hhu  p5=%hhu  p6=%zu", (void *)pJson, pKey, pX.pv, jForm, cvI, Sz);
+	IF_myASSERT(debugPARAM, halMemorySRAM(pJson) && halMemorySRAM(pJson->psUB) && halMemoryANY(pX.pv));
 
-	if (pJson->val_count > 0)
-		ecJsonAddChar(pJson, CHR_COMMA);
+	if (pJson->val_count > 0) ecJsonAddChar(pJson, CHR_COMMA);
 	if (pKey != 0) {									// Step 2: If key supplied
 		ecJsonAddString(pJson, pKey, 0);				//			add it...
 		ecJsonAddChar(pJson, CHR_COLON);
@@ -243,24 +241,19 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jF
 	case jsonEDTZ: ecJsonAddTimeStamp(pJson, pX, cvI); break;		// Sz ignored
 	#endif
 	case jsonARRAY:
-		if (cvI == cvXXX)
-			ecJsonAddArrayObject(pJson, pX)->type = jsonTYPE_ARRAY;	// Sz ignored
+		if (cvI == cvXXX) ecJsonAddArrayObject(pJson, pX)->type = jsonTYPE_ARRAY;	// Sz ignored
 		else {
 			IF_myASSERT(debugPARAM, Sz > 0);
-			if (cvI <= cvSXX)
-				ecJsonAddArrayNumbers(pJson, pX, cvI, Sz);
-			else if (cvI == cvSXX)
-				ecJsonAddArrayStrings(pJson, pX, Sz);
-			else
-				return erJSON_ARRAY;
+			if (cvI <= cvSXX) ecJsonAddArrayNumbers(pJson, pX, cvI, Sz);
+			else if (cvI == cvSXX) ecJsonAddArrayStrings(pJson, pX, Sz);
+			else return erJSON_ARRAY;
 		}
 		break;
 	case jsonOBJ: ecJsonAddObject(pJson, pX); break;
 	default: IF_myASSERT(debugRESULT, 0); return erJSON_TYPE;
 	}
-	if (jForm != jsonOBJ)
-		pJson->val_count++;
-	IF_PX(debugTRACK && ioB1GET(dbgJSONwr), "%.*s", pJson->psBuf->Used, pJson->psBuf->pBuf);
+	if (jForm != jsonOBJ) pJson->val_count++;
+	IF_PX(debugTRACK && ioB1GET(dbgJSONwr), "%.*s", pJson->psUB->Used, pJson->psUB->pBuf);
 	return erSUCCESS;
 }
 
