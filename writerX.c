@@ -50,10 +50,10 @@ static int	ecJsonDecimals = xpfDEFAULT_DECIMALS;
 static const char ESChars[] = { '\\', '"', '/', '\b', '\f', '\t', '\n', '\r', '\0' };
 
 /**
- * ecJsonAddChar() - write a single char to the stream
- * @param pJson
- * @param cChar
- * @return
+ * @brief		write a single char to the stream
+ * @param[in]	pJson - pointer to control structure
+ * @param[in]	cChar - character to be added
+ * @return		number of characters added or erFAILURE
  */
 static int ecJsonAddChar(json_obj_t * pJson, char cChar) {
 	if (xUBufGetSpace(pJson->psBuf) == 0) return erFAILURE;
@@ -62,16 +62,16 @@ static int ecJsonAddChar(json_obj_t * pJson, char cChar) {
 }
 
 /**
- * ecJsonAddChars() - write a null terminated string with escapes to the stream
- * @param pJson
- * @param pString
- * @return
+ * @brief		write corrected escaped string to the stream
+ * @param[in]	pJson - pointer to control structure
+ * @param[in]	pStr - characters to be added
+ * @return		number of characters added or erFAILURE
  */
 static int ecJsonAddChars(json_obj_t * pJson, const char * pStr, size_t Sz) {
 	if (Sz == 0) Sz = strlen(pStr);						// Step 1: determine the string length
 	while (Sz--) {										// Step 2: handle characters (with optional escapes)
 		if (strchr(ESChars, *pStr)) ecJsonAddChar(pJson, CHR_BACKSLASH);
-		ecJsonAddChar(pJson, *pStr++);			// Step 3: process the actual character
+		ecJsonAddChar(pJson, *pStr++);
 	}
 	return erSUCCESS;
 }
@@ -99,14 +99,13 @@ static int ecJsonAddArrayStrings(json_obj_t * pJson, px_t pX, size_t Sz) {
 	ecJsonAddChar(pJson, CHR_L_SQUARE);					// Step 1: write the opening ' [ '
 	while (Sz--) {										// Step 2: handle each string from array, 1 by 1
 		ecJsonAddString(pJson, *pX.ppc8++, 0);			// Step 2a: add the string
-		if (Sz != 0)
-			ecJsonAddChar(pJson, CHR_COMMA);
+		if (Sz != 0) ecJsonAddChar(pJson, CHR_COMMA);
 	}
 	return ecJsonAddChar(pJson, CHR_R_SQUARE);			// Step 3: write the closing ' ] '
 }
 
 /**
- * ecJsonAddNumber() - write a value, using the correct format, to the stream
+ * @brief			write a value, using the correct format, to the stream
  * @param pJson
  * @param pValue
  * @param NumType
@@ -114,7 +113,7 @@ static int ecJsonAddArrayStrings(json_obj_t * pJson, px_t pX, size_t Sz) {
  */
 static int ecJsonAddNumber(json_obj_t * pJson, px_t pX, cvi_e cvI) {
 	x64_t X64;
-	switch(cvI) {									// Normalize size to X64
+	switch(cvI) {										// Normalize size to X64
 	case cvU08:	X64.u64	= *pX.pu8; break;
 	case cvU16:	X64.u64	= *pX.pu16; break;
 	case cvU32:	X64.u64	= *pX.pu32; break;
@@ -176,7 +175,7 @@ static json_obj_t * ecJsonAddArrayObject(json_obj_t * pJson, px_t pX) {
 
 #if	(jsonHAS_TIMESTAMP == 1)
 /**
- * ecJsonAddTimeStamp()
+ * @brief
  * @param pJson		- JSON structure on which to operate
  * @param pValue	- pointer to the TSZ structure to use
  * @param eFormType	- format in which to write the timestamp
@@ -236,19 +235,13 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jF
 	}
 	switch(jForm) {										// Step 3: Add the value
 	case jsonNULL: ecJsonAddChars(pJson, "null", sizeof("null") - 1); break;
-
 	case jsonFALSE: ecJsonAddChars(pJson, "false", sizeof("false") - 1); break;
-
 	case jsonTRUE: ecJsonAddChars(pJson, "true", sizeof("true") - 1); break;
-
 	case jsonXXX: ecJsonAddNumber(pJson, pX, cvI); break;			// Sz ignored
-
 	case jsonSXX: ecJsonAddString(pJson, pX.pc8, Sz); break;
-
 	#if	(jsonHAS_TIMESTAMP == 1)
 	case jsonEDTZ: ecJsonAddTimeStamp(pJson, pX, cvI); break;		// Sz ignored
 	#endif
-
 	case jsonARRAY:
 		if (cvI == cvXXX)
 			ecJsonAddArrayObject(pJson, pX)->type = jsonTYPE_ARRAY;	// Sz ignored
@@ -263,7 +256,6 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jF
 		}
 		break;
 	case jsonOBJ: ecJsonAddObject(pJson, pX); break;
-
 	default: IF_myASSERT(debugRESULT, 0); return erJSON_TYPE;
 	}
 	if (jForm != jsonOBJ)
@@ -278,12 +270,10 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jF
  * @return
  */
 int	ecJsonCloseObject(json_obj_t * pJson) {
-	if (pJson->child)
-		ecJsonCloseObject(pJson->child);				// recurse to close the child first..
+	if (pJson->child) ecJsonCloseObject(pJson->child);	// recurse to close the child first..
 	IF_myASSERT(debugPARAM, pJson->obj_nest == 0);		// should be zero after recursing to lowest level
 	ecJsonAddChar(pJson, CHR_R_CURLY);					// close the object
-	if (pJson->type == jsonTYPE_ARRAY)
-		ecJsonAddChar(pJson, CHR_R_SQUARE);				// close the array
+	if (pJson->type == jsonTYPE_ARRAY) ecJsonAddChar(pJson, CHR_R_SQUARE);				// close the array
 	if (pJson->parent) {								// is this a child to a parent ?
 		pJson->parent->obj_nest--;						// adjust the nesting level of the parent
 		pJson->parent->child = 0;						// reset parent to child link
@@ -295,7 +285,7 @@ int	ecJsonCloseObject(json_obj_t * pJson) {
 /**
  * @brief	Initialise new Json structure and write the opening '{' to the stream
  * @param	pJson
- * @param	psBuf
+ * @param	psUB
  * @return
  */
 int	ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psBuf) {
