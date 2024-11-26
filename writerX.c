@@ -160,7 +160,7 @@ static int ecJsonAddArrayNumbers(json_obj_t * pJson, px_t pX, cvi_e cvI, size_t 
 
 static json_obj_t * ecJsonAddObject(json_obj_t * pJson, px_t pX) {
 	json_obj_t * pJson1	= (json_obj_t *) pX.pv;
-	ecJsonCreateObject(pJson1, pJson->psBuf); 			// create new object with same buffer
+	ecJsonCreateObject(pJson1, pJson->psUB); 			// create new object with same buffer
 	pJson->child = pJson1;								// setup link from parent to child
 	pJson1->parent = pJson;								// setup link from child to parent
 	pJson->obj_nest++;									// increase parent nest level
@@ -183,11 +183,11 @@ static json_obj_t * ecJsonAddArrayObject(json_obj_t * pJson, px_t pX) {
  */
 static i32_t ecJsonAddTimeStamp(json_obj_t * pJson, px_t pValue, cvi_e cvI) {
 	switch(cvI) {
-	case cvDT_ELAP:	uprintfx(pJson->psBuf, "\"%!R\"", *pValue.pu64);	break;
-	case cvDT_UTC:	uprintfx(pJson->psBuf, "\"%R\"", *pValue.pu64);	break;
-	case cvDT_ALT:	uprintfx(pJson->psBuf, "\"%#Z\"", pValue.pv);	break;
-	case cvDT_TZ:	uprintfx(pJson->psBuf, "\"%+Z\"", pValue.pv);	break;
 	default:		IF_myASSERT(debugPARAM, 0); 						return erJSON_FORMAT;
+	case cvDT_ELAP: uprintfx(pJson->psUB, "\"%!R\"", *pValue.pu64);	break;
+	case cvDT_UTC: uprintfx(pJson->psUB, "\"%R\"", *pValue.pu64);	break;
+	case cvDT_ALT: uprintfx(pJson->psUB, "\"%#Z\"", pValue.pv);	break;
+	case cvDT_TZ: uprintfx(pJson->psUB, "\"%+Z\"", pValue.pv);	break;
 	}
 	if (xUBufGetSpace(pJson->psBuf) == 0) return erJSON_BUF_FULL;
 	return  erSUCCESS;
@@ -288,10 +288,10 @@ int	ecJsonCloseObject(json_obj_t * pJson) {
  * @param	psUB
  * @return
  */
-int	ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psBuf) {
-	IF_myASSERT(debugPARAM, halMemorySRAM(pJson) && halMemorySRAM(psBuf));
+int	ecJsonCreateObject(json_obj_t * pJson, ubuf_t * psUB) {
+	IF_myASSERT(debugPARAM, halMemorySRAM(pJson) && halMemorySRAM(psUB));
 	pJson->parent = pJson->child = 0;
-	pJson->psBuf = psBuf;
+	pJson->psUB = psUB;
 	pJson->val_count = 0;
 	pJson->obj_nest = 0;
 	pJson->type = jsonTYPE_NULL;
