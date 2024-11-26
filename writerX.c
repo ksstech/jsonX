@@ -46,7 +46,6 @@
 #define	debugRESULT					(debugFLAG_GLOBAL & debugFLAG & 0x8000)
 
 static int	ecJsonDecimals = xpfDEFAULT_DECIMALS;
-//static const char ESChars[] = { CHR_BACKSLASH,CHR_DOUBLE_QUOTE,CHR_FWDSLASH,CHR_BS,CHR_FF,CHR_TAB,CHR_LF,CHR_CR,CHR_NUL };
 static const char ESChars[] = { '\\', '"', '/', '\b', '\f', '\t', '\n', '\r', '\0' };
 
 /**
