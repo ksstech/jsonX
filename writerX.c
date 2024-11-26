@@ -138,9 +138,6 @@ static void ecJsonAddNumber(json_obj_t * pJson, px_t pX, cvi_e cvI) {
 static void ecJsonAddArrayNumbers(json_obj_t * pJson, px_t pX, cvi_e cvI, size_t Sz) {
 	ecJsonAddChar(pJson, CHR_L_SQUARE);				// Step 1: write the opening ' [ '
 	while (Sz--) {									// Step 2: handle each array value, 1 by 1
-		ecJsonAddNumber(pJson, pX, cvI);			// Step 2a: add the number
-		if (Sz != 0)
-			ecJsonAddChar(pJson, CHR_COMMA);
 		if (cvI == cvU08 || cvI == cvI08)
 			pX.pu8++;
 		else if (cvI == cvU16 || cvI == cvI16)
@@ -150,6 +147,8 @@ static void ecJsonAddArrayNumbers(json_obj_t * pJson, px_t pX, cvi_e cvI, size_t
 		else if (cvI == cvU32 || cvI == cvI32 || cvI == cvF32)
 			pX.pu64++;
 		else return erJSON_NUM_TYPE;
+		ecJsonAddNumber(pJson, pX, cvI);			// Step 2a: add the number & optional comma separator
+		if (Sz != 0) ecJsonAddChar(pJson, CHR_COMMA);
 	}
 	ecJsonAddChar(pJson, CHR_R_SQUARE);				// Step 4: write the closing ' ] '
 }
