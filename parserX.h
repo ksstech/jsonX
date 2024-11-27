@@ -48,7 +48,11 @@ int xJsonFindToken(parse_hdlr_t * psPH, const char * pKey, int Key);
 int xJsonFindKeyValue(parse_hdlr_t * psPH, const char * pK, const char * pV);
 int xJsonFindKeyValue(parse_hdlr_t * psPH, const char * pK, const char * pV);
 int xJsonParseEntry(parse_hdlr_t * psPH, ph_entry_t * psEntry);
-void xJsonPrintCurTok(parse_hdlr_t * psPH, const char * pLabel);
+
+/**
+ * @brief
+ */
+void xJsonPrintCurTok(report_t * psR, parse_hdlr_t * psPH, const char * pLabel);
 
 #ifdef __cplusplus
 }
