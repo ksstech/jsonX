@@ -146,7 +146,7 @@ int xJsonParse(parse_hdlr_t * psPH) {
  */
 int xJsonFindToken(parse_hdlr_t * psPH, const char * pTok, int xKey) {
 	size_t tokLen = strlen(pTok);
-//	IF_PX(debugTRACK && allSYSFLAGS(sfTRACKER), "Find '%s'(%d) (%s)\r\n", pTok, tokLen, xKey ? "KEY" : "token");
+	IF_PX(debugPARSE && sSysFlags.track, "Find '%s'(%d) (%s)\r\n", pTok, tokLen, xKey ? "KEY" : "token");
 	// Ensure we are starting at current indexed token...
 	psPH->psTx = &psPH->psT0[psPH->CurTok];
 	for (psPH->CurTok = 0; psPH->CurTok < psPH->NumTok; ++psPH->CurTok) {
@@ -154,7 +154,7 @@ int xJsonFindToken(parse_hdlr_t * psPH, const char * pTok, int xKey) {
 		size_t curLen = psPH->psTx->end - psPH->psTx->start;
 		// Fix to avoid crash if full object not received, ie xJsonParse 2 phase returned different results
 		if (curLen > psPH->szBuf)					goto next;
-//		IF_PX(debugTRACK && allSYSFLAGS(sfTRACKER), "T#%d/%d  %d->%d=%d '%.*s'\r\n", psPH->CurTok, psPH->NumTok, psPH->psTx->start, psPH->psTx->end, psPH->psTx->end-psPH->psTx->start, curLen, psPH->pcBuf+psPH->psTx->start);
+		IF_PX(debugPARSE && sSysFlags.track, "T#%d/%d  %d->%d=%d '%.*s'\r\n", psPH->CurTok, psPH->NumTok, psPH->psTx->start, psPH->psTx->end, psPH->psTx->end-psPH->psTx->start, curLen, psPH->pcBuf+psPH->psTx->start);
 		// check for same length & exact content
 		if ((tokLen == curLen) &&								// check length
 			(memcmp(pTok, psPH->pcBuf + psPH->psTx->start, curLen) == 0)) {	// length OK, check content
@@ -163,20 +163,20 @@ int xJsonFindToken(parse_hdlr_t * psPH, const char * pTok, int xKey) {
 				size_t GapLen = pTokNxt->start - psPH->psTx->end;
 				// Now check if ':' present in characters between the 2 tokens...
 				void * pV = memchr(psPH->pcBuf+psPH->psTx->end, CHR_COLON, GapLen);
-//				IF_PX(debugTRACK && allSYSFLAGS(sfTRACKER), " %p `%.*s`", pV, GapLen, psPH->pcBuf+psPH->psTx->end);
+				IF_PX(debugPARSE && sSysFlags.track, " %p `%.*s`", pV, GapLen, psPH->pcBuf+psPH->psTx->end);
 				if (pV == NULL) {
-//					IF_PX(debugTRACK && allSYSFLAGS(sfTRACKER), " %d=not KEY", psPH->CurTok);
+					IF_PX(debugPARSE && sSysFlags.track, " %d=not KEY", psPH->CurTok);
 					goto next;
 				}
 			}
-//			IF_PX(debugTRACK && allSYSFLAGS(sfTRACKER), " [Found]" strNL);
+			IF_PX(debugPARSE && sSysFlags.track, " [Found]" strNL);
 			++psPH->CurTok;								// Index to value after "key : "
 			psPH->psTx = &psPH->psT0[psPH->CurTok];		// and set pointer the same...
 			return psPH->CurTok;
 		}
 next:
 	}
-//	IF_PX(debugTRACK && allSYSFLAGS(sfTRACKER), " [NOT FOUND]" strNL);
+	IF_PX(debugPARSE && sSysFlags.track, " [NOT FOUND]" strNL);
 	psPH->CurTok = 0;
 	psPH->psTx = NULL;
 	return erFAILURE;
@@ -206,7 +206,7 @@ int xJsonFindKeyValue(parse_hdlr_t * psPH, const char * pK, const char * pV) {
  * @return	0 if token not found or error parsing else 1
  */
 int xJsonParseEntry(parse_hdlr_t * psPH, ph_entry_t * psEntry) {
-//	IF_PX(debugTRACK && allSYSFLAGS(sfTRACKER), "[%s/%s] ", pcIndex2String(psEntry->cvI), psEntry->pcKey);
+	IF_PX(debugPARSE && sSysFlags.track, "[%s/%s] ", pcIndex2String(psEntry->cvI), psEntry->pcKey);
 	int iRV = xJsonFindToken(psPH, psEntry->pcKey, 1);
 	if (iRV <= erSUCCESS)							return 0;
 	// if successful, structure members already updates for token found...
