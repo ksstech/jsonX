@@ -135,7 +135,7 @@ int xJsonParse(parse_hdlr_t * psPH) {
 		jsmn_init(&psPH->sParser);
 		iRV = jsmn_parse(&psPH->sParser, psPH->pcBuf, psPH->szBuf, psPH->psT0, iRV+jsonEXTRA_SIZE);
 		if (psPH->NumTok != iRV) SL_ERR("Incomplete parsing %d vs %d", iRV, psPH->NumTok);
-		IF_EXEC_2(debugTRACK && ioB2GET(dbgJSONrd)==3, xJsonReportTokens, psPH, 0);
+		IF_EXEC_2(debugPARSE, xJsonReportTokens, psPH, 0);
 	}
 	return iRV;
 }
@@ -183,11 +183,11 @@ next:
 }
 
 int xJsonFindKeyValue(parse_hdlr_t * psPH, const char * pK, const char * pV) {
-	IF_EXEC_2(debugTRACK && ioB2GET(dbgJSONrd)&1, xJsonPrintToken, NULL, psPH);
+	IF_EXEC_2(debugPARSE, xJsonPrintToken, NULL, psPH);
 	int iRV = xJsonFindToken(psPH, pK, 1);	// Step 1: Find the required Key
 	if (iRV < erSUCCESS)							return iRV;
 	// at this stage psPH members are setup based on token found....
-	IF_EXEC_2(debugTRACK && ioB2GET(dbgJSONrd)&1, xJsonPrintToken, NULL, psPH);
+	IF_EXEC_2(debugPARSE, xJsonPrintToken, NULL, psPH);
 	size_t szT = psPH->psTx->end - psPH->psTx->start;
 	size_t szV = strlen(pV);
 	if ((szT != szV) || memcmp(psPH->pcBuf + psPH->psTx->start, pV, szV) != 0) {
@@ -197,7 +197,7 @@ int xJsonFindKeyValue(parse_hdlr_t * psPH, const char * pK, const char * pV) {
 	}
 	++psPH->CurTok;								// Index to value after "key : "
 	psPH->psTx = &psPH->psT0[psPH->CurTok];		// and set pointer the same...
-	IF_EXEC_2(debugTRACK && ioB2GET(dbgJSONrd)&1, xJsonPrintToken, NULL, psPH);
+	IF_EXEC_2(debugPARSE, xJsonPrintToken, NULL, psPH);
 	return iRV;
 }
 
@@ -210,7 +210,7 @@ int xJsonParseEntry(parse_hdlr_t * psPH, ph_entry_t * psEntry) {
 	int iRV = xJsonFindToken(psPH, psEntry->pcKey, 1);
 	if (iRV <= erSUCCESS)							return 0;
 	// if successful, structure members already updates for token found...
-	IF_EXEC_2(debugTRACK && ioB2GET(dbgJSONrd)&1, xJsonPrintToken, NULL, psPH);
+	IF_EXEC_2(debugPARSE, xJsonPrintToken, NULL, psPH);
 	char * pSrc = (char *) psPH->pcBuf + psPH->psTx->start;
 	if (psEntry->pxVar.pv != NULL) {
 		if (psEntry->cvI == cvSXX) {

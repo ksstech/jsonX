@@ -1,6 +1,5 @@
 /*
- * writerX.c
- * Copyright (c) 2014-22 Andre M. Maree / KSS Technologies (Pty) Ltd.
+ * writerX.c - Copyright (c) 2014-25 Andre M. Maree / KSS Technologies (Pty) Ltd.
  *
  * References:
  * 	http://www.json.org/
@@ -201,7 +200,13 @@ void ecJsonSetDecimals(int xNumber) { ecJsonDecimals = INRANGE(0, xNumber, xpfMA
  * 			of the the new Json object struct to be filled in....
  */
 int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jForm, cvi_e cvI, size_t Sz) {
-	IF_PX(debugTRACK && ioB1GET(dbgJSONwr), "p1=%p  p2=%s  p3=%p  p4=%hhu  p5=%hhu  p6=%zu", (void *)pJson, pKey, pX.pv, jForm, cvI, Sz);
+	#if (appOPTIONS == 1)
+		u8_t Option = ioB1GET(dbgJSONwr);
+	#else
+		#warning "Options support required for proper functioning!!!"
+		u8_t Option = 0;
+	#endif
+	IF_PX(debugTRACK && Option, "p1=%p  p2=%s  p3=%p  p4=%hhu  p5=%hhu  p6=%zu", (void *)pJson, pKey, pX.pv, jForm, cvI, Sz);
 	IF_myASSERT(debugPARAM, halMemorySRAM(pJson) && halMemorySRAM(pJson->psUB) && halMemoryANY(pX.pv));
 
 	if (pJson->val_count > 0) ecJsonAddChar(pJson, CHR_COMMA);
@@ -231,7 +236,7 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jF
 	default: IF_myASSERT(debugRESULT, 0); return erJSON_TYPE;
 	}
 	if (jForm != jsonOBJ) pJson->val_count++;
-	IF_PX(debugTRACK && ioB1GET(dbgJSONwr), "%.*s", pJson->psUB->Used, pJson->psUB->pBuf);
+	IF_PX(debugTRACK && Option, "%.*s", pJson->psUB->Used, pJson->psUB->pBuf);
 	return erSUCCESS;
 }
 
