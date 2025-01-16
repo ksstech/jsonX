@@ -1,5 +1,5 @@
 /*
- * parserX.c - Copyright 2014-24 Andre M. Maree / KSS Technologies (Pty) Ltd.
+ * parserX.c - Copyright 2014-25 Andre M. Maree / KSS Technologies (Pty) Ltd.
  *
  * References:
  * 	http://www.json.org/
