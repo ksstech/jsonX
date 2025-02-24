@@ -78,26 +78,32 @@ static int xJsonReportTokensRecurse(report_t * psR, parse_hdlr_t * psPH, jsmntok
 		wprintfx(psR, "%d/%s='%.*s'", pasTL->type, tokType[pasTL->type], pasTL->end - pasTL->start, psPH->pcBuf + pasTL->start);
 		iRV = 1;
 	} else if (pasTL->type == JSMN_OBJECT) {
-		if (repFLAG_TST(psR,sFM.jsIndent)) xJsonPrintIndent(psR, Depth, CHR_L_CURLY, pasTL->size, 1);
+		if (fmTST(jsIndent))
+			xJsonPrintIndent(psR, Depth, CHR_L_CURLY, pasTL->size, 1);
 		int j = 0;
 		for (int i = 0; i < pasTL->size; ++i) {
-			if (repFLAG_TST(psR,sFM.jsIndent)) xJsonPrintIndent(psR, Depth+2, 0, 0, 0);
+			if (fmTST(jsIndent))
+				xJsonPrintIndent(psR, Depth+2, 0, 0, 0);
 			j += xJsonReportTokensRecurse(psR, psPH, pasTL+j+1, Count-j, Depth+1);
 			wprintfx(psR, " : ");
 			j += xJsonReportTokensRecurse(psR, psPH, pasTL+j+1, Count-j, Depth+1);
 			wprintfx(psR, strNL);
 		}
-		if (repFLAG_TST(psR,sFM.jsIndent)) xJsonPrintIndent(psR, Depth, CHR_R_CURLY, 0, 0);
+		if (fmTST(jsIndent))
+			xJsonPrintIndent(psR, Depth, CHR_R_CURLY, 0, 0);
 		iRV = j + 1;
 	} else if (pasTL->type == JSMN_ARRAY) {
-		if (repFLAG_TST(psR,sFM.jsIndent)) xJsonPrintIndent(psR, Depth, CHR_L_SQUARE, pasTL->size, 1);
+		if (fmTST(jsIndent))
+			xJsonPrintIndent(psR, Depth, CHR_L_SQUARE, pasTL->size, 1);
 		int j = 0;
 		for (int i = 0; i < pasTL->size; ++i) {
-			if (repFLAG_TST(psR,sFM.jsIndent)) xJsonPrintIndent(psR, Depth+2, 0, 0, 0);
+			if (fmTST(jsIndent))
+				xJsonPrintIndent(psR, Depth+2, 0, 0, 0);
 			j += xJsonReportTokensRecurse(psR, psPH, pasTL+j+1, Count-j, Depth+1);
 			wprintfx(psR, strNL);
 		}
-		if (repFLAG_TST(psR,sFM.jsIndent)) xJsonPrintIndent(psR, Depth, CHR_R_SQUARE, 0, 0);
+		if (fmTST(jsIndent))
+			xJsonPrintIndent(psR, Depth, CHR_R_SQUARE, 0, 0);
 		iRV = j + 1;
 	} else {
 		iRV = 0;
