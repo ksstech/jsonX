@@ -200,7 +200,7 @@ void ecJsonSetDecimals(int xNumber) { ecJsonDecimals = INRANGE(0, xNumber, xpfMA
  * 			of the the new Json object struct to be filled in....
  */
 int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jForm, cvi_e cvI, size_t Sz) {
-	u8_t Option = ioB1GET(dbgJSONwr);
+	u8_t Option = xOptionGet(dbgJSONwr);
 	IF_PX(debugTRACK && Option, "p1=%p  p2=%s  p3=%p  p4=%hhu  p5=%hhu  p6=%zu", (void *)pJson, pKey, pX.pv, jForm, cvI, Sz);
 	IF_myASSERT(debugPARAM, halMemorySRAM(pJson) && halMemorySRAM(pJson->psUB) && halMemoryANY(pX.pv));
 
