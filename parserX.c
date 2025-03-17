@@ -140,7 +140,8 @@ int xJsonParse(parse_hdlr_t * psPH) {
 		// perform the actual parsing process
 		jsmn_init(&psPH->sParser);
 		iRV = jsmn_parse(&psPH->sParser, psPH->pcBuf, psPH->szBuf, psPH->psT0, iRV+jsonEXTRA_SIZE);
-		if (psPH->NumTok != iRV) SL_ERR("Incomplete parsing %d vs %d", iRV, psPH->NumTok);
+		if (psPH->NumTok != iRV)
+			SL_ERR("Incomplete parsing %d vs %d", iRV, psPH->NumTok);
 		IF_EXEC_2(debugPARSE, xJsonReportTokens, psPH, 0);
 	}
 	return iRV;
@@ -159,8 +160,9 @@ int xJsonFindToken(parse_hdlr_t * psPH, const char * pTok, int xKey) {
 		psPH->psTx = &psPH->psT0[psPH->CurTok];
 		size_t curLen = psPH->psTx->end - psPH->psTx->start;
 		// Fix to avoid crash if full object not received, ie xJsonParse 2 phase returned different results
-		if (curLen > psPH->szBuf)					goto next;
 		IF_PX(debugPARSE && sSysFlags.track, "T#%d/%d  %d->%d=%d '%.*s'\r\n", psPH->CurTok, psPH->NumTok, psPH->psTx->start, psPH->psTx->end, psPH->psTx->end-psPH->psTx->start, curLen, psPH->pcBuf+psPH->psTx->start);
+		if (curLen > psPH->szBuf)
+			goto next;
 		// check for same length & exact content
 		if ((tokLen == curLen) &&								// check length
 			(memcmp(pTok, psPH->pcBuf + psPH->psTx->start, curLen) == 0)) {	// length OK, check content
@@ -191,7 +193,8 @@ next:
 int xJsonFindKeyValue(parse_hdlr_t * psPH, const char * pK, const char * pV) {
 	IF_EXEC_2(debugPARSE, xJsonPrintToken, NULL, psPH);
 	int iRV = xJsonFindToken(psPH, pK, 1);	// Step 1: Find the required Key
-	if (iRV < erSUCCESS)							return iRV;
+	if (iRV < erSUCCESS)
+		return iRV;
 	// at this stage psPH members are setup based on token found....
 	IF_EXEC_2(debugPARSE, xJsonPrintToken, NULL, psPH);
 	size_t szT = psPH->psTx->end - psPH->psTx->start;
@@ -214,7 +217,8 @@ int xJsonFindKeyValue(parse_hdlr_t * psPH, const char * pK, const char * pV) {
 int xJsonParseEntry(parse_hdlr_t * psPH, ph_entry_t * psEntry) {
 	IF_PX(debugPARSE && sSysFlags.track, "[%s/%s] ", pcIndex2String(psEntry->cvI), psEntry->pcKey);
 	int iRV = xJsonFindToken(psPH, psEntry->pcKey, 1);
-	if (iRV <= erSUCCESS)							return 0;
+	if (iRV <= erSUCCESS)
+		return 0;
 	// if successful, structure members already updates for token found...
 	IF_EXEC_2(debugPARSE, xJsonPrintToken, NULL, psPH);
 	char * pSrc = (char *) psPH->pcBuf + psPH->psTx->start;
