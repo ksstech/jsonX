@@ -9,7 +9,7 @@
 #include "hal_platform.h"
 #include "hal_options.h"
 #include "parserX.h"
-#include "printfx.h"									// x_definitions stdarg stdint stdio
+#include "report.h"									// x_definitions stdarg stdint stdio
 #include "syslog.h"
 #include "errors_events.h"
 #include "string_general.h"
