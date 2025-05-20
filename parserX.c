@@ -11,7 +11,7 @@
 #include "parserX.h"
 #include "syslog.h"
 #include "errors_events.h"
-#include "string_general.h"
+#include "string_parse.h"
 #include "string_to_values.h"
 
 #include <string.h>
