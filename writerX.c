@@ -28,11 +28,9 @@
  */
 
 #include "hal_platform.h"
-#include "hal_memory.h"
-#include "hal_options.h"
-#include "report.h"				// +x_definitions +stdarg +stdint +stdio
-#include "syslog.h"
 #include "writerX.h"
+#include "hal_memory.h"
+#include "syslog.h"
 #include "string_general.h"
 
 #include <string.h>
