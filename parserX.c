@@ -56,7 +56,8 @@ static int xJsonPrintIndent(report_t * psR, int Depth, int Sep, int CR0, int CR1
 
 void xJsonPrintCurTok(report_t * psR, parse_hdlr_t * psPH, const char * pLabel) {
 	report_t sRprt = { .sFM.u32Val = makeMASK08_3x8(0,0,0,0,0,0,0,0,2,0,0) };
-	if (psR == NULL) psR = &sRprt;
+	if (psR == NULL)
+		psR = &sRprt;
 	psPH->psTx = &psPH->psT0[psPH->CurTok];
 	xReport(psR, "%s#%d/%d  ", pLabel ? pLabel : strNUL, psPH->CurTok, psPH->NumTok);
 	xJsonPrintToken(&sRprt, psPH);
