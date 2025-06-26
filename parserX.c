@@ -32,13 +32,14 @@ static int xJsonPrintToken(report_t * psR,  parse_hdlr_t * psPH) {
 	IF_myASSERT(debugTRACK, INRANGE(0, psPH->CurTok, psPH->NumTok));
 	IF_myASSERT(debugTRACK, INRANGE(psPH->psT0, psPH->psTx, &psPH->psT0[psPH->CurTok]));
 	int iRV = 0;
-	if (psPH->psTx->start && psPH->psTx->end)
-		iRV += xReport(psR, "'%.*s' ", psPH->psTx->end - psPH->psTx->start, psPH->pcBuf + psPH->psTx->start);
-	if (iRV && psPH->psTx->type && psPH->psTx->size) {
+	int tokLen = psPH->psTx->end - psPH->psTx->start; 
+	if (tokLen)
+		iRV += xReport(psR, "'%.*s' ", tokLen, psPH->pcBuf + psPH->psTx->start);
+	if (iRV && psPH->psTx->type && psPH->psTx->size)
 		iRV += xReport(psR, "t=%d/%s s=%d b=%d e=%d l=%d", psPH->psTx->type, tokType[psPH->psTx->type],
-			psPH->psTx->size, psPH->psTx->start, psPH->psTx->end, psPH->psTx->end - psPH->psTx->start);
-	}
-	if (iRV) iRV += xReport(psR, strNL);
+			psPH->psTx->size, psPH->psTx->start, psPH->psTx->end, tokLen);
+	if (iRV)
+		iRV += xReport(psR, strNL);
 	return iRV;
 }
 
