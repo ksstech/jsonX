@@ -202,7 +202,8 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jF
 	IF_PX(debugTRACK && Option, "p1=%p  p2=%s  p3=%p  p4=%hhu  p5=%hhu  p6=%zu", (void *)pJson, pKey, pX.pv, jForm, cvI, Sz);
 	IF_myASSERT(debugPARAM, halMemorySRAM(pJson) && halMemorySRAM(pJson->psUB) && halMemoryANY(pX.pv));
 
-	if (pJson->val_count > 0) ecJsonAddChar(pJson, CHR_COMMA);
+	if (pJson->val_count > 0)
+		ecJsonAddChar(pJson, CHR_COMMA);
 	if (pKey != 0) {									// Step 2: If key supplied
 		ecJsonAddString(pJson, pKey, 0);				//			add it...
 		ecJsonAddChar(pJson, CHR_COLON);
@@ -217,18 +218,20 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jF
 	case jsonEDTZ: ecJsonAddTimeStamp(pJson, pX, cvI); break;		// Sz ignored
 	#endif
 	case jsonARRAY:
-		if (cvI == cvXXX) ecJsonAddArrayObject(pJson, pX)->type = jsonTYPE_ARRAY;	// Sz ignored
-		else {
+		if (cvI == cvXXX) {
+			ecJsonAddArrayObject(pJson, pX)->type = jsonTYPE_ARRAY;	// Sz ignored
+		} else {
 			IF_myASSERT(debugPARAM, Sz > 0);
-			if (cvI <= cvSXX) ecJsonAddArrayNumbers(pJson, pX, cvI, Sz);
-			else if (cvI == cvSXX) ecJsonAddArrayStrings(pJson, pX, Sz);
-			else return erJSON_ARRAY;
+			if (cvI <= cvSXX)		ecJsonAddArrayNumbers(pJson, pX, cvI, Sz);
+			else if (cvI == cvSXX)	ecJsonAddArrayStrings(pJson, pX, Sz);
+			else					return erJSON_ARRAY;
 		}
 		break;
 	case jsonOBJ: ecJsonAddObject(pJson, pX); break;
 	default: IF_myASSERT(debugRESULT, 0); return erJSON_TYPE;
 	}
-	if (jForm != jsonOBJ) pJson->val_count++;
+	if (jForm != jsonOBJ)
+		pJson->val_count++;
 	IF_PX(debugTRACK && Option, "%.*s", pJson->psUB->Used, pJson->psUB->pBuf);
 	return erSUCCESS;
 }
@@ -239,10 +242,12 @@ int	ecJsonAddKeyValue(json_obj_t * pJson, const char * pKey, px_t pX, jform_t jF
  * @return
  */
 int	ecJsonCloseObject(json_obj_t * pJson) {
-	if (pJson->child) ecJsonCloseObject(pJson->child);	// recurse to close the child first..
+	if (pJson->child)
+		ecJsonCloseObject(pJson->child);				// recurse to close the child first..
 	IF_myASSERT(debugPARAM, pJson->obj_nest == 0);		// should be zero after recursing to lowest level
 	ecJsonAddChar(pJson, CHR_R_CURLY);					// close the object
-	if (pJson->type == jsonTYPE_ARRAY) ecJsonAddChar(pJson, CHR_R_SQUARE);				// close the array
+	if (pJson->type == jsonTYPE_ARRAY)
+		ecJsonAddChar(pJson, CHR_R_SQUARE);				// close the array
 	if (pJson->parent) {								// is this a child to a parent ?
 		pJson->parent->obj_nest--;						// adjust the nesting level of the parent
 		pJson->parent->child = 0;						// reset parent to child link
