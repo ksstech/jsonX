@@ -30,6 +30,7 @@
 #include "hal_platform.h"
 #include "writerX.h"
 #include "hal_memory.h"
+#include "options.h"
 #include "syslog.h"
 #include "string_general.h"
 
@@ -63,9 +64,11 @@ static void ecJsonAddChar(json_obj_t * pJson, char cChar) {
  * @return		number of characters added or erFAILURE
  */
 static void ecJsonAddChars(json_obj_t * pJson, const char * pStr, size_t Sz) {
-	if (Sz == 0) Sz = strlen(pStr);						// Step 1: determine the string length
+	if (Sz == 0)										// Step 1: determine the string length
+		Sz = strlen(pStr);
 	while (Sz--) {										// Step 2: handle characters (with optional escapes)
-		if (strchr(ESChars, *pStr)) ecJsonAddChar(pJson, CHR_BACKSLASH);
+		if (strchr(ESChars, *pStr))
+			ecJsonAddChar(pJson, CHR_BACKSLASH);
 		ecJsonAddChar(pJson, *pStr++);
 	}
 }
