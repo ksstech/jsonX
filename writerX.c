@@ -1,5 +1,5 @@
 /*
- * writerX.c - Copyright (c) 2014-25 Andre M. Maree / KSS Technologies (Pty) Ltd.
+ * writerX.c - Copyright (c) 2014-26 Andre M. Maree / KSS Technologies (Pty) Ltd.
  *
  * References:
  * 	http://www.json.org/
@@ -45,6 +45,7 @@
 
 static int	ecJsonDecimals = xpfDEFAULT_DECIMALS;
 static const char ESChars[] = { '\\', '"', '/', '\b', '\f', '\t', '\n', '\r', '\0' };
+static const char ESCodes[] = { '\\', '"', '/', 'b', 'f', 't', 'n', 'r' };
 
 /**
  * @brief		write a single char to the stream
@@ -67,9 +68,14 @@ static void ecJsonAddChars(json_obj_t * pJson, const char * pStr, size_t Sz) {
 	if (Sz == 0)										// Step 1: determine the string length
 		Sz = strlen(pStr);
 	while (Sz--) {										// Step 2: handle characters (with optional escapes)
-		if (strchr(ESChars, *pStr))
+		char cChr = *pStr++;
+		char * pcE = cChr ? strchr(ESChars, cChr) : NULL;
+		if (pcE) {										// escapable: backslash + RFC8259 letter form
 			ecJsonAddChar(pJson, CHR_BACKSLASH);
-		ecJsonAddChar(pJson, *pStr++);
+			ecJsonAddChar(pJson, ESCodes[pcE - ESChars]);
+		} else if ((u8_t) cChr >= 0x20) {				// other control chars illegal in JSON, drop
+			ecJsonAddChar(pJson, cChr);
+		}
 	}
 }
 
